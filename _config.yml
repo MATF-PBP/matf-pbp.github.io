@@ -18,13 +18,13 @@
 # You can create any custom variable you would like, and they will be accessible
 # in the templates via {{ site.myvariable }}.
 
-title: Programiranje Db2 baza podataka
-email: nikola_ajzenhamer@math.rs
+title: Programiranje baza podataka
+email: matf@nikolaajzenhamer.rs
 description: >- # this means to ignore newlines until "baseurl:"
-  Elektronska knjiga "Programiranje Db2 baza podataka"
-  dostupna besplatno na adresi
-baseurl: "/PDb2BP" # the subpath of your site, e.g. /blog
-url: "https://theikeofficial.github.io/" # the base hostname & protocol for your site, e.g. http://example.com
+  Kurs "Programiranje baza podataka" na Matematičkom fakultetu,
+  Univerzitet u Beogradu
+baseurl: "/" # the subpath of your site, e.g. /blog
+url: "https://matf-pbp.github.io/" # the base hostname & protocol for your site, e.g. http://example.com
 
 # Build settings
 theme: minima

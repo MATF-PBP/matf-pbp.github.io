@@ -1,6 +1,6 @@
 ---
 layout: index
-title: Programiranje Db2 baza podataka
+title: Programiranje baza podataka
 ---
 
 ## Autori
