@@ -1,0 +1,79 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 godina;
+char oznaka[21], 
+     naziv[51];
+EXEC SQL END DECLARE SECTION;
+
+void is_error(char *err)
+{
+    if (SQLCODE < 0)
+    {
+        printf("SQLCODE %d: %s\n\n", SQLCODE, err);
+
+        EXEC SQL ROLLBACK;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main()
+{
+    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    is_error("Connect");
+
+    EXEC SQL 
+        DECLARE ispitniRok CURSOR FOR
+        SELECT  GODINA, 
+                OZNAKA, 
+                NAZIV
+        FROM    ISPITNI_ROK
+        WHERE   GODINA = 2016
+        WITH    RS;
+    is_error("Declare cursor");
+
+    int i = 1;
+    for(; i<3; ++i)
+    {
+        printf("\nCitanje rezultata %d. put. "
+            "Pritisnite neki taster za pocetak.\n", i);
+        getchar();
+        
+        EXEC SQL OPEN ispitniRok;
+        is_error("Open");
+        
+        for(;;)
+        {
+            EXEC SQL 
+                FETCH   ispitniRok 
+                INTO    :godina, 
+                        :oznaka, 
+                        :naziv;
+            is_error("Fetch");
+
+            if(SQLCODE == 100)
+            {
+                break;
+            }
+
+            printf("Godina %d oznaka: %s i naziv %s \n", godina, oznaka, naziv);
+            
+            printf("Pritisnite neki taster za dalje citanje.");
+            getchar();
+        }
+        
+        EXEC SQL CLOSE ispitniRok;    
+        is_error("Close");
+    }
+
+    EXEC SQL COMMIT;
+    is_error("Potvrdjivanje izmena");
+    
+    EXEC SQL CONNECT RESET;
+    is_error("Connect reset");
+    
+    return 0;
+}

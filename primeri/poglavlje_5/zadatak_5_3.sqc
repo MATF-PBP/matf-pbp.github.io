@@ -1,0 +1,93 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 godina;
+char naziv[51],
+     oznaka[11];
+EXEC SQL END DECLARE SECTION;
+
+void is_error(const char* err)
+{
+    if (SQLCODE < 0)
+    {
+        printf("SQLCODE %d: %s\n\n", SQLCODE, err);
+        
+        EXEC SQL ROLLBACK;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main()
+{
+    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    is_error("Connect");
+
+    // Primetimo da smo morali da navedemo klauzu WITH HOLD ovde
+    // zato sto vrsimo potvrdjivanje izmena tokom obrade kursora.
+    EXEC SQL 
+        DECLARE ispitniRok CURSOR WITH HOLD FOR 
+        SELECT  NAZIV,
+                GODINA,
+                OZNAKA
+        FROM    ISPITNI_ROK;
+    is_error("Declare");
+
+    EXEC SQL OPEN ispitniRok;
+    is_error("Open");
+
+    for(;;)
+    {
+        EXEC SQL 
+            FETCH   ispitniRok 
+            INTO    :naziv,
+                    :godina,
+                    :oznaka;
+        is_error("Fetch");
+
+        if(SQLCODE == 100)
+        {
+            break;
+        }
+
+        printf("\nObradjujem ispitni rok %s u %d. godini\n"
+            "Da li zelite da obrisete polaganja u ovom ispitnom roku? [d/n] ", naziv, godina);
+            
+        char odgovor_od_korisnika;
+        scanf("%c", &odgovor_od_korisnika);
+        
+        getchar(); // Za citanje novog reda
+
+        if (odgovor_od_korisnika == 'd')
+        {
+            EXEC SQL
+                DELETE 
+                FROM    ISPIT
+                WHERE   GODINA_ROKA = :godina AND
+                        OZNAKA_ROKA = :oznaka;
+            is_error("Delete");
+            
+            // Da nismo naveli klauzu WITH HOLD pri deklaraciji kursora, 
+            // onda bi naredni poziv naredbe COMMIT zatvorio kursor,
+            // pa bi poziv FETCH naredbe u narednoj iteraciji petlje prijavio gresku 
+            // (jer dohvatamo podatak nad zatvorenim kursorom).
+            EXEC SQL COMMIT;
+            is_error("Commit");
+            
+            printf("Podaci su uspesno obrisani\n");
+        }
+    }
+
+    EXEC SQL CLOSE ispitniRok;    
+    is_error("Close");
+
+    EXEC SQL COMMIT;
+    is_error("Potvrdjivanje izmena");
+    
+    EXEC SQL CONNECT RESET;
+    is_error("Connect reset");
+
+    return 0;
+}

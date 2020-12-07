@@ -1,0 +1,44 @@
+name: Preprocess, build and deploy to GitHub Pages
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v1
+      with:
+        fetch-depth: 0
+
+    - name: Preprocess the text
+      run: |
+        cd skriptovi
+        node index.js
+        cd ..
+    
+    - name: Set the change date
+      run: |
+        cd _includes
+        rm datum_poslednje_izmene.html
+        touch datum_poslednje_izmene.html
+        datum=$(date +"%d. %b %Y. %H:%M:%S")
+        echo "Poslednja izmena: <span id='poslednja-izmena'>$datum</span>" > datum_poslednje_izmene.html
+        cd ..
+
+    - name: Archive the examples
+      run: |
+        tar -czvf primeri.tar.gz primeri
+        cp primeri.tar.gz resources/
+
+    - name: Run Jekyll
+      uses: theikeofficial/action-jekyll@master
+
+    - name: GitHub Pages Deploy
+      uses: crazy-max/ghaction-github-pages@v1.2.5
+      with:
+        target_branch: gh-pages
+        build_dir: _site
+      env:
+        GITHUB_PAT: ${{ secrets.GH_PAT }}

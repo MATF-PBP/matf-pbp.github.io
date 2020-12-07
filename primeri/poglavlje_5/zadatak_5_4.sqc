@@ -1,0 +1,121 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 id_predmeta;
+short bodovi;
+char naziv[201];
+EXEC SQL END DECLARE SECTION;
+
+void is_error(const char* err)
+{
+    if (SQLCODE < 0)
+    {
+        printf("SQLCODE %d: %s\n\n", SQLCODE, err);
+        
+        EXEC SQL ROLLBACK;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main()
+{
+    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    is_error("Connect");
+
+    EXEC SQL 
+        DECLARE neobradjeniPredmeti CURSOR WITH HOLD FOR 
+        SELECT  ID_PREDMETA,
+                RTRIM(NAZIV),
+                BODOVI
+        FROM    PREDMET
+        WHERE   ID_PREDMETA NOT IN (
+                    SELECT  ID_PREDMETA
+                    FROM    OBRADJENI_PREDMETI
+                )
+        FOR     UPDATE OF BODOVI;
+    is_error("Declare");
+
+    EXEC SQL OPEN neobradjeniPredmeti;
+    is_error("Open");
+
+    unsigned broj_obradjenih = 0;
+    
+    for(;;)
+    {
+        EXEC SQL 
+            FETCH   neobradjeniPredmeti 
+            INTO    :id_predmeta,
+                    :naziv,
+                    :bodovi;
+        is_error("Fetch");
+
+        if(SQLCODE == 100)
+        {
+            break;
+        }
+
+        printf("\nPredmet %s ima broj bodova: %d.\n"
+            "Da li zelite da povecate broj bodova za 1? [d/n] ", naziv, bodovi);
+            
+        char odgovor_od_korisnika;
+        scanf("%c", &odgovor_od_korisnika);
+        
+        getchar(); // Za citanje novog reda
+
+        if (odgovor_od_korisnika == 'd')
+        {
+            EXEC SQL 
+                UPDATE  PREDMET
+                SET     BODOVI = BODOVI + 1
+                WHERE   CURRENT OF neobradjeniPredmeti;
+            is_error("Update");            
+            
+            printf("Podaci su uspesno azurirani\n");
+        }
+        
+        // Ubelezavamo u BP da smo obradili tekuci predmet
+        EXEC SQL
+            INSERT 
+            INTO    OBRADJENI_PREDMETI
+            VALUES  (:id_predmeta);
+        is_error("Insert into");
+        
+        // Uvecavamo broj obradjenih predmeta        
+        ++broj_obradjenih;
+        
+        // Proveravamo da li je kraj jedne transakcije
+        if (broj_obradjenih == 5)
+        {
+            EXEC SQL COMMIT;
+            is_error("Commit");
+            
+            printf("\nTRANSAKCIJA JE IZVRSENA\n"
+                "Da li zelite da nastavite obradu? [d/n] ");
+            char odgovor_od_korisnika;
+            scanf("%c", &odgovor_od_korisnika);
+            
+            getchar(); // Za citanje novog reda
+
+            if (odgovor_od_korisnika == 'n')
+            {
+                break;
+            }
+
+            broj_obradjenih = 0; 
+        }
+    }
+
+    EXEC SQL CLOSE neobradjeniPredmeti;
+    is_error("Close");
+
+    EXEC SQL COMMIT;
+    is_error("Potvrdjivanje izmena");
+    
+    EXEC SQL CONNECT RESET;
+    is_error("Connect reset");
+
+    return 0;
+}

@@ -1,0 +1,79 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 d_id;
+char d_oznaka[11];
+char d_naziv[201];
+short d_semestara;
+short d_bodovi;
+EXEC SQL END DECLARE SECTION;
+
+void is_error(const char* str)
+{
+    if (SQLCODE < 0)
+    {
+        printf("SQLCODE %d: %s\n", SQLCODE, str);
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main()
+{
+    // Konektujemo se na bazu podataka
+    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    is_error("Connect");
+    
+    // Deklarisemo kursor koji prolazi tabelom smer
+    EXEC SQL 
+        DECLARE c_smer CURSOR FOR 
+        SELECT  ID_SMERA, 
+                OZNAKA, 
+                NAZIV, 
+                SEMESTARA, 
+                BODOVI 
+        FROM    SMER;
+    is_error("Declare cursor");
+    
+    // Otvaramo kursor, cime se izvrsava upit naveden u deklaraciji
+    EXEC SQL OPEN c_smer;
+    is_error("Open cursor");
+
+    // Sve dok ima redova u rezultujucoj tabeli
+    for(;;)
+    {
+        // Citamo red po red
+        EXEC SQL 
+            FETCH   c_smer
+            INTO    :d_id, 
+                    :d_oznaka, 
+                    :d_naziv, 
+                    :d_semestara, 
+                    :d_bodovi;
+        is_error("Fetch cursor");
+
+        // Ako smo stigli do kraja rezultujuce tabele, 
+        // izlazimo iz petlje
+        if (SQLCODE == 100) 
+        {
+            break;
+        }
+
+        // Inace, stampamo red iz rezultata
+        printf("ID:%d   OZNAKA:%s   NAZIV:%.70s   "
+            "SEMESTARA:%hd   bodovi:%hd\n", 
+            d_id, d_oznaka, d_naziv, d_semestara, d_bodovi);
+    }
+
+    // Zatvaramo kursor
+    EXEC SQL CLOSE c_smer;
+    is_error("Close cursor");
+
+    // Raskidamo konekciju sa bazom podataka
+    EXEC SQL CONNECT RESET;
+    is_error("Connect reset");
+    
+    return 0;
+}

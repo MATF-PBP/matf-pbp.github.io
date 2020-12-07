@@ -1,0 +1,118 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 indeks;
+EXEC SQL END DECLARE SECTION;
+
+void is_error(const char* err)
+{
+    if (SQLCODE < 0)
+    {
+        printf("SQLCODE %d: %s\n\n", SQLCODE, err);
+    
+        // U funkciju za obradu greske dodajemo naredbu ROLLBACK
+        // da bismo ponistili eventualne izmene u bazi podataka
+        // ukoliko zaista dodje do greske.
+        EXEC SQL ROLLBACK;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main()
+{
+    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    is_error("Connect");
+    
+    EXEC SQL 
+        SELECT  MAX(INDEKS) 
+        INTO    :indeks 
+        FROM    ISPIT;
+    is_error("Select 1");
+    
+    // Ako nema studenata u tabeli ispit
+    if(SQLCODE != 100)
+    {
+        printf("Maksimalni indeks je %d.\n", indeks);
+
+        // Brisanje studenta sa najvecim indeksom iz tabele ispit
+        EXEC SQL 
+            DELETE 
+            FROM    ISPIT 
+            WHERE   INDEKS = :indeks;
+        is_error("Delete");
+
+        printf("Uspesno je obrisan podatak");
+
+        // Ispisivanje najveceg indeksa iz tabele ispit
+        EXEC SQL 
+            SELECT  MAX(INDEKS) 
+            INTO    :indeks 
+            FROM    ISPIT;
+        is_error("Select 2");
+        
+        if(SQLCODE != 100)
+        {
+            printf("Maximalni indeks je %d.\n", indeks);
+        }
+        else
+        {
+            printf("Tabela je prazna!\n");
+        }
+        
+        // Pitamo korisnika za dalju akciju
+        printf("Izaberite jednu od dve akcije:\n"
+            "1. Potvrdjivanje izmena\n"
+            "2. Ponistavanje izmena\n");
+
+        short odgovor;
+        scanf("%d", &odgovor);
+
+        if (odgovor == 1)
+        {
+            // Potvrdjujemo izmene naredbom COMMIT
+            EXEC SQL COMMIT;
+            is_error("Commit");
+        }
+        else
+        {
+            // Ponistavamo izmene naredbom ROLLBACK
+            EXEC SQL ROLLBACK;
+            is_error("Rollback");
+        }
+
+        printf("Vasa akcija je izvrsena!\n");
+        
+        // Ispisujemo najveci indeks ponovo
+        EXEC SQL 
+            SELECT  MAX(INDEKS) 
+            INTO    :indeks 
+            FROM    ISPIT;
+        is_error("Select 3");
+        
+        if(SQLCODE != 100)
+        {
+            printf("Maximalni indeks je %d.\n", indeks);
+        }
+        else
+        {
+            printf("Tabela je prazna!\n");
+        }        
+    }
+    else
+    {
+        printf("Tabela je prazna!\n");
+    }
+
+    // U slucaju uspesnog izvrsavanja programa,
+    // potvrdjujemo sve akcije koje je nas program izvrsio
+    EXEC SQL COMMIT;
+    is_error("Commit - kraj programa");
+
+    EXEC SQL CONNECT RESET;
+    is_error("Connect reset");
+
+    return 0;
+}

@@ -1,0 +1,73 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+// Maticna promenljiva koja ce cuvati tekstualni oblik dinamicke SQL naredbe
+char stmt[255];
+EXEC SQL END DECLARE SECTION;
+
+void is_error(const char* err)
+{
+    if (SQLCODE < 0)
+    {
+        printf("Greska %d: %s\n\n", SQLCODE, err);
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main(int argc, char *argv[])
+{
+    // Proveravamo argumente i datoteku za citanje
+    // pre nego sto se uopste povezemo
+    if (argc != 2) 
+    {
+        printf("Niste naveli datoteku za citanje!\n");
+        exit(EXIT_FAILURE);
+    }
+
+    FILE *ulaz = fopen(argv[1], "r");
+    if (ulaz == NULL)
+    {
+        printf("Postoji problem sa citanjem datoteke \"%s\"!\n", argv[1]);
+        exit(EXIT_FAILURE);
+    }
+
+    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    is_error("Connect");
+    
+    int c; // `int` umesto `char` zbog EOF
+    int broj_karaktera = 0;
+    while(broj_karaktera < sizeof(stmt))
+    {
+        c = fgetc(ulaz);
+        
+        if (c == ';' || c == EOF)
+        {
+            break;
+        }
+        
+        stmt[broj_karaktera++] = c;
+    }
+
+    fclose(ulaz);
+
+    // Ispisujemo korisniku sta je uneo
+    printf("\nIzvrsavam naredbu:\n");
+    printf("***************************\n");
+    printf("%s\n", stmt);
+    printf("***************************\n");
+    
+    // Pripremamo i izvrsavamo unetu naredbu
+    EXEC SQL EXECUTE IMMEDIATE :stmt;
+    is_error("Execute immediate");
+    
+    printf("Naredba je uspesno izvrsena.\n");
+
+    EXEC SQL CONNECT RESET;
+    is_error("Connect reset");
+
+    return 0;
+}

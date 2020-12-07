@@ -1,0 +1,92 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 indeks;
+char datum[11];
+EXEC SQL END DECLARE SECTION;
+
+void is_error(const char* str)
+{
+    if (SQLCODE < 0)
+    {
+        printf("SQLCODE %d: %s\n", SQLCODE, str);
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main()
+{
+    // Brojac obrisanih redova
+    int i = 0;
+
+    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    is_error("Connect");
+    
+    EXEC SQL 
+        DECLARE prvi_ispit CURSOR FOR 
+        WITH POMOCNA AS (
+            SELECT      I.INDEKS, 
+                        MIN(COALESCE(DATUM_USMENOG, DATUM_PISMENOG)) AS DATUM_PRVOG
+            FROM        ISPIT I JOIN
+                        DOSIJE D ON D.INDEKS = I.INDEKS JOIN
+                        SMER S ON S.ID_SMERA = D.ID_SMERA
+            WHERE       S.OZNAKA = 'I' AND
+                        OCENA > 5 AND
+                        STATUS_PRIJAVE = 'o'
+            GROUP BY    I.INDEKS
+        )
+
+        SELECT  I.INDEKS, 
+                COALESCE(DATUM_USMENOG, DATUM_PISMENOG) AS DATUM_ISPITA
+        FROM    ISPIT I
+        WHERE   EXISTS (
+                    SELECT  *
+                    FROM    POMOCNA PO 
+                    WHERE   PO.INDEKS = I.INDEKS AND
+                            PO.DATUM_PRVOG = COALESCE(I.DATUM_USMENOG, I.DATUM_PISMENOG)
+                );
+    is_error("Declare cursor");
+    
+    EXEC SQL OPEN prvi_ispit;
+    is_error("Open cursor");
+
+    for(;;)
+    {
+        EXEC SQL 
+            FETCH   prvi_ispit
+            INTO    :indeks, 
+                    :datum;
+        is_error("Fetch cursor");
+
+        if (SQLCODE == 100) 
+        {
+            break;
+        }
+
+        printf("Student sa brojem indeksa %d ima datum polaganja prvog ispita %s...\n"
+            "Izbrisacemo to iz tabele ispit!\n", indeks, datum);
+
+        // Uvecavamo brojac za jedan
+        ++i;
+
+        EXEC SQL 
+            DELETE 
+            FROM    ispit 
+            WHERE   CURRENT OF prvi_ispit;  // Na ovaj nacin kazemo da zelimo da obrisemo 
+                                            // trenutni red u kursoru prvi_ispit
+        is_error("Delete");
+    }
+
+    printf("\n\nObrisali smo %d redova.\n", i);
+
+    EXEC SQL CLOSE prvi_ispit;
+    is_error("Close cursor");
+    
+    EXEC SQL CONNECT RESET;
+    is_error("Connect reset");
+    
+    return 0;
+}

@@ -1,0 +1,5 @@
+---
+permalink: /poglavlja/7/
+layout: page
+title: 7. Povezivanje aplikacija na više baza podataka
+---

@@ -1,0 +1,3 @@
+*.sqc linguist-language=C
+*.sqx linguist-language=C++
+*.sqlj linguist-language=Java

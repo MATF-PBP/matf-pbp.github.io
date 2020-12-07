@@ -1,0 +1,124 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 id_predmeta;
+char sifra[21];
+char naziv[201];
+short broj_semestara;
+short bodovi;
+EXEC SQL END DECLARE SECTION;
+
+void is_error(const char* str)
+{
+    if(SQLCODE < 0)
+    {
+        printf("Greska %d: %s\n", SQLCODE, str);
+        exit(EXIT_FAILURE);
+    }
+}
+
+// Deklaracije funkcija za svaki deo zadatka 
+void unesi_novi_predmet();
+void izmeni_novi_predmet();
+void obrisi_novi_predmet();
+
+// Glavni deo zadatka
+int main()
+{
+    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    is_error("Konekcija na bazu");
+
+    unesi_novi_predmet();
+    izmeni_novi_predmet();
+    obrisi_novi_predmet();
+
+    EXEC SQL CONNECT RESET;
+    is_error("Diskonekcija sa baze");
+
+    return 0;
+}
+
+// Definicije funkcija za svaki deo zadatka
+void unesi_novi_predmet()
+{
+    printf("Identifikator predmeta:");
+    scanf("%d", &id_predmeta);
+
+    printf("Sifra predmeta:");
+    scanf("%s", sifra);
+
+    printf("Naziv predmeta:");
+    scanf("%s", naziv);
+
+    printf("Semestara slusanja predmeta:");
+    scanf("%hd", &broj_semestara);
+
+    printf("Bodovi predmeta:");
+    scanf("%hd", &bodovi);
+
+    EXEC SQL 
+        INSERT 
+        INTO    PREDMET
+        VALUES  (:id_predmeta, :sifra, :naziv, :broj_semestara, :bodovi);
+    is_error("Unos podataka o predmetu");
+
+    EXEC SQL 
+        SELECT  ID_PREDMETA, 
+                SIFRA, 
+                NAZIV, 
+                BROJ_SEMESTARA, 
+                BODOVI
+        INTO    :id_predmeta, 
+                :sifra, 
+                :naziv, 
+                :broj_semestara, 
+                :bodovi
+        FROM    PREDMET
+        WHERE   ID_PREDMETA = :id_predmeta;
+    is_error("Izlistavanje podataka");
+
+    printf("\nID:%d SIFRA:%s NAZIV:%s SEMSLUS:%hd BODOVI:%hd\n",
+        id_predmeta, sifra, naziv, broj_semestara, bodovi);
+}
+
+void izmeni_novi_predmet()
+{
+    EXEC SQL 
+        UPDATE  PREDMET
+        SET     BODOVI = BODOVI * 2
+        WHERE   ID_PREDMETA = :id_predmeta;
+    is_error("Azuriranje podataka o predmetu");
+
+    EXEC SQL 
+        SELECT  ID_PREDMETA, 
+                SIFRA, 
+                NAZIV, 
+                BROJ_SEMESTARA, 
+                BODOVI
+        INTO    :id_predmeta, 
+                :sifra, 
+                :naziv, 
+                :broj_semestara, 
+                :bodovi
+        FROM    PREDMET
+        WHERE   ID_PREDMETA = :id_predmeta;
+    is_error("Izlistavanje podataka");
+
+    printf("\nID:%d SIFRA:%s NAZIV:%s SEMSLUS:%hd BODOVI:%hd\n", 
+        id_predmeta, sifra, naziv, broj_semestara, bodovi);
+}
+
+void obrisi_novi_predmet()
+{
+    EXEC SQL 
+        DELETE 
+        FROM    PREDMET
+        WHERE   ID_PREDMETA = :id_predmeta;
+    is_error("Brisanje podataka o predmetu");
+
+    printf("\nUspesno su obrisani podaci o predmetu\n");
+}

@@ -1,0 +1,80 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 d_id;
+char d_oznaka[11];
+char d_naziv[201];
+short d_semestara;
+short d_bodovi;
+EXEC SQL END DECLARE SECTION;
+
+void is_error(char *err)
+{
+    if (SQLCODE < 0)
+    {
+        printf("SQLCODE %d: %s\n\n", SQLCODE, err);
+        
+        EXEC SQL ROLLBACK;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main()
+{
+    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    is_error("Connect");
+    
+    // Zakljucavamo tabelu SMER u deljenom rezimu
+    EXEC SQL LOCK TABLE SMER IN SHARE MODE;
+    is_error("Lock table");
+    
+    EXEC SQL 
+        DECLARE c_smer CURSOR FOR 
+        SELECT  ID_SMERA, 
+                OZNAKA, 
+                NAZIV, 
+                SEMESTARA, 
+                BODOVI 
+        FROM    SMER;
+    is_error("Declare cursor");
+    
+    EXEC SQL OPEN c_smer;
+    is_error("Open cursor");
+    
+    for(;;)
+    {
+        EXEC SQL 
+            FETCH   c_smer
+            INTO    :d_id, 
+                    :d_oznaka, 
+                    :d_naziv, 
+                    :d_semestara, 
+                    :d_bodovi;
+        is_error("Fetch cursor");
+    
+        if (SQLCODE == 100)
+        {
+            break;
+        }
+
+        printf("ID:%d   OZNAKA:%s   NAZIV:%.70s   SEMESTARA:%d   bodovi:%d\n", 
+            d_id, d_oznaka, d_naziv, d_semestara, d_bodovi);
+
+        printf("Pritisnite neki taster za naredno citanje\n");
+        getchar();
+    }
+
+    EXEC SQL CLOSE c_smer;
+    is_error("Close cursor");
+    
+    EXEC SQL COMMIT;
+    is_error("Potvrdjivanje izmena");
+
+    EXEC SQL CONNECT RESET;
+    is_error("Connect reset");
+    
+    return 0;
+}

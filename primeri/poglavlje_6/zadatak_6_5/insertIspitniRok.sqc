@@ -1,0 +1,64 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+void is_error(char *err)
+{
+    if (SQLCODE < 0)
+    {
+        printf("SQLCODE %d: %s\n\n", SQLCODE, err);
+
+        EXEC SQL ROLLBACK;
+        exit(EXIT_FAILURE);
+    }
+}
+
+void obradi_cekanje()
+{
+    printf("Objekat je zakljucan od strane druge transakcije. "
+        "Sacekati neko vreme...\n");
+    
+    EXEC SQL ROLLBACK;
+    is_error("Rollback");
+}
+
+int main()
+{
+    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    is_error("Connect");
+    
+    EXEC SQL SET CURRENT LOCK TIMEOUT 5;
+    is_error("Set timeout");
+    
+    for(;;)
+    {
+        EXEC SQL 
+            INSERT 
+            INTO    ISPITNI_ROK
+            VALUES  (2016, 'mar', 'Mart 2016', CURRENT_DATE - 1 MONTH, CURRENT_DATE - 1 MONTH + 20 DAYS, 1);
+      
+        if (SQLCODE == 0)
+        {
+            break;
+        }
+            
+        if (SQLCODE == -911 || SQLCODE == -913)
+        {
+            obradi_cekanje();
+        }
+        
+        is_error("Insert");
+    }
+
+    EXEC SQL SET CURRENT LOCK TIMEOUT NULL;
+    is_error("Set timeout");
+
+    EXEC SQL COMMIT;
+    is_error("Potvrdjivanje izmena");
+    
+    EXEC SQL CONNECT RESET;
+    is_error("Connect reset");
+    
+    return 0;
+}

@@ -1,0 +1,158 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 godina;
+char oznaka[21], 
+     naziv[51];
+EXEC SQL END DECLARE SECTION;
+
+void is_error(const char* err)
+{
+    if (SQLCODE < 0)
+    {
+        printf("SQLCODE %d: %s\n\n", SQLCODE, err);
+        
+        EXEC SQL ROLLBACK;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main()
+{
+    char odgovor_od_korisnika;
+
+    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    is_error("Connect");
+
+    EXEC SQL 
+        DECLARE ispitniRok CURSOR WITH HOLD FOR
+        SELECT  GODINA, 
+                OZNAKA, 
+                NAZIV
+        FROM    ISPITNI_ROK;
+    is_error("Declare");
+
+    EXEC SQL 
+        INSERT 
+        INTO    ISPITNI_ROK
+        VALUES  (2019, 'apr', 'April 2019', CURRENT_DATE, CURRENT_DATE + 20 DAYS, 1);
+    is_error("Insert into ispitni_rok apr");
+
+    // Kreiranje tacke cuvanja sa nazivom S1
+    EXEC SQL SAVEPOINT S1 ON ROLLBACK RETAIN CURSORS;
+    is_error("Savepoint");
+    
+    EXEC SQL 
+        INSERT 
+        INTO    ISPITNI_ROK
+        VALUES  (2019, 'mar', 'Mart 2019', CURRENT_DATE - 1 MONTH, CURRENT_DATE - 1 MONTH + 20 DAYS, 1);    
+    is_error("Insert into ispitni_rok mar");
+
+    EXEC SQL 
+        INSERT 
+        INTO    ISPITNI_ROK
+        VALUES  (2019, 'maj', 'Maj 2019', CURRENT_DATE + 1 MONTH, CURRENT_DATE + 1 MONTH + 20 DAYS, 1);    
+    is_error("Insert into ispitni_rok maj");
+
+    EXEC SQL 
+        INSERT 
+        INTO    ISPITNI_ROK
+        VALUES  (2019, 'jun', 'Jun 2019', CURRENT_DATE + 2 MONTH, CURRENT_DATE + 2 MONTH + 20 DAYS, 1);    
+    is_error("Insert into ispitni_rok jun");
+
+    EXEC SQL 
+        INSERT 
+        INTO    ISPITNI_ROK
+        VALUES  (2019, 'jul', 'Jul 2019', CURRENT_DATE + 3 MONTH, CURRENT_DATE + 3 MONTH + 20 DAYS, 1);    
+    is_error("Insert into ispitni_rok jul");
+
+    EXEC SQL 
+        INSERT 
+        INTO    ISPITNI_ROK
+        VALUES  (2019, 'avg', 'Avgust 2019', CURRENT_DATE + 4 MONTH, CURRENT_DATE + 4 MONTH + 20 DAYS, 1);
+    is_error("Insert into ispitni_rok avg");
+
+    EXEC SQL 
+        INSERT 
+        INTO    ISPITNI_ROK
+        VALUES  (2019, 'sep', 'Septembar 2019', CURRENT_DATE + 5 MONTH, CURRENT_DATE + 5 MONTH + 20 DAYS, 1);    
+    is_error("Insert into ispitni_rok sep");
+
+    EXEC SQL 
+        INSERT 
+        INTO    ISPITNI_ROK
+        VALUES  (2019, 'okt', 'Oktobar 2019', CURRENT_DATE + 6 MONTH, CURRENT_DATE + 1 MONTH + 20 DAYS, 1);
+    is_error("Insert into ispitni_rok okt");
+
+    EXEC SQL OPEN ispitniRok;
+    is_error("Open");
+
+    for(;;)
+    {
+        EXEC SQL 
+            FETCH   ispitniRok 
+            INTO    :godina, 
+                    :oznaka, 
+                    :naziv;
+        is_error("Fetch");
+
+        if(SQLCODE == 100)
+        {
+            break;
+        }
+
+        printf("Godina %d oznaka: %s i naziv %s \n", godina, oznaka, naziv);
+    }
+
+    EXEC SQL CLOSE ispitniRok;    
+    is_error("Close");
+
+    printf("Da li zelite da ponistite izmene? \n");
+
+    odgovor_od_korisnika = getchar();
+    if (odgovor_od_korisnika == 'd' || odgovor_od_korisnika == 'D')
+    {
+        // Ponistavanje izmena samo do tacke cuvanja S1
+        EXEC SQL ROLLBACK TO SAVEPOINT S1;
+        is_error("Rollback");
+    }
+    else 
+    {
+        EXEC SQL COMMIT;
+        is_error("Commit");
+    }
+
+    EXEC SQL OPEN ispitniRok;
+    is_error("Open");
+
+    while(1)
+    {
+        EXEC SQL 
+            FETCH   ispitniRok 
+            INTO    :godina, 
+                    :oznaka, 
+                    :naziv;
+        is_error("Fetch");
+
+        if(SQLCODE == 100)
+        {
+            break;
+        }
+
+        printf("Godina %d oznaka: %s i naziv %s \n", godina, oznaka, naziv);
+    }
+
+    EXEC SQL CLOSE ispitniRok;    
+    is_error("Close");
+
+    EXEC SQL COMMIT;
+    is_error("Potvrdjivanje izmena");
+    
+    EXEC SQL CONNECT RESET;
+    is_error("Connect reset");
+
+    return 0;
+}

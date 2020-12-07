@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+// Deklaracija potrebnih maticnih promenljivih
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 maxIndeks;
+EXEC SQL END DECLARE SECTION;
+
+// Definicija funkcije za obradu gresaka
+void is_error(const char* str)
+{
+    if(SQLCODE < 0)
+    {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main()
+{
+    // Konekcija na bazu
+    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    is_error("Konekcija na bazu podataka");
+
+    // Izdvajamo maksimalni indeks i smestamo u maticnu promenljivu maxIndeks
+    EXEC SQL 
+        SELECT  MAX(INDEKS) 
+        INTO    :maxIndeks 
+        FROM    ISPIT;
+    is_error("Izdvajanje podatka o najvecem indeksu");
+
+    // Ispisujemo podatak koji se sada nalazi u maticnoj promenljivoj maxIndeks
+    printf("\nNajveci indeks je %d\n", maxIndeks);
+
+    // Diskonekcija sa baze
+    EXEC SQL CONNECT RESET;
+    is_error("Prekidanje konekcije sa bazom podataka");
+    
+    return 0;
+}

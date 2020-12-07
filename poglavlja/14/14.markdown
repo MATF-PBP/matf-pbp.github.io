@@ -1,0 +1,5 @@
+---
+permalink: /poglavlja/14/
+layout: page
+title: 14. Korisnički-definisane funkcije
+---

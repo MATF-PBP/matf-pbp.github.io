@@ -1,0 +1,92 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 d_id;
+char d_oznaka[11];
+char d_naziv[201];
+short d_semestara;
+short d_bodovi;
+
+char naredba[255];
+short uneseno_semestara;
+EXEC SQL END DECLARE SECTION;
+
+void is_error(const char* err)
+{
+    if (SQLCODE < 0)
+    {
+        printf("Greska %d: %s\n\n", SQLCODE, err);
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main()
+{
+    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    is_error("Connect");
+    
+    // Kreiranje niske naredbe sa netipiziranom parametarskom oznakom
+    sprintf(naredba, 
+        "SELECT ID_SMERA, "
+        "       OZNAKA, "
+        "       RTRIM(NAZIV), "
+        "       SEMESTARA, "
+        "       BODOVI "
+        "FROM   SMER "
+        "WHERE  SEMESTARA = ?");
+    
+    // Prevodjenje niske naredbe u pripremljenu naredbu 
+    // sa nazivom PREP_NAREDBA
+    EXEC SQL 
+        PREPARE PREP_NAREDBA 
+        FROM    :naredba;
+    is_error("Prepare");
+
+    // Deklaracija kursora na osnovu pripremljene naredbe.
+    // Ne navodimo dvotacku ispred PREP_NAREDBA jer je to identifikator,
+    // a ne maticna promenljiva.
+    EXEC SQL 
+        DECLARE SMEROVI CURSOR FOR 
+        PREP_NAREDBA;
+    is_error("Declare cursor");
+
+    printf("Unesite broj semestara: ");
+    scanf("%hd", &uneseno_semestara);
+
+    // Otvaranje kursora i navodjenje vrednosti parametarske oznake
+    EXEC SQL 
+        OPEN    SMEROVI 
+        USING   :uneseno_semestara;
+    is_error("Open cursor");
+
+    for(;;)
+    {
+        EXEC SQL 
+            FETCH   SMEROVI
+            INTO    :d_id, 
+                    :d_oznaka, 
+                    :d_naziv, 
+                    :d_semestara, 
+                    :d_bodovi;
+        is_error("Fetch cursor");
+
+        if (SQLCODE == 100)
+        {
+            break;
+        }
+
+        printf("ID: %d   OZNAKA: %s   NAZIV: %.70s   SEMESTARA: %d   BODOVI: %d\n", 
+            d_id, d_oznaka, d_naziv, d_semestara, d_bodovi);
+    }
+
+    EXEC SQL CLOSE SMEROVI;
+    is_error("Close cursor");
+
+    EXEC SQL CONNECT RESET;
+    is_error("Connect reset");
+    
+    return 0;
+}

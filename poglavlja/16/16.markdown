@@ -1,0 +1,5 @@
+---
+permalink: /poglavlja/16/
+layout: page
+title: 16. Okidači
+---

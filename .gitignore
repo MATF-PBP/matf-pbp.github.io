@@ -1,0 +1,19 @@
+# Jekyll stuff
+_site
+.sass-cache
+.jekyll-cache
+.jekyll-metadata
+vendor
+
+# npm stuff
+node_modules
+package-lock.json
+
+# IBM Data Studio IDE
+.apt_generated
+.factorypath
+.project
+.settings
+.classpath
+bin/
+start.bat

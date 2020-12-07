@@ -1,0 +1,91 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 d_indeks;
+char d_naziv[201];
+char d_datum[11];
+short d_ocena;
+double d_prosek;
+EXEC SQL END DECLARE SECTION;
+
+void is_error(const char* str)
+{
+    if (SQLCODE < 0)
+    {
+        printf("SQLCODE %d: %s\n", SQLCODE, str);
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main()
+{
+    // Konektujemo se na bazu podataka
+    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    is_error("Connect");
+    
+    // Deklarisemo kursor koji za dati broj indeksa nalazi sve polozene ispite
+	EXEC SQL 
+        DECLARE polozeni_ispiti CURSOR FOR 
+		SELECT  NAZIV, 
+                COALESCE(DATUM_USMENOG, DATUM_PISMENOG) AS DATUM_ISPITA, 
+                OCENA 
+		FROM    ISPIT I JOIN
+                PREDMET P ON I.ID_PREDMETA = P.ID_PREDMETA
+        WHERE   INDEKS = :d_indeks AND
+                OCENA > 5 AND
+                STATUS_PRIJAVE = 'o';
+	is_error("Declare cursor");
+	
+	printf("Unesite broj indeksa studenta:\n");
+	scanf("%d", &d_indeks);
+
+	// Otvaramo kursor
+	EXEC SQL OPEN polozeni_ispiti;
+	is_error("Open cursor");
+	
+	for(;;)
+    {
+		// Smestamo naredni red rezultata upita u odgovarajuce promenljive
+		EXEC SQL 
+            FETCH   polozeni_ispiti
+			INTO    :d_naziv, 
+                    :d_datum, 
+                    :d_ocena;
+		is_error("Fetch cursor");
+
+		// Ako smo stigli do kraja kursora, izlazimo iz petlje
+		if (SQLCODE == 100) 
+        {
+            break;
+        }
+
+		// Inace, stampamo naredni ispit
+		printf("NAZIV:%.70s DATUM:%s OCENA:%hd\n", 
+				d_naziv, d_datum, d_ocena);
+	}
+
+	// Zatvaramo kursor
+	EXEC SQL CLOSE polozeni_ispiti;
+	is_error("Close cursor");
+
+	// Za datog studenta racunamo prosek ocena 
+	EXEC SQL 
+        SELECT  COALESCE(AVG(OCENA + 0.0), 5.0) 
+        INTO    :d_prosek 
+	    FROM    ISPIT
+	    WHERE   INDEKS = :d_indeks AND
+                OCENA > 5 AND
+                STATUS_PRIJAVE = 'o';
+	is_error("Select into");
+	
+	printf("Prosek ocena je: %.2f.\n", d_prosek);
+
+    // Raskidamo konekciju sa bazom podataka
+    EXEC SQL CONNECT RESET;
+    is_error("Connect reset");
+    
+    return 0;
+}

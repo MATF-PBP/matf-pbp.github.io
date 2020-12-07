@@ -1,0 +1,117 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 id_smera;
+char naziv[201];
+sqlint32 indeks;
+char ime[21];
+char prezime[21];
+EXEC SQL END DECLARE SECTION;
+
+void is_error(const char* err)
+{
+    if (SQLCODE < 0)
+    {
+        printf("SQLCODE %d: %s\n\n", SQLCODE, err);
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main()
+{
+    EXEC SQL CONNECT TO vstud USER student USING abcdef;  
+    is_error("Konekcija na bazu");
+    
+    EXEC SQL 
+        DECLARE smerovi CURSOR FOR 
+        SELECT      ID_SMERA, 
+                    NAZIV
+        FROM        SMER
+        ORDER BY    ID_SMERA;
+    is_error("Deklaracija kursora - smerovi");
+    
+    EXEC SQL 
+        DECLARE padaliIspit CURSOR FOR 
+        SELECT      INDEKS, 
+                    IME, 
+                    PREZIME
+        FROM        DOSIJE D 
+        WHERE       D.ID_SMERA = :ID_SMERA AND
+                    EXISTS (
+                        SELECT  * 
+                        FROM    ISPIT
+                        WHERE   INDEKS = D.INDEKS AND
+                                OCENA = 5 AND
+                                STATUS_PRIJAVE = 'o'
+                    )
+        ORDER BY    INDEKS;
+    is_error("Deklaracija kursora - padaliIspit");
+    
+    /////////////////////////////////////
+    // Pocetak obrade spoljasnjeg kursora
+
+    EXEC SQL OPEN smerovi;
+    is_error("Otvaranje kursora - smerovi");
+
+    for(;;)
+    {
+        EXEC SQL 
+            FETCH   smerovi
+            INTO    :id_smera, 
+                    :naziv;
+        is_error("Dohvatanje podataka iz kursora - smerovi");
+
+        if(SQLCODE == 100)
+        {
+            break;
+        }
+        
+        // Stampamo sekciju za smer
+        printf("\n*****************\nStudenti sa smera %d: %s!\n*****************\n",
+            id_smera, naziv);
+        
+        /////////////////////////////////////
+        // Pocetak obrade unutrasnjeg kursora
+
+        EXEC SQL OPEN padaliIspit;
+        is_error("Otvaranje kursora - padaliIspit");
+        
+        for(;;)
+        {
+            EXEC SQL 
+                FETCH   padaliIspit
+                INTO    :indeks, 
+                        :ime, 
+                        :prezime;
+            is_error("Dohvatanje podataka iz kursora - padaliIspit");
+
+            if(SQLCODE == 100)
+            {
+                break;
+            }
+            
+            // Stampamo informacije o studentu
+            printf("Student %s %s sa brojem indeksa %d\n", ime, prezime, indeks);    
+        }
+        
+        EXEC SQL CLOSE padaliIspit;
+        is_error("Zatvaranje kursora - padaliIspit");
+        
+        // Kraj obrade unutrasnjeg kursora
+        //////////////////////////////////
+    }
+
+    EXEC SQL CLOSE smerovi;
+    is_error("Zatvaranje kursora - padaliIspit");
+
+    // Kraj obrade spoljasnjeg kursora
+    //////////////////////////////////
+
+    EXEC SQL CONNECT RESET;
+    is_error("Connect reset");
+    
+    return 0;
+}

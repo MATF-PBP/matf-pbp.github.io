@@ -1,0 +1,5 @@
+---
+permalink: /poglavlja/13/
+layout: page
+title: 13. Programiranje SQL rutina
+---

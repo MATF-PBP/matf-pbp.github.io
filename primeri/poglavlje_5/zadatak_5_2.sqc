@@ -1,0 +1,8 @@
+Zadatak 4.2
+
+Napisati C/SQL program koji redom:
+
+1. Kreira novi ispitni rok samo za predmete iz prvog semestra u tekućoj godini čija je oznaka 'maj' i naziv 'Maj GODINA' u zavisnosti od tekuće godine (na primer, 'Maj 2019'). Za početak prijavljivanja postaviti današnji datum i postaviti da prijavljivanje traje 20 dana.
+2. Ažurira datum kraja prijavljivanja za prethodno uneti ispitni rok tako što smanjuje trajanje prijavljivanja za 10 dana.
+
+Obezbediti da se navedene operacije izvrše ili sve ili nijedna.

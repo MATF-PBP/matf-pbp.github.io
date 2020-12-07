@@ -1,0 +1,61 @@
+
+----------POCETAK TRANSAKCIJE----------
+
+Unesite indeks studenta: 20100050
+        2012
+        2013
+Unesite jednu od ponudjenih godina polaganja: 2012
+Analiza 2A, 10
+Da li zelite da ponistite ispit? [da/ne] da
+Uvod u organizaciju racunara, 8
+Da li zelite da ponistite ispit? [da/ne] da
+Algebra 1, 9
+Da li zelite da ponistite ispit? [da/ne] da
+Analiza 2B, 9
+Da li zelite da ponistite ispit? [da/ne] da
+Uvod u numericku matematiku, 7
+Da li zelite da ponistite ispit? [da/ne] da
+Uvod u finansijsku matematiku, 8
+Da li zelite da ponistite ispit? [da/ne] da
+Uvod u filozofiju, 9
+Da li zelite da ponistite ispit? [da/ne] da
+Da li zelite da potvrdite sve izmene za tekuceg studenta? [da/ne] ne
+
+----------KRAJ TRANSAKCIJE----------
+
+Da li zelite da nastavite dalje? [da/ne] da
+
+----------POCETAK TRANSAKCIJE----------
+
+Unesite indeks studenta: 20100050
+        2013
+Unesite jednu od ponudjenih godina polaganja: 2013
+Pedagogija sa didaktikom, 10
+Da li zelite da ponistite ispit? [da/ne] ne
+Psihologija, 10
+Da li zelite da ponistite ispit? [da/ne] ne
+Uvod u kompleksnu analizu, 10
+Da li zelite da ponistite ispit? [da/ne] ne
+Algebra 2, 9
+Da li zelite da ponistite ispit? [da/ne] da
+Diferencijalne jednacine A, 10
+Da li zelite da ponistite ispit? [da/ne] ne
+Metodika nastave matematike A, 10
+Da li zelite da ponistite ispit? [da/ne] ne
+Teorija mere i integracije, 8
+Da li zelite da ponistite ispit? [da/ne] da
+Geometrija 4, 7
+Da li zelite da ponistite ispit? [da/ne] da
+Diferencijalne jednacine B, 9
+Da li zelite da ponistite ispit? [da/ne] da
+Metodika nastave matematike B, 9
+Da li zelite da ponistite ispit? [da/ne] da
+Uvod u astronomiju, 9
+Da li zelite da ponistite ispit? [da/ne] da
+Ocigledna topologija, 10
+Da li zelite da ponistite ispit? [da/ne] ne
+Da li zelite da potvrdite sve izmene za tekuceg studenta? [da/ne] da
+
+----------KRAJ TRANSAKCIJE----------
+
+Da li zelite da nastavite dalje? [da/ne] ne

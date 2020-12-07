@@ -1,0 +1,99 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 d_id;
+char d_oznaka[11];
+char d_naziv[201];
+short d_semestara;
+short d_bodovi;
+EXEC SQL END DECLARE SECTION;
+
+void is_error(const char* str)
+{
+    if (SQLCODE < 0)
+    {
+        printf("SQLCODE %d: %s\n", SQLCODE, str);
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main()
+{    
+    // Odgovor od korisnika
+    char c; 
+
+    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    is_error("Connect");
+    
+    // Deklarisemo kursor koji prolazi tabelom smer, 
+    // kojim zelimo da menjamo atribut bodovi
+    EXEC SQL 
+        DECLARE c_smer CURSOR FOR 
+        SELECT ID_SMERA, 
+                OZNAKA, 
+                NAZIV, 
+                SEMESTARA, 
+                BODOVI 
+        FROM    SMER
+        FOR     UPDATE OF bodovi; // Na ovaj nacin najavljujemo 
+                                  // da cemo vrsiti promenu kolone "bodovi"
+    is_error("Declare cursor");
+    
+    EXEC SQL OPEN c_smer;
+    is_error("Open cursor");
+
+    for(;;)
+    {
+        EXEC SQL 
+            FETCH   c_smer
+            INTO    :d_id, 
+                    :d_oznaka, 
+                    :d_naziv, 
+                    :d_semestara, 
+                    :d_bodovi;
+        is_error("Fetch cursor");
+
+        if (SQLCODE == 100)
+        {
+            break;
+        }
+        
+        printf("Da li zelite da povecate broj bodova za smer %.70s za 10?\n"
+            "Unesite d/D ili n/N. \n", d_naziv);
+        scanf("%c", &c);
+
+        // Da bismo procitali i znak za novi red
+        getchar();
+        
+        // Ukoliko korisnik zeli izmenu
+        if (c == 'd' || c == 'D')
+        {
+            EXEC SQL 
+                UPDATE  SMER
+                SET     BODOVI = BODOVI + 10
+                WHERE   CURRENT OF c_smer;  // Na ovaj nacin kazemo da zelimo izmenu 
+                                            // nad trenutnim redom u kursoru c_smer
+            is_error("Update");
+            
+            EXEC SQL 
+                SELECT  BODOVI
+                INTO    :d_bodovi
+                FROM    SMER
+                WHERE   ID_SMERA = :d_id;
+            is_error("Select into");
+            
+            printf("Broj bodova je sada %hd\n", d_bodovi);
+        }
+    }
+
+    EXEC SQL CLOSE c_smer;
+    is_error("Close cursor");
+    
+    EXEC SQL CONNECT RESET;
+    is_error("Connect reset");
+    
+    return 0;
+}
