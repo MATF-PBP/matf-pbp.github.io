@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="{{ page.lang | default: site.lang | default: "en" }}">
+{% include default/head.html %}
+
+<body>
+    <div class="ui black big launch right attached fixed button" id="pageSticky">
+        <i class="content icon"></i>
+        <span class="text">Prikaži sadržaj</span>
+    </div>
+
+    <div class="ui sidebar vertical menu" id="sideMenu">
+        <div class="item">
+            <h3>Sadržaj</h3>
+        </div>
+        <a class="item" href="/vezbe/predgovor">Predgovor</a>
+        <a class="item" href="/vezbe/poglavlja/1">1. Arhitektura klijent-server</a>
+        <a class="item" href="/vezbe/poglavlja/2">2. Osnovni koncepti programiranja C/SQL aplikacija</a>
+        <a class="item" href="/vezbe/poglavlja/3">3. Programiranje korišćenjem kursora</a>
+        <a class="item" href="/vezbe/poglavlja/4">4. Aplikacije sa dinamičkim SQL naredbama</a>
+        <a class="item" href="/vezbe/poglavlja/5">5. Implementiranje transakcija</a>
+        <a class="item" href="/vezbe/poglavlja/6">6. Aplikacije u višekorisničkom okruženju</a>
+        <a class="item" href="/vezbe/poglavlja/7">7. Povezivanje aplikacija na više baza podataka</a>
+        <a class="item" href="/vezbe/poglavlja/8">8. Osnovni koncepti programiranja Java/SQL aplikacija sa
+            dinamičkim SQL naredbama (JDBC)</a>
+        <a class="item" href="/vezbe/poglavlja/9">9. Napredne tehnike razvijanja Java/SQL aplikacija</a>
+        <a class="item" href="/vezbe/poglavlja/10">10. Uvod u razvojno okruženje Hibernate</a>
+        <a class="item" href="/vezbe/poglavlja/11">11. Napredna objektno-relaciona preslikavanja</a>
+        <a class="item" href="/vezbe/poglavlja/12">12. Napredno kreiranje upita pomoću JPA Criteria API</a>
+        <a class="item" href="/vezbe/poglavlja/13">13. Programiranje SQL rutina</a>
+        <a class="item" href="/vezbe/poglavlja/14">14. Korisnički-definisane funkcije</a>
+        <a class="item" href="/vezbe/poglavlja/15">15. Ugrađene procedure</a>
+        <a class="item" href="/vezbe/poglavlja/16">16. Okidači</a>
+    </div>
+
+    <div class="ui container">
+        <img class="ui centered small image" src="/resources/matf-srb.png">
+        <header class="ui center aligned block header">
+            <h1><a href="/">Programiranje baza podataka</a></h1>
+        </header>
+
+        <div class="ui divider"></div>
+
+        <div id="pageContent">
+            {{ content }}
+        </div>
+    </div>
+
+    <script>
+        $('#pageSticky').sticky({
+            context: '#pageContent'
+        });
+
+        $('#pageSticky').click(function () {
+            $('#sideMenu').sidebar('toggle');
+        });
+    </script>
+</body>
+
+</html>

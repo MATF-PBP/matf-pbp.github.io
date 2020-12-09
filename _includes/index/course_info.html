@@ -1,0 +1,10 @@
+<h2 class="ui center aligned header">Informacije o kursu</h2>
+
+<h3 class="ui top attached header">Nastavno osoblje</h3>
+<div class="ui attached segment">
+    <ul>
+        {% for teacher in site.data.course_info.teachers %}
+        <li><a href="{{ teacher.website }}">{{ teacher.name }} ({{ teacher.type }})</a></li>
+        {% endfor %}
+    </ul>
+</div>

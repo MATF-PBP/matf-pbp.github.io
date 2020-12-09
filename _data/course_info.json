@@ -1,0 +1,19 @@
+{
+  "teachers": [
+    {
+      "name": "dr Nina Radojičić Matić",
+      "website": "http://www.math.rs/~nina",
+      "type": "predavanja"
+    },
+    {
+      "name": "Nikola Ajzenhamer",
+      "website": "https://matf.nikolaajzenhamer.rs",
+      "type": "vežbe"
+    },
+    {
+      "name": "Anja Bukurov",
+      "website": "http://www.math.rs/~anja_bukurov",
+      "type": "vežbe"
+    }
+  ]
+}

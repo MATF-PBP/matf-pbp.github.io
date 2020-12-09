@@ -1,77 +1,15 @@
-<!DOCTYPE html>
-<html lang="{{ page.lang | default: site.lang | default: "en" }}">
+---
+layout: default
+---
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-<style>
-    #poslednja-izmena {
-        font-style: italic;
-    }
-</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/js/all.min.js"></script>
-
-{%- include head.html -%}
-
-<style>
-    h3 {
-        font-size: 1.3em;
-    }
-
-    h4 {
-        font-size: 1em;
-    }
-</style>
-
-<body>
-
-    {%- include header.html -%}
-
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4 col-lg-6 mt-5">
-                <img src="{{site.url}}/resources/cover.png" alt="Programiranje DB2 Baza Podataka">
-                <br>
-                <br>
-                {%- include datum_poslednje_izmene.html -%}
-                <br>
-                <br>
-                <a href="{{site.url}}/resources/primeri.tar.gz" role="button" class="btn btn-secondary btn-lg btn-block mb-2">Preuzmite kodove</a>
-            </div>
-            <div class="col-md-8 col-lg-6 mt-5">
-                <main class="page-content" aria-label="Content">
-                    {{ content }}
-                </main>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-12">
-                <div class="card text-center mb-3">
-                    <div class="card-body">
-                        <h5 class="card-title">YouTube kanal</h5>
-                        <a href="https://www.youtube.com/channel/UCQd1lmTRYKoI-qkftLAvVLQ" target="_blank">
-                            <span style="font-size: 4em; color: #FF0000;">
-                                <i class="fab fa-youtube"></i>
-                            </span>
-                        </a>
-                        <p class="card-text">Na ovom kanalu možete pronaći video lekcije za odabrano gradivo iz knjige.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="ui stackable three column grid">
+    <div class="four wide column">
+        {% include index/course_info.html %}
     </div>
-
-    {%- include footer.html -%}
-
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
-        crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
-        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
-        crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-        crossorigin="anonymous"></script>
-</body>
-
-</html>
+    <div class="eight wide column">
+        {% include index/materials.html %}
+    </div>
+    <div class="four wide column">
+        {% include index/notifications.html %}
+    </div>
+</div>

@@ -1,0 +1,17 @@
+<h4>Literatura</h4>
+
+{% if include.bibliography.size > 0 %}
+<ul>
+    {% for bib in include.bibliography %}
+    {% if bib.type == "link" %}
+    <li><a href="{{ bib.link }}">{{ bib.title }}</a></li>
+    {% else %}
+    <li>{{ bib.title }}</li>
+    {% endif %}
+    {% endfor %}
+</ul>
+{% else %}
+<div class="text">
+    Literatura je u pripremi
+</div>
+{% endif %}

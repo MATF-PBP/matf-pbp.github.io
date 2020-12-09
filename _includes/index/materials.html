@@ -1,0 +1,15 @@
+<h2 class="ui center aligned header">Literatura i materijali sa časova</h2>
+
+<h3 class="ui top attached header">Predavanja</h3>
+<div class="ui attached segment">
+
+    {% include index/materials/bibliography.html bibliography=site.data.materials.theory.bibliography %}
+    {% include index/materials/classes.html classes=site.data.materials.theory.classes %}
+</div>
+
+<h3 class="ui top attached header">Vežbe</h3>
+<div class="ui attached segment">
+
+    {% include index/materials/bibliography.html bibliography=site.data.materials.lab.bibliography %}
+    {% include index/materials/classes.html classes=site.data.materials.lab.classes %}
+</div>
