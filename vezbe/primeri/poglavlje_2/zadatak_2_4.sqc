@@ -6,9 +6,8 @@ EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
 sqlint32 id_predmeta;
-char sifra[21];
-char naziv[201];
-short broj_semestara;
+char oznaka[21];
+char naziv[151];
 short bodovi;
 EXEC SQL END DECLARE SECTION;
 
@@ -25,11 +24,13 @@ void is_error(const char* str)
 void unesi_novi_predmet();
 void izmeni_novi_predmet();
 void obrisi_novi_predmet();
+// Pomocna funkcija koja se poziva nakon unosa i izmene novog predmeta
+void ispisi_novi_predmet();
 
 // Glavni deo zadatka
 int main()
 {
-    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
     is_error("Konekcija na bazu");
 
     unesi_novi_predmet();
@@ -45,80 +46,87 @@ int main()
 // Definicije funkcija za svaki deo zadatka
 void unesi_novi_predmet()
 {
-    printf("Identifikator predmeta:");
+    printf("Identifikator predmeta: ");
     scanf("%d", &id_predmeta);
 
-    printf("Sifra predmeta:");
-    scanf("%s", sifra);
+    printf("Oznaka predmeta: ");
+    scanf("%s", oznaka);
+    // Funkcija scanf() nece procitati karakter za novi red,
+    // pa pozivamo jos jednom getchar() kako ga naredna funkcija ne bi citala.
+    getchar(); 
 
-    printf("Naziv predmeta:");
-    scanf("%s", naziv);
+    printf("Naziv predmeta: ");
+    // Funkcija fgets() ce procitati i karakter za novi red na kraju reda,
+    // tako da moramo da ga postavimo na terminirajucu nulu,
+    // kako ne bismo u bazu uneli karakter za novi red.
+    fgets(naziv, sizeof(naziv), stdin);
+    naziv[strcspn(naziv, "\n")] = '\0';
 
-    printf("Semestara slusanja predmeta:");
-    scanf("%hd", &broj_semestara);
-
-    printf("Bodovi predmeta:");
+    printf("Bodovi predmeta: ");
     scanf("%hd", &bodovi);
+    
+    printf("\nUnosim novi predmet u bazu podataka...\n");
 
     EXEC SQL 
-        INSERT 
-        INTO    PREDMET
-        VALUES  (:id_predmeta, :sifra, :naziv, :broj_semestara, :bodovi);
+        INSERT  INTO DA.PREDMET
+        VALUES  (:id_predmeta, :oznaka, :naziv, :bodovi);
     is_error("Unos podataka o predmetu");
+    
+    printf("\nINSERT naredba se uspesno izvrsila!\n");
 
-    EXEC SQL 
-        SELECT  ID_PREDMETA, 
-                SIFRA, 
-                NAZIV, 
-                BROJ_SEMESTARA, 
-                BODOVI
-        INTO    :id_predmeta, 
-                :sifra, 
-                :naziv, 
-                :broj_semestara, 
-                :bodovi
-        FROM    PREDMET
-        WHERE   ID_PREDMETA = :id_predmeta;
-    is_error("Izlistavanje podataka");
-
-    printf("\nID:%d SIFRA:%s NAZIV:%s SEMSLUS:%hd BODOVI:%hd\n",
-        id_predmeta, sifra, naziv, broj_semestara, bodovi);
+    ispisi_novi_predmet();
 }
 
 void izmeni_novi_predmet()
 {
+    printf("\nMenjam podatke o novom predmetu u bazi podataka...\n");
+    
     EXEC SQL 
-        UPDATE  PREDMET
-        SET     BODOVI = BODOVI * 2
-        WHERE   ID_PREDMETA = :id_predmeta;
+        UPDATE  DA.PREDMET
+        SET     ESPB = ESPB * 2
+        WHERE   ID = :id_predmeta;
     is_error("Azuriranje podataka o predmetu");
+    
+    printf("\nUPDATE naredba se uspesno izvrsila!\n");
 
-    EXEC SQL 
-        SELECT  ID_PREDMETA, 
-                SIFRA, 
-                NAZIV, 
-                BROJ_SEMESTARA, 
-                BODOVI
-        INTO    :id_predmeta, 
-                :sifra, 
-                :naziv, 
-                :broj_semestara, 
-                :bodovi
-        FROM    PREDMET
-        WHERE   ID_PREDMETA = :id_predmeta;
-    is_error("Izlistavanje podataka");
-
-    printf("\nID:%d SIFRA:%s NAZIV:%s SEMSLUS:%hd BODOVI:%hd\n", 
-        id_predmeta, sifra, naziv, broj_semestara, bodovi);
+    ispisi_novi_predmet();
 }
 
 void obrisi_novi_predmet()
 {
+    printf("\nBrisem podatke o novom predmetu iz baze podataka...\n");
+    
     EXEC SQL 
-        DELETE 
-        FROM    PREDMET
-        WHERE   ID_PREDMETA = :id_predmeta;
+        DELETE  FROM DA.PREDMET
+        WHERE   ID = :id_predmeta;
     is_error("Brisanje podataka o predmetu");
 
-    printf("\nUspesno su obrisani podaci o predmetu\n");
+    printf("\nDELETE naredba se uspesno izvrsila!\n");
+}
+
+void ispisi_novi_predmet()
+{
+    EXEC SQL 
+    SELECT  ID, 
+            OZNAKA, 
+            NAZIV,  
+            ESPB
+    INTO    :id_predmeta, 
+            :oznaka, 
+            :naziv, 
+            :bodovi
+    FROM    DA.PREDMET
+    WHERE   ID = :id_predmeta;
+    is_error("Izlistavanje podataka");
+
+    putc('\n', stdout);
+    printf("+--------------+------------------------------+\n");
+    printf("|IDENTIFIKATOR |%-30d|\n", id_predmeta);
+    printf("|--------------|------------------------------|\n");
+    printf("|OZNAKA        |%-30s|\n", oznaka);
+    printf("|--------------|------------------------------|\n");
+    printf("|NAZIV         |%-30s|\n", naziv);
+    printf("|--------------|------------------------------|\n");
+    printf("|ESPB          |%-30hd|\n", bodovi);
+    printf("+--------------+------------------------------+\n");
 }

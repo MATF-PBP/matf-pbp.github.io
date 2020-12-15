@@ -15,3 +15,4 @@ db2 bind $1.bnd
 cc -I$DB2PATH/include -c $1.c
 cc -o $1 $1.o $EXTRA_LFLAG -L$DB2PATH/lib64 -ldb2
 
+db2 connect reset

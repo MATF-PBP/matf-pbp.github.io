@@ -5,12 +5,12 @@ EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
 sqlint32 indeks;
-char ime[26];
-char prezime[26];
-char ime_oca[51];
-short ind_ime_oca;
-char datum_rodjenja[11];
-short ind_datum_rodjenja;
+char ime[51];
+char prezime[51];
+char mesto_rodjenja[51];
+short ind_mesto_rodjenja;
+char datum_diplomiranja[11];
+short ind_datum_diplomiranja;
 EXEC SQL END DECLARE SECTION;
 
 void is_error(const char* str)
@@ -24,28 +24,35 @@ void is_error(const char* str)
 
 int main()
 {
-    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
     is_error("Konekcija na bazu podataka");
 
     EXEC SQL 
         SELECT  INDEKS, 
                 IME, 
                 PREZIME, 
-                IME_OCA, 
-                DATUM_RODJENJA
+                MESTORODJENJA, 
+                DATDIPLOMIRANJA
         INTO    :indeks, 
                 :ime, 
                 :prezime, 
-                :ime_oca :ind_ime_oca, 
-                :datum_rodjenja :ind_datum_rodjenja
-        FROM    DOSIJE
-        WHERE   INDEKS = (SELECT MAX(INDEKS) FROM DOSIJE);
+                :mesto_rodjenja :ind_mesto_rodjenja, 
+                :datum_diplomiranja :ind_datum_diplomiranja
+        FROM    DA.DOSIJE
+        WHERE   INDEKS = (SELECT MAX(INDEKS) FROM DA.DOSIJE);
     is_error("Izdvajanje podatka o studentu sa najvecim indeksom");
 
-    printf("\nINDEKS:%i IME:%s PREZIME:%s IME_OCA:%s DAT_RODJENJA:%s\n",
-        indeks, ime, prezime,
-        (ind_ime_oca < 0) ? "null" : ime_oca,
-        (ind_datum_rodjenja < 0) ? "null" : datum_rodjenja);
+    printf("+--------------+------------------------------+\n");
+    printf("|INDEKS        |%-30d|\n", indeks);
+    printf("|--------------|------------------------------|\n");
+    printf("|IME           |%-30s|\n", ime);
+    printf("|--------------|------------------------------|\n");
+    printf("|PREZIME       |%-30s|\n", prezime);
+    printf("|--------------|------------------------------|\n");
+    printf("|MESTO RODJENJA|%-30s|\n", (ind_mesto_rodjenja < 0) ? "NULL" : mesto_rodjenja);
+    printf("|--------------|------------------------------|\n");
+    printf("|DATUM DIPL.   |%-30s|\n", (ind_datum_diplomiranja < 0) ? "NULL" : datum_diplomiranja);
+    printf("+--------------+------------------------------+\n");
 
     EXEC SQL CONNECT RESET;
     is_error("Prekidanje konekcije sa bazom podataka");

@@ -21,18 +21,18 @@ void is_error(const char* str)
 int main()
 {
     // Konekcija na bazu
-    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
     is_error("Konekcija na bazu podataka");
 
     // Izdvajamo maksimalni indeks i smestamo u maticnu promenljivu maxIndeks
     EXEC SQL 
         SELECT  MAX(INDEKS) 
         INTO    :maxIndeks 
-        FROM    ISPIT;
+        FROM    DA.ISPIT;
     is_error("Izdvajanje podatka o najvecem indeksu");
 
     // Ispisujemo podatak koji se sada nalazi u maticnoj promenljivoj maxIndeks
-    printf("\nNajveci indeks je %d\n", maxIndeks);
+    printf("Najveci indeks je %d\n", maxIndeks);
 
     // Diskonekcija sa baze
     EXEC SQL CONNECT RESET;

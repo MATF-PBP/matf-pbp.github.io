@@ -17,7 +17,7 @@ module.exports.includeSourceFromFile = (text) => {
     let sourceCode = fs.readFileSync(__dirname + '/../' + m.groups.path, {
       encoding: 'utf8',
     });
-    let includedSource = `Datoteka: \`${m.groups.path}\`:\n\`\`\`${m.groups.lang}\n${sourceCode}\n\`\`\``;
+    let includedSource = `**Datoteka: \`${m.groups.path}\`**:\n\`\`\`${m.groups.lang}\n${sourceCode}\n\`\`\``;
 
     m.forEach((match, groupIndex) => {
       if (groupIndex === 0) {
