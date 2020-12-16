@@ -4,7 +4,7 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-sqlint32 id_smera;
+sqlint32 id_stud_programa;
 char naziv[201];
 sqlint32 indeks;
 char ime[21];
@@ -22,30 +22,30 @@ void is_error(const char* err)
 
 int main()
 {
-    EXEC SQL CONNECT TO vstud USER student USING abcdef;  
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;  
     is_error("Konekcija na bazu");
     
     EXEC SQL 
-        DECLARE smerovi CURSOR FOR 
-        SELECT      ID_SMERA, 
+        DECLARE studijskiprogrami CURSOR FOR 
+        SELECT      ID, 
                     NAZIV
-        FROM        SMER
-        ORDER BY    ID_SMERA;
-    is_error("Deklaracija kursora - smerovi");
+        FROM        DA.STUDIJSKIPROGRAM
+        ORDER BY    NAZIV;
+    is_error("Deklaracija kursora - studijskiprogrami");
     
     EXEC SQL 
         DECLARE padaliIspit CURSOR FOR 
         SELECT      INDEKS, 
                     IME, 
                     PREZIME
-        FROM        DOSIJE D 
-        WHERE       D.ID_SMERA = :ID_SMERA AND
+        FROM        DA.DOSIJE D 
+        WHERE       D.IDPROGRAMA = :id_stud_programa AND
                     EXISTS (
                         SELECT  * 
-                        FROM    ISPIT
+                        FROM    DA.ISPIT
                         WHERE   INDEKS = D.INDEKS AND
                                 OCENA = 5 AND
-                                STATUS_PRIJAVE = 'o'
+                                STATUS = 'o'
                     )
         ORDER BY    INDEKS;
     is_error("Deklaracija kursora - padaliIspit");
@@ -53,16 +53,16 @@ int main()
     /////////////////////////////////////
     // Pocetak obrade spoljasnjeg kursora
 
-    EXEC SQL OPEN smerovi;
-    is_error("Otvaranje kursora - smerovi");
+    EXEC SQL OPEN studijskiprogrami;
+    is_error("Otvaranje kursora - studijskiprogrami");
 
     for(;;)
     {
         EXEC SQL 
-            FETCH   smerovi
-            INTO    :id_smera, 
+            FETCH   studijskiprogrami
+            INTO    :id_stud_programa, 
                     :naziv;
-        is_error("Dohvatanje podataka iz kursora - smerovi");
+        is_error("Dohvatanje podataka iz kursora - studijskiprogrami");
 
         if(SQLCODE == 100)
         {
@@ -70,8 +70,10 @@ int main()
         }
         
         // Stampamo sekciju za smer
-        printf("\n*****************\nStudenti sa smera %d: %s!\n*****************\n",
-            id_smera, naziv);
+        printf("\n********************************************************************************\n"
+               "*Studenti sa studijskog programa %-4.4d: %-40.40s*\n"
+               "********************************************************************************\n",
+               id_stud_programa, naziv);
         
         /////////////////////////////////////
         // Pocetak obrade unutrasnjeg kursora
@@ -104,8 +106,8 @@ int main()
         //////////////////////////////////
     }
 
-    EXEC SQL CLOSE smerovi;
-    is_error("Zatvaranje kursora - padaliIspit");
+    EXEC SQL CLOSE studijskiprogrami;
+    is_error("Zatvaranje kursora - studijskiprogrami");
 
     // Kraj obrade spoljasnjeg kursora
     //////////////////////////////////

@@ -122,13 +122,13 @@ Na kraju jedinice posla, svi kursori koji pripadaju procesu aplikacije i koji su
 
 Sada smo spremni za rešavanje primera koji zahtevaju upotrebu kursora. Počnimo sa narednim zadacima koji ilustruju čitanje rezultata iz kursora.
 
-{% include lab/exercise.html broj="3.1" tekst="Napisati C/SQL program koji ispisuje identifikator, oznaku, naziv, broj semestara i broj bodova za svaki od smerova." %}
+{% include lab/exercise.html broj="3.1" tekst="Napisati C/SQL program koji ispisuje identifikator, oznaku, naziv, nivo, broj bodova, zvanje i opis za svaki od studijskih programa." %}
 
 Rešenje:
 
 include_source(vezbe/primeri/poglavlje_3/zadatak_3_1.sqc, c)
 
-{% include lab/exercise.html broj="3.2" tekst="Napisati C/SQL program kojim se za uneti broj indeksa studenta ispisuju podaci (naziv predmeta, datum polaganja i ocena) za sve ispite koje je on položio. Nakon toga ispisuje se njegov prosek." %}
+{% include lab/exercise.html broj="3.2" tekst="Napisati C/SQL program kojim se za uneti broj indeksa studenta ispisuju podaci (naziv predmeta, datum polaganja i ocena) za sve ispite koje je on položio. Nakon toga, ispisati prosek ocena tog studenta." %}
 
 Re\v senje:
 
@@ -146,11 +146,11 @@ SET     <KOLONA_1> = <VREDNOST_1>,
 WHERE   CURRENT OF <IME_KURSORA>
 ```
 
-{% include lab/definition.html def="SQL naredba `UPDATE` koja ažurira podatke u tabeli na osnovu pozicije nekog kursora naziva se *pozicionirajuća* `UPDATE` naredba. " %}
+SQL naredba `UPDATE` koja ažurira podatke u tabeli na osnovu pozicije nekog kursora naziva se *pozicionirajuća* `UPDATE` naredba. 
 
 Očigledno, kolone `<KOLONA_1>`, `...`, `<KOLONA_N>` moraju biti deklarisane u `FOR UPDATE OF` klauzi pri deklaraciji kursora naziva `<IME_KURSORA>`. Takođe, tabela `<TABELA>` mora biti jedina tabela koja se nalazi u `FROM` klauzi kursora. Na ovaj način će upotrebom opisane naredbe `UPDATE` biti ažuriran tekući red kursora.
 
-{% include lab/exercise.html broj="3.3" tekst="Napisati C/SQL program kojim se za svaki od smerova korisniku postavlja pitanje da li želi da uveća broj bodova za 10. Ako je odgovor potvrdan, vrši se odgovarajuća promena." %}
+{% include lab/exercise.html broj="3.3" tekst="Napisati C/SQL program kojim se za svaki od studijskih programa korisniku postavlja pitanje da li želi da uveća broj bodova za 10. Ako je odgovor potvrdan, vrši se odgovarajuća promena." %}
 
 Re\v senje:
 
@@ -164,9 +164,9 @@ FROM    <IME_TABELE>
 WHERE   CURRENT OF <IME_KURSORA>
 ```
 
-{% include lab/definition.html def="SQL naredba `DELETE` koja ažurira podatke u tabeli na osnovu pozicije nekog kursora naziva se *pozicionirajuća* `DELETE` naredba." %}
+SQL naredba `DELETE` koja ažurira podatke u tabeli na osnovu pozicije nekog kursora naziva se *pozicionirajuća* `DELETE` naredba.
 
-{% include lab/exercise.html broj="3.4" tekst="Napisati C/SQL program kojim se za sve studente smera Informatika briše prvi položen ispit (ukoliko ima položenih ispita tog studenta)." %}
+{% include lab/exercise.html broj="3.4" tekst="Napisati C/SQL program kojim se za sve studente studijskog programa _Informatika_ briše prvi položen ispit (ukoliko ima položenih ispita tog studenta). Za svako obrisano polaganje ispisati: indeks, ime i prezime studenta, datum polaganja i naziv predmeta." %}
 
 Re\v senje:
 
@@ -200,13 +200,20 @@ Međutim, šta raditi ukoliko je potrebno da za svaki red rezultata jednog upita
 
 Naredna dva zadatka ilustruju rad sa ugnežđenim kursorima.
 
-{% include lab/exercise.html broj="3.5" tekst="Napisati C/SQL program kojim se formira izveštaj o studentima koji su padali neki ispit koji sadrži sledeće informacije: ime, prezime i broj indeksa. Za svaki smer formirati posebnu sekciju izveštaja sa odgovarajućim zaglavljem. Sadržaj svake sekcije urediti po broju indeksa." %}
+{% include lab/exercise.html broj="3.5" tekst="Napisati C/SQL program kojim se formira izveštaj o studentima koji su padali neki ispit koji sadrži sledeće informacije: ime, prezime i broj indeksa. Za svaki studijski program formirati posebnu sekciju izveštaja sa zaglavljem koje sadr\v zi identifikator i naziv studijskog programa. Izve\v staj urediti po nazivu studijskog programa rastu\'ce, a sadržaj svake sekcije urediti po broju indeksa rastu\'ce." %}
 
 Re\v senje:
 
 include_source(vezbe/primeri/poglavlje_3/zadatak_3_5.sqc, c)
 
-{% include lab/exercise.html broj="3.6" tekst="Napisati C/SQL program kojim se za svaki smer pronalazi student koji ima najviše položenih ESPB bodova. Zatim u tabeli ISPIT u napomeni koja se odnosi na poslednji položeni ispit tog studenta zapisuje 'Ovo je student koji ima najvise polozenih kredita na svom smeru'." %}
+Za naredni zadatak je potrebno izvr\v siti narednu SQL naredbu:
+
+```sql
+ALTER TABLE DA.ISPIT
+ADD COLUMN NAPOMENA VARCHAR(100)
+```
+
+{% include lab/exercise.html broj="3.6" tekst="Napisati C/SQL program kojim se za svaki smer pronalazi student koji ima najviše položenih ESPB bodova. Zatim u tabeli ISPIT u napomeni koja se odnosi na poslednji položeni ispit tog studenta zapisuje `'Ovo je student koji ima najvise polozenih kredita na svom smeru'`." %}
 
 Re\v senje: U ovom zadatku smo kreirali pomo\'cne funkcije koje upravljaju kursorima i obra\dj uju podatke iz dohva\'cenih rezultata, kako bismo pove\'cali modularnost koda. Ono \v sto je va\v zno primetiti jeste da, bez obzira na organizaciju izvornog koda, neophodno je da se deklaracije kursora u kodu nalaze ispred drugih operacija sa kursorima u kodu. Ukoliko to nije slu\v caj, onda \'ce Db2 pretprocesor prijaviti gre\v sku. Razlog za ovo pona\v sanje jeste zbog toga \v sto Db2 pretprocesor kod \v cita kao tekst, ne uzimaju\'ci u obzir redosled stvarnog izvr\v savanja operacija i poziva funkcija. Na primer, ukoliko bi Db2 pretprocesor prvo nai\v sao na naredbu `OPEN`, pa onda na `DECLARE`, tada bi prijavio gre\v sku zato \v sto naredba `OPEN` referi\v se na naziv kursora za koji Db2 pretprocesor prethodno nije zapamtio da postoji.
 
@@ -220,23 +227,21 @@ include_source(vezbe/primeri/poglavlje_3/zadatak_3_6.sqc, c)
 
 {% include lab/exercise.html broj="3.9" tekst="Napisati C/SQL program koji se za sve studente smera Informatika ažurira u tabeli ISPIT prvi položen ispit (ukoliko ima položenih ispita za tog studenta) tako što povećava ocenu za 1 (ukoliko je ocena bila 5 ili 10 ostavlja je nepromenjenu)." %}
 
-{% include lab/exercise.html broj="3.10" tekst="Napisati C/SQL program koji ispisuje sve napomene koje se nalaze u tabeli ISPIT, navodeći i broj indeksa studenata." %}
+{% include lab/exercise.html broj="3.10" tekst="Napisati C/SQL program koji ispisuje sve napomene koje se nalaze u tabeli ISPIT, navodeći i broj indeksa studenata. (Videti napomenu iznad zadatka 3.6 za kreiranje kolone NAPOMENA.)" %}
 
-{% include lab/exercise.html broj="3.11" tekst="Napisati C/SQL program kojim se sa standardnog ulaza unosi ime smera, a zatim se ispisuje 10 studenata tog smera koji su najviše padali na ispitima tokom studija. Izdvojiti ime, prezime, broj indeksa i broj padova tokom studija." %}
+{% include lab/exercise.html broj="3.11" tekst="Napisati C/SQL program kojim se sa standardnog ulaza unosi ime studijskog programa, a zatim se ispisuje 10 studenata tog smera koji imaju najviše neuspe\v snih polaganja na ispitima tokom studija. Izdvojiti ime, prezime, broj indeksa i broj neuspe\v snih polaganja tokom studija." %}
 
-{% include lab/exercise.html broj="3.12" tekst="Napisati C/SQL program koji ispisuje za svakog studenta ime, prezime, poslednji položeni ispit (tj. naziv predmeta koji je položen), kao i datum polaganja tog ispita." %}
+{% include lab/exercise.html broj="3.12" tekst="Napisati C/SQL program koji za studenta čiji se broj indeksa zadaje sa standardnog ulaza, ispisuje naziv predmeta, datum polaganja, ocenu i broj osvojenih poena za svaki ispit koji je student položio. Nakon toga ispisuje se prosečna ocena studenta." %}
 
-{% include lab/exercise.html broj="3.13" tekst="Napisati C/SQL program koji za studenta čiji se broj indeksa zadaje sa standardnog ulaza, ispisuje naziv predmeta, datum polaganja, ocenu, broj bodova na pismenom i broj bodova na usmenom delu ispita za svaki ispit koji je student položio. Nakon toga ispisuje se prosečna ocena studenta." %}
+{% include lab/exercise.html broj="3.13" tekst="Napisati C/SQL program kojim se omogućava nastavniku da unese naziv predmeta, godinu roka i oznaku roka. Za svako polaganje datog predmeta u datom ispitnom roku ponuditi nastavniku mogućnost da izmeni ocenu koju je student osvojio. Ispisati informacije o indeksu, imenu i prezimenu studenta kao i ocenu koju je dobio, pa zatražiti od nastavnika novu ocenu. Nakon unosa nove ocene, obavestiti nastavnika o uspešnosti izmene i preći na naredno polaganje (ukoliko ih ima više)." %}
 
-{% include lab/exercise.html broj="3.14" tekst="Napisati C/SQL program kojim se omogućava nastavniku da unese naziv predmeta, godinu roka i oznaku roka. Za svako polaganje datog predmeta u datom ispitnom roku ponuditi nastavniku mogućnost da izmeni ocenu koju je student osvojio. Ispisati informacije o indeksu, imenu i prezimenu studenta kao i ocenu koju je dobio, pa zatražiti od nastavnika novu ocenu. Nakon unosa nove ocene, obavestiti nastavnika o uspešnosti izmene i preći na naredno polaganje (ukoliko ih ima više)." %}
+{% include lab/exercise.html broj="3.14" tekst="Napisati C/SQL program kojim se brišu sva uspešna polaganja ispita iz barem trećeg pokušaja za studente koji su upisivali najviše N godina, gde se vrednost za N unosi sa standardnog ulaza." %}
 
-{% include lab/exercise.html broj="3.15" tekst="Napisati C/SQL program kojim se brišu sva uspešna polaganja ispita iz barem trećeg pokušaja za studente koji su upisivali najviše N godina, gde se vrednost za N unosi sa standardnog ulaza." %}
+{% include lab/exercise.html broj="3.15" tekst="Napisati C/SQL program kojim se, za svakog studenta koji se upisao u godini koja se učitava sa standardnog ulaza, ispisuju podaci o imenu, prezimenu i prosečnoj oceni, a zatim se ispisuju informacije o položenim ispitima i to: naziv predmeta, ocena i datum polaganja." %}
 
-{% include lab/exercise.html broj="3.16" tekst="Napisati C/SQL program kojim se prvo unosi identifikator predmeta sa standardnog ulaza. Za taj predmet se zatim korisniku nudi da li želi da obriše uslovne predmete za taj predmet i to tako što se za svaki uslovni predmet nudi da li korisnik hoće da ga obriše ili ne. Odgovori su 'D' ili 'N'. Ukoliko je odgovor 'D', u tabeli `USLOVNI_PREDMET` briše se željeni red koji se odnosi na predmet za koje je pitanje postavljeno." %}
+{% include lab/exercise.html broj="3.16" tekst="Napisati C/SQL program koji nudi mogu\'cnost ukidanja uslova polaganja za predmete. Program prvo zahteva od korisnika da unese naziv predmeta. Program pronalazi sve predmete sa datim nazivom (mo\v ze ih biti vi\v se) i ispisuje njihove identifikatore, nazive i oznake. Za svaki takav predmet P, program ispisuje identifikatore i nazive njegovih uslovnih predmeta U. Za svaki uslovni predmet U predmeta P, program pita korisnika da li \v zeli da ukine uslovnost P->U. Ukoliko korisnik potvrdi, ukinuti uslov i ispisati poruku." %}
 
-{% include lab/exercise.html broj="3.17" tekst="Napisati C/SQL program kojim se, za svakog studenta koji se upisao u godini koja se učitava sa standardnog ulaza, ispisuju podaci o imenu, prezimenu i prosečnoj oceni, a zatim se ispisuju informacije o položenim ispitima i to: naziv predmeta, ocena i datum polaganja." %}
+{% include lab/exercise.html broj="3.17" tekst="Napisati C/SQL program koji ispisuje izveštaj za svaki predmet o njegovim uslovnim predmetima. Za svaki predmet ispisati informacije o identifikatoru predmeta i njegovom nazivu. Svaka sekcija koja izlistava informacije o uslovnim predmetima treba da ispisuje identifikator i naziv uslovnih predmeta za tekući predmet za koji se pravi sekcija, pri čemu se prikazuju informacije samo o onim uslovnim predmetima za koje postoji polaganje sa ocenom 10 na osnovnim akademskim studijama čiji je datum polaganja bio pre 2018. godine." %}
 
-{% include lab/exercise.html broj="3.18" tekst="Napisati C/SQL program koji ispisuje izveštaj za svaki predmet o njegovim uslovnim predmetima. Za svaki predmet ispisati informacije o identifikatoru predmeta i njegovom nazivu. Svaka sekcija koja ispisuje informacije o uslovnim predmetima treba da izlistava identifikator i naziv uslovnih predmeta za tekući predmet za koji se pravi sekcija, pri čemu se prikazuju informacije samo o onim uslovnim predmetima za koje postoji polaganje sa ocenom 10 na osnovnim studijama čiji je datum polaganja bio pre 2011. godine. Stavke sekcije prikazati razdvojene zapetom, i svaki uslovni predmet prikazati u posebnom redu." %}
-
-{% include lab/exercise.html broj="3.19" tekst="Napisati C/SQL program koji za svaki ispitni rok ispisuje njegov naziv i broj uspešnih polaganja za svaku ocenu u tom ispitnom roku. Nakon ispisivanja informacija o ispitnom roku, ponuditi korisniku da izbriše informacije o polaganim ispitima u tom roku. Ukoliko korisnik želi da obriše te podatke, prvo izlistati podatke o indeksu, identifikatoru predmeta, godini roka, oznaci roka i datumu polaganja (ako postoji) za svako polaganje koje se briše. Na kraju brisanja polaganja u jednom ispitnom roku, ispisati ukupan broj obrisanih redova." %}
+{% include lab/exercise.html broj="3.18" tekst="Napisati C/SQL program koji za svaki ispitni rok ispisuje njegov naziv i broj uspešnih polaganja za svaku ocenu u tom ispitnom roku. Nakon ispisivanja informacija o ispitnom roku, ponuditi korisniku da izbriše informacije o polaganim ispitima u tom roku. Ukoliko korisnik želi da obriše te podatke, prvo izlistati podatke o indeksu, identifikatoru predmeta, godini roka, oznaci roka i datumu polaganja (ako postoji) za svako polaganje koje se briše. Na kraju brisanja polaganja u jednom ispitnom roku, ispisati ukupan broj obrisanih redova." %}
     
