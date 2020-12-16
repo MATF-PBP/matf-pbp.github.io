@@ -5,7 +5,7 @@ EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
 short suma; 
-sqlint32 id_smera;
+sqlint32 id_stud_programa;
 sqlint32 indeks;
 char datum[11];
 EXEC SQL END DECLARE SECTION;
@@ -23,7 +23,7 @@ void obradi_smerove();
 void azuriraj_napomene_za_ispite();
 
 int main() {
-    EXEC SQL CONNECT TO vstud USER student USING abcdef;  
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;  
     is_error("Konekcija na bazu");
     
     deklarisi_najvise_polozenih();
@@ -41,28 +41,28 @@ void deklarisi_najvise_polozenih() {
     EXEC SQL 
         DECLARE najvisePolozenih CURSOR FOR 
         WITH POMOCNA AS (
-            SELECT      D.ID_SMERA, 
+            SELECT      D.IDPROGRAMA, 
                         D.INDEKS, 
-                        SUM(P.BODOVI) SUMA
-            FROM        DOSIJE D JOIN
-                        ISPIT I ON I.INDEKS = D.INDEKS JOIN
-                        PREDMET P ON P.ID_PREDMETA = I.ID_PREDMETA
+                        SUM(P.ESPB) SUMA
+            FROM        DA.DOSIJE D JOIN
+                        DA.ISPIT I ON I.INDEKS = D.INDEKS JOIN
+                        DA.PREDMET P ON P.ID = I.IDPREDMETA
             WHERE       OCENA > 5 AND
-                        STATUS_PRIJAVE = 'o'
-            GROUP BY    D.ID_SMERA, 
+                        STATUS = 'o'
+            GROUP BY    D.IDPROGRAMA, 
                         D.INDEKS
         )
         SELECT      POM.SUMA, 
                     D.INDEKS, 
-                    POM.ID_SMERA    
+                    POM.IDPROGRAMA
         FROM        POMOCNA POM JOIN
-                    DOSIJE D ON D.INDEKS = POM.INDEKS 
+                    DA.DOSIJE D ON D.INDEKS = POM.INDEKS 
         WHERE       POM.SUMA IN (
                         SELECT  MAX(SUMA) 
                         FROM    POMOCNA POM1 
-                        WHERE   POM1.ID_SMERA = POM.ID_SMERA
+                        WHERE   POM1.IDPROGRAMA = POM.IDPROGRAMA
                     )
-        ORDER BY    ID_SMERA;
+        ORDER BY    IDPROGRAMA;
     is_error("Deklaracija kursora - najvisePolozenih");
 }
 
@@ -71,21 +71,22 @@ void deklarisi_poslednje_ispite() {
         DECLARE poslednji_ispit CURSOR FOR 
         WITH POMOCNA AS (
             SELECT      I.INDEKS, 
-                        MAX(COALESCE(DATUM_USMENOG, DATUM_PISMENOG)) DATUM_PRVOG
-            FROM        ISPIT I JOIN
-                        DOSIJE D ON D.INDEKS = I.INDEKS
+                        MAX(DATPOLAGANJA) DATUM_PRVOG
+            FROM        DA.ISPIT I JOIN
+                        DA.DOSIJE D ON D.INDEKS = I.INDEKS
             WHERE       OCENA > 5 AND
-                        STATUS_PRIJAVE = 'o'
+                        STATUS = 'o'
             GROUP BY    I.INDEKS
+            HAVING      MAX(DATPOLAGANJA) IS NOT NULL
         )
         SELECT  I.INDEKS
-        FROM    ISPIT I
+        FROM    DA.ISPIT I
         WHERE   I.INDEKS = :indeks AND
                 EXISTS (
                     SELECT  * 
                     FROM    POMOCNA PO 
                     WHERE   PO.INDEKS = I.INDEKS AND
-                            PO.DATUM_PRVOG = COALESCE(I.DATUM_USMENOG, I.DATUM_PISMENOG)
+                            PO.DATUM_PRVOG = DATPOLAGANJA
                 )
         FOR     UPDATE OF NAPOMENA;
     is_error("Deklaracija kursora - poslednji_ispit");
@@ -100,7 +101,7 @@ void obradi_smerove() {
             FETCH   najvisePolozenih                
             INTO    :suma, 
                     :indeks, 
-                    :id_smera;
+                    :id_stud_programa;
         is_error("Dohvatanje podataka iz kursora - najvisePolozenih");
 
         if(SQLCODE == 100) {
@@ -109,7 +110,7 @@ void obradi_smerove() {
         
         // Stampamo informaciju o studentu koji ima najvise kredita na smeru
         printf("Student sa brojem indeksa %d na smeru %d ima polozeno %d bodova!\n", 
-            indeks, id_smera, suma);
+            indeks, id_stud_programa, suma);
         
         azuriraj_napomene_za_ispite();
     }
@@ -133,11 +134,12 @@ void azuriraj_napomene_za_ispite() {
             break;
         }
         
+        // Pokusavamo da unesemo novi red u tabelu DOSIJEEXT
         EXEC SQL 
-            UPDATE  ISPIT
+            UPDATE  DA.ISPIT
             SET     NAPOMENA = 'Ovo je student koji ima najvise polozenih kredita na svom smeru'
             WHERE   CURRENT OF poslednji_ispit;
-        is_error("Azuriranje tabele ispit");
+        is_error("Update ISPIT");
     }
     
     EXEC SQL CLOSE poslednji_ispit;

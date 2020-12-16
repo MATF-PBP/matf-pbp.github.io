@@ -4,11 +4,13 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-sqlint32 d_indeks;
-char d_naziv[201];
-char d_datum[11];
-short d_ocena;
-double d_prosek;
+sqlint32 indeks;
+char naziv[151];
+char datum[11];
+short ind_datum;
+short ocena;
+short ind_ocena;
+double prosek;
 EXEC SQL END DECLARE SECTION;
 
 void is_error(const char* str)
@@ -23,37 +25,41 @@ void is_error(const char* str)
 int main()
 {
     // Konektujemo se na bazu podataka
-    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
     is_error("Connect");
     
     // Deklarisemo kursor koji za dati broj indeksa nalazi sve polozene ispite
 	EXEC SQL 
         DECLARE polozeni_ispiti CURSOR FOR 
 		SELECT  NAZIV, 
-                COALESCE(DATUM_USMENOG, DATUM_PISMENOG) AS DATUM_ISPITA, 
+                DATPOLAGANJA, 
                 OCENA 
-		FROM    ISPIT I JOIN
-                PREDMET P ON I.ID_PREDMETA = P.ID_PREDMETA
-        WHERE   INDEKS = :d_indeks AND
+		FROM    DA.ISPIT I JOIN
+                DA.PREDMET P ON I.IDPREDMETA = P.ID
+        WHERE   INDEKS = :indeks AND
                 OCENA > 5 AND
-                STATUS_PRIJAVE = 'o';
+                STATUS = 'o';
 	is_error("Declare cursor");
 	
 	printf("Unesite broj indeksa studenta:\n");
-	scanf("%d", &d_indeks);
+	scanf("%d", &indeks);
 
 	// Otvaramo kursor
 	EXEC SQL OPEN polozeni_ispiti;
 	is_error("Open cursor");
+    
+    printf("+--------------------------------------------------+----------+-----+\n");
+    printf("|NAZIV                                             |DATUM     |OCENA|\n");
+    printf("+--------------------------------------------------+----------+-----+\n");
 	
 	for(;;)
     {
 		// Smestamo naredni red rezultata upita u odgovarajuce promenljive
 		EXEC SQL 
             FETCH   polozeni_ispiti
-			INTO    :d_naziv, 
-                    :d_datum, 
-                    :d_ocena;
+			INTO    :naziv, 
+                    :datum :ind_datum, 
+                    :ocena :ind_ocena;
 		is_error("Fetch cursor");
 
 		// Ako smo stigli do kraja kursora, izlazimo iz petlje
@@ -63,10 +69,11 @@ int main()
         }
 
 		// Inace, stampamo naredni ispit
-		printf("NAZIV:%.70s DATUM:%s OCENA:%hd\n", 
-				d_naziv, d_datum, d_ocena);
+		printf("|%-50.50s|%10s|%5hd|\n", naziv, datum, ocena);
 	}
 
+	printf("+--------------------------------------------------+----------+-----+\n");
+	
 	// Zatvaramo kursor
 	EXEC SQL CLOSE polozeni_ispiti;
 	is_error("Close cursor");
@@ -74,14 +81,14 @@ int main()
 	// Za datog studenta racunamo prosek ocena 
 	EXEC SQL 
         SELECT  COALESCE(AVG(OCENA + 0.0), 5.0) 
-        INTO    :d_prosek 
-	    FROM    ISPIT
-	    WHERE   INDEKS = :d_indeks AND
+        INTO    :prosek 
+	    FROM    DA.ISPIT
+	    WHERE   INDEKS = :indeks AND
                 OCENA > 5 AND
-                STATUS_PRIJAVE = 'o';
+                STATUS = 'o';
 	is_error("Select into");
 	
-	printf("Prosek ocena je: %.2f.\n", d_prosek);
+	printf("Prosek ocena je: %.2f.\n", prosek);
 
     // Raskidamo konekciju sa bazom podataka
     EXEC SQL CONNECT RESET;

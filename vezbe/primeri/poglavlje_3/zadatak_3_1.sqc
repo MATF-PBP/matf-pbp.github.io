@@ -4,11 +4,17 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-sqlint32 d_id;
-char d_oznaka[11];
-char d_naziv[201];
-short d_semestara;
-short d_bodovi;
+sqlint32 id_stud_programa;
+char oznaka[11];
+char naziv[201];
+short id_nivoa;
+short bodovi;
+char zvanje[101];
+struct {
+   short int duzina;
+   char tekst[32700];
+} opis;
+short ind_opis;
 EXEC SQL END DECLARE SECTION;
 
 void is_error(const char* str)
@@ -23,36 +29,48 @@ void is_error(const char* str)
 int main()
 {
     // Konektujemo se na bazu podataka
-    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
     is_error("Connect");
     
-    // Deklarisemo kursor koji prolazi tabelom smer
+    // Deklarisemo kursor koji prolazi tabelom STUDIJSKIPROGRAM.
+    // Ovde navodimo upit kroz koji ce kursor prolaziti, ali koji se jos uvek ne izvrsava.
     EXEC SQL 
-        DECLARE c_smer CURSOR FOR 
-        SELECT  ID_SMERA, 
+        DECLARE c_studijskiprogram CURSOR FOR 
+        SELECT  ID, 
                 OZNAKA, 
                 NAZIV, 
-                SEMESTARA, 
-                BODOVI 
-        FROM    SMER;
-    is_error("Declare cursor");
+                IDNIVOA, 
+                OBIMESPB,
+                ZVANJE,
+                OPIS
+        FROM    DA.STUDIJSKIPROGRAM;
+    is_error("Declare cursor c_studijskiprogram");
     
-    // Otvaramo kursor, cime se izvrsava upit naveden u deklaraciji
-    EXEC SQL OPEN c_smer;
-    is_error("Open cursor");
+    // Otvaramo kursor, cime se izvrsava upit naveden u deklaraciji.
+    // Sada se kursor nalazi na redu "pre prvog reda" u rezultatu.
+    EXEC SQL OPEN c_studijskiprogram;
+    is_error("Open cursor c_studijskiprogram");
+    
+    printf("+---------------------------------------------------------------------------------------------------------------------------------------+\n");
+    printf("|                                                           STUDIJSKI PROGRAM                                                           |\n");
+    printf("+-----+------+------------------------------+----+----+------------------------------+--------------------------------------------------+\n");
+    printf("|ID   |OZNAKA|NAZIV                         |NIVO|OBIM|ZVANJE                        |OPIS                                              |\n");
+    printf("|-----+------+------------------------------+----+----+------------------------------+--------------------------------------------------+\n");
 
     // Sve dok ima redova u rezultujucoj tabeli
     for(;;)
     {
         // Citamo red po red
         EXEC SQL 
-            FETCH   c_smer
-            INTO    :d_id, 
-                    :d_oznaka, 
-                    :d_naziv, 
-                    :d_semestara, 
-                    :d_bodovi;
-        is_error("Fetch cursor");
+            FETCH   c_studijskiprogram
+            INTO    :id_stud_programa, 
+                    :oznaka, 
+                    :naziv, 
+                    :id_nivoa, 
+                    :bodovi,
+                    :zvanje,
+                    :opis :ind_opis;
+        is_error("Fetch from cursor c_studijskiprogram");
 
         // Ako smo stigli do kraja rezultujuce tabele, 
         // izlazimo iz petlje
@@ -62,14 +80,13 @@ int main()
         }
 
         // Inace, stampamo red iz rezultata
-        printf("ID:%d   OZNAKA:%s   NAZIV:%.70s   "
-            "SEMESTARA:%hd   bodovi:%hd\n", 
-            d_id, d_oznaka, d_naziv, d_semestara, d_bodovi);
+        printf("|%-5d|%-6s|%-30.30s|%-4hd|%-4hd|%-30.30s|%-50.50s|\n", id_stud_programa, oznaka, naziv, id_nivoa, bodovi, zvanje, (ind_opis < 0) ? "NULL" : opis.tekst);
+        printf("|-----+------+------------------------------+----+----+------------------------------+--------------------------------------------------+\n");
     }
 
     // Zatvaramo kursor
-    EXEC SQL CLOSE c_smer;
-    is_error("Close cursor");
+    EXEC SQL CLOSE c_studijskiprogram;
+    is_error("Close cursor c_studijskiprogram");
 
     // Raskidamo konekciju sa bazom podataka
     EXEC SQL CONNECT RESET;
