@@ -5,67 +5,111 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-sqlint32 indeks;
-short godina;
-char naziv[201];
-short ocena;
+short sk_godina;
+char oznaka_roka[21];
+sqlint32 id_predmeta;
+double uspesnost;
 EXEC SQL END DECLARE SECTION;
 
-void is_error(const char *err) {
-    if (SQLCODE < 0) {
-        printf("SQLCODE %d: %s\n\n", SQLCODE, err);
+void is_error(const char *err) 
+{
+    if (SQLCODE < 0) 
+    {
+        printf("Greska %d: %s\n\n", SQLCODE, err);
     
         EXEC SQL ROLLBACK;
+        
+        EXEC SQL CONNECT RESET;
         exit(EXIT_FAILURE);
     }
 }
 
-void deklarisi_kursor_za_godine(sqlint32 indeks);
-unsigned godine_polozenih_ispita();
-void deklarisi_kursor_za_polaganja(sqlint32 indeks, short godina);
-void polaganja_za_studenta_u_godini(sqlint32 indeks, short godina);
-
-char odgovor[3];
-
-int main() {
-    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+int main() 
+{
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
     is_error("Connect");
 
-    deklarisi_kursor_za_godine(indeks);
-    deklarisi_kursor_za_polaganja(indeks, godina);
+    EXEC SQL 
+        DECLARE c_statistike CURSOR WITH HOLD FOR
+        SELECT      SKGODINA,
+                    OZNAKAROKA,
+                    IDPREDMETA,
+                    SUM(
+                        CASE 
+                            WHEN OCENA > 5 AND STATUS='o' THEN 1.0 
+                            ELSE 0.0 
+                        END
+                    ) / COUNT(*) * 100.0 AS USPESNOST
+        FROM        DA.ISPIT I
+        WHERE       NOT EXISTS (
+                        SELECT  *
+                        FROM    DA.STATISTIKA_POLAGANJA SP
+                        WHERE   SP.SKGODINA = I.SKGODINA AND
+                                SP.OZNAKAROKA = I.OZNAKAROKA AND
+                                SP.IDPREDMETA = I.IDPREDMETA
+                    )
+        GROUP BY    SKGODINA,
+                    OZNAKAROKA,
+                    IDPREDMETA
+        ORDER BY    IDPREDMETA ASC,
+                    SKGODINA ASC,
+                    OZNAKAROKA DESC;
+    is_error("Declare c_statistike");
     
-    for(;;) {
-        printf("\n----------POCETAK TRANSAKCIJE----------\n\n");
+    EXEC SQL OPEN c_statistike;
+    is_error("Open c_statistike");
+    
+    for (;;) 
+    {
+        EXEC SQL 
+            FETCH   c_statistike
+            INTO    :sk_godina,
+                    :oznaka_roka,
+                    :id_predmeta,
+                    :uspesnost;
+        is_error("Fetch c_statistike");
         
-        printf("Unesite indeks studenta: ");
-        scanf("%d", &indeks);
-        
-        unsigned br_neobradjenih_godina = godine_polozenih_ispita();
-        
-        if (br_neobradjenih_godina == 0) {
-            printf(
-                "Za datog studenta ne postoji obradjena godina "
-                "u kojoj su polagali neke ispite\n");
-            continue;
-        }
-        
-        printf("Unesite jednu od ponudjenih godina polaganja: ");
-        scanf("%hd", &godina);
-        
-        polaganja_za_studenta_u_godini(indeks, godina);
-        
-        EXEC SQL COMMIT;
-        is_error("Commit transakcije");
-        
-        printf("\n----------KRAJ TRANSAKCIJE----------\n");
-        
-        printf("\nDa li zelite da nastavite dalje? [da/ne] ");
-        scanf("%s", odgovor);
-        
-        if (strcmp(odgovor, "da") != 0) {
+        if (SQLCODE == 100)
+        {
             break;
         }
+        
+        EXEC SQL
+            INSERT  INTO DA.STATISTIKA_POLAGANJA
+            VALUES  (:sk_godina, :oznaka_roka, :id_predmeta, NULL);
+        is_error("Insert");
+        
+        EXEC SQL SAVEPOINT tacka_cuvanja ON ROLLBACK RETAIN CURSORS;
+        is_error("Savepoint");
+        
+        EXEC SQL 
+            UPDATE  DA.STATISTIKA_POLAGANJA
+            SET     USPESNOST = :uspesnost
+            WHERE   SKGODINA = :sk_godina AND
+                    OZNAKAROKA = :oznaka_roka AND
+                    IDPREDMETA = :id_predmeta;
+        is_error("Update");
+        
+        printf("\nUneta je statistika: %5.2lf%% uspesnosti za predmet %d u roku %s %hd.\n"
+            "Da li zelite da ponistite unos statistike? [d/n] ", uspesnost, id_predmeta, oznaka_roka, sk_godina);
+        char odgovor = getchar();
+        getchar(); // novi red
+        
+        if (odgovor == 'd' || odgovor == 'D')
+        {
+            EXEC SQL
+                ROLLBACK TO SAVEPOINT tacka_cuvanja;
+            is_error("Rollback to savepoint");
+            
+            printf("Statistika o polaganju nije sacuvana, ali je zabelezeno da je izracunata!\n");
+        }
+        
+        EXEC SQL COMMIT;
+        is_error("Commit");
     }
+    
+    EXEC SQL CLOSE c_statistike;
+    is_error("Close c_statistike");
     
     EXEC SQL COMMIT;
     is_error("Commit");
@@ -74,118 +118,4 @@ int main() {
     is_error("Connect reset");
     
     return 0;
-}
-
-void deklarisi_kursor_za_godine(sqlint32 indeks) {
-    EXEC SQL 
-        DECLARE c_godine CURSOR FOR
-        SELECT  DISTINCT 
-                GODINA_ROKA
-        FROM    ISPIT I
-        WHERE   INDEKS = :indeks AND
-                OCENA > 5 AND
-                STATUS_PRIJAVE = 'o' AND
-                NOT EXISTS (
-                    SELECT  *
-                    FROM    OBRADJENA_POLAGANJA
-                    WHERE   INDEKS = :indeks AND
-                            GODINA = I.GODINA_ROKA
-                )
-        FOR     READ ONLY;
-    is_error("Declare c_godine");
-}
-
-unsigned godine_polozenih_ispita() {
-    unsigned br_neobradjenih_godina = 0u;
-    
-    EXEC SQL OPEN c_godine;
-    is_error("Open c_godine");
-    
-    for(;;) {
-        EXEC SQL 
-            FETCH   c_godine
-            INTO    :godina;
-        is_error("Fetch c_godine");
-        
-        if (SQLCODE == 100) {
-            break;
-        }
-        
-        printf("\t%hd\n", godina);
-        ++br_neobradjenih_godina;
-    }
-    
-    EXEC SQL CLOSE c_godine;
-    is_error("Close c_godine");
-    
-    return br_neobradjenih_godina;
-}
-
-void deklarisi_kursor_za_polaganja(sqlint32 indeks, short godina) {
-    EXEC SQL 
-        DECLARE c_polozeni CURSOR WITH HOLD FOR
-        SELECT  (
-                    SELECT  TRIM(P.NAZIV)
-                    FROM    PREDMET P
-                    WHERE   I.ID_PREDMETA = P.ID_PREDMETA
-                ) AS NAZIV_PREDMETA,
-                I.OCENA
-        FROM    ISPIT I
-        WHERE   I.INDEKS = :indeks AND
-                I.GODINA_ROKA = :godina AND
-                OCENA > 5 AND
-                STATUS_PRIJAVE = 'o'
-        FOR     UPDATE OF STATUS_PRIJAVE;
-    is_error("Declare c_polozeni");
-}
-
-void polaganja_za_studenta_u_godini(sqlint32 indeks, short godina) {
-    EXEC SQL 
-        INSERT  INTO OBRADJENA_POLAGANJA
-        VALUES  (:indeks, :godina);
-    is_error("Insert into");
-    
-    EXEC SQL
-        SAVEPOINT s_obradjeni ON ROLLBACK RETAIN CURSORS;
-    is_error("Savepoint");
-    
-    EXEC SQL OPEN c_polozeni;
-    is_error("Open c_polozeni");
-    
-    for (;;) {
-        EXEC SQL 
-            FETCH   c_polozeni
-            INTO    :naziv,
-                    :ocena;
-        is_error("Fetch c_polozeni");
-        
-        if (SQLCODE == 100) {
-            break;
-        }
-        
-        printf("%s, %d\n", naziv, ocena);
-        printf("Da li zelite da ponistite ispit? [da/ne] ");
-        scanf("%s", odgovor);
-        
-        if (strcmp(odgovor, "da") != 0) {
-            continue;
-        }
-        
-        EXEC SQL
-            UPDATE  ISPIT
-            SET     STATUS_PRIJAVE = 'x'
-            WHERE   CURRENT OF c_polozeni;
-        is_error("Update");
-    }
-    
-    EXEC SQL CLOSE c_polozeni;
-    is_error("Close c_polozeni");
-    
-    printf("Da li zelite da potvrdite sve izmene za tekuceg studenta? [da/ne] ");
-    scanf("%s", odgovor);
-    
-    if (strcmp(odgovor, "da") != 0) {
-        EXEC SQL ROLLBACK TO SAVEPOINT s_obradjeni;
-        is_error("Rollback to savepoint");
-    }
 }

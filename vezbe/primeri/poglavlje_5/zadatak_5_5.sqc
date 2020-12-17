@@ -1,102 +1,116 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 EXEC SQL INCLUDE SQLCA;
 
+typedef struct {
+    sqlint32 sk_godina;
+    char oznaka_roka[21];
+    char naziv[31];
+    char datum_pocetka[11];
+    char datum_kraja[11];
+} ispitnirok_struct;
+
 EXEC SQL BEGIN DECLARE SECTION;
-sqlint32 godina;
-char oznaka[21], 
-     naziv[51];
+// Definisemo strukturu za ispitne rokove.
+// Naredna promenljiva ce se koristiti za dohvatanje jednog ispitnog roka.
+// Nazalost, nije moguce koristiti typedef iznad, vec moramo eksplicitno zadati strukturu.
+struct {
+    sqlint32 sk_godina;
+    char oznaka_roka[21];
+    char naziv[31];
+    char datum_pocetka[11];
+    char datum_kraja[11];
+} rok;
 EXEC SQL END DECLARE SECTION;
 
 void is_error(const char* err)
 {
     if (SQLCODE < 0)
     {
-        printf("SQLCODE %d: %s\n\n", SQLCODE, err);
+        printf("Greska %d: %s\n\n", SQLCODE, err);
         
         EXEC SQL ROLLBACK;
+        
+        EXEC SQL CONNECT RESET;
         exit(EXIT_FAILURE);
     }
 }
 
 int main()
 {
-    char odgovor_od_korisnika;
-
-    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
     is_error("Connect");
 
-    EXEC SQL 
-        DECLARE ispitniRok CURSOR WITH HOLD FOR
-        SELECT  GODINA, 
-                OZNAKA, 
-                NAZIV
-        FROM    ISPITNI_ROK;
-    is_error("Declare");
-
-    EXEC SQL 
-        INSERT 
-        INTO    ISPITNI_ROK
-        VALUES  (2019, 'apr', 'April 2019', CURRENT_DATE, CURRENT_DATE + 20 DAYS, 1);
-    is_error("Insert into ispitni_rok apr");
-
-    // Kreiranje tacke cuvanja sa nazivom S1
-    EXEC SQL SAVEPOINT S1 ON ROLLBACK RETAIN CURSORS;
-    is_error("Savepoint");
+    // Pripremamo niz ispitnih rokova
+    // Naredni niz ce cuvati generisane ispitne rokove za tekucu godinu
+    ispitnirok_struct rokovi[12];
+    const int n = sizeof(rokovi)/sizeof(ispitnirok_struct);
+    const char *meseci[] = {"Januar", "Februar", "Mart", "April", "Maj", "Jun", "Jul", "Avgust", "Septembar", "Oktobar", "Novembar", "Decembar"};
+    int i;
+    for (i = 0; i < n; ++i)
+    {
+        rokovi[i].sk_godina = 2021;
+        sprintf(rokovi[i].oznaka_roka, "%.3s 21", meseci[i]);
+        sprintf(rokovi[i].naziv, "%s 2021", meseci[i]);
+        sprintf(rokovi[i].datum_pocetka, "%2.2d/01/2021", i+1);
+        sprintf(rokovi[i].datum_kraja, "%2.2d/10/2021", i+1);
+    }
     
     EXEC SQL 
-        INSERT 
-        INTO    ISPITNI_ROK
-        VALUES  (2019, 'mar', 'Mart 2019', CURRENT_DATE - 1 MONTH, CURRENT_DATE - 1 MONTH + 20 DAYS, 1);    
-    is_error("Insert into ispitni_rok mar");
+        DECLARE ispitni_rokovi CURSOR WITH HOLD FOR
+        SELECT  *
+        FROM    DA.ISPITNIROK;
+    is_error("Declare");
+    
+    printf("Unesite obavezan broj ispitnih rokova: ");
+    short broj_rokova;
+    scanf("%hd", &broj_rokova);
+    getchar(); // novi red
 
-    EXEC SQL 
-        INSERT 
-        INTO    ISPITNI_ROK
-        VALUES  (2019, 'maj', 'Maj 2019', CURRENT_DATE + 1 MONTH, CURRENT_DATE + 1 MONTH + 20 DAYS, 1);    
-    is_error("Insert into ispitni_rok maj");
+    for (i = 0; i < broj_rokova; ++i)
+    {
+        rok.sk_godina = rokovi[i].sk_godina;
+        strcpy(rok.oznaka_roka, rokovi[i].oznaka_roka);
+        strcpy(rok.naziv, rokovi[i].naziv);
+        strcpy(rok.datum_pocetka, rokovi[i].datum_pocetka);
+        strcpy(rok.datum_kraja, rokovi[i].datum_kraja);
+            
+        EXEC SQL 
+            INSERT  INTO DA.ISPITNIROK
+            VALUES  (:rok);
+        is_error("Unosenje obaveznih ispitnih rokova");
+    }
 
-    EXEC SQL 
-        INSERT 
-        INTO    ISPITNI_ROK
-        VALUES  (2019, 'jun', 'Jun 2019', CURRENT_DATE + 2 MONTH, CURRENT_DATE + 2 MONTH + 20 DAYS, 1);    
-    is_error("Insert into ispitni_rok jun");
+    // Kreiranje tacke cuvanja
+    EXEC SQL SAVEPOINT tacka_cuvanja ON ROLLBACK RETAIN CURSORS;
+    is_error("Savepoint");
+    
+    for (; i < n; ++i)
+    {
+        rok.sk_godina = rokovi[i].sk_godina;
+        strcpy(rok.oznaka_roka, rokovi[i].oznaka_roka);
+        strcpy(rok.naziv, rokovi[i].naziv);
+        strcpy(rok.datum_pocetka, rokovi[i].datum_pocetka);
+        strcpy(rok.datum_kraja, rokovi[i].datum_kraja);
+        
+        EXEC SQL 
+            INSERT  INTO DA.ISPITNIROK
+            VALUES  (:rok);
+        is_error("Unosenje ostalih ispitnih rokova");
+    }
 
-    EXEC SQL 
-        INSERT 
-        INTO    ISPITNI_ROK
-        VALUES  (2019, 'jul', 'Jul 2019', CURRENT_DATE + 3 MONTH, CURRENT_DATE + 3 MONTH + 20 DAYS, 1);    
-    is_error("Insert into ispitni_rok jul");
-
-    EXEC SQL 
-        INSERT 
-        INTO    ISPITNI_ROK
-        VALUES  (2019, 'avg', 'Avgust 2019', CURRENT_DATE + 4 MONTH, CURRENT_DATE + 4 MONTH + 20 DAYS, 1);
-    is_error("Insert into ispitni_rok avg");
-
-    EXEC SQL 
-        INSERT 
-        INTO    ISPITNI_ROK
-        VALUES  (2019, 'sep', 'Septembar 2019', CURRENT_DATE + 5 MONTH, CURRENT_DATE + 5 MONTH + 20 DAYS, 1);    
-    is_error("Insert into ispitni_rok sep");
-
-    EXEC SQL 
-        INSERT 
-        INTO    ISPITNI_ROK
-        VALUES  (2019, 'okt', 'Oktobar 2019', CURRENT_DATE + 6 MONTH, CURRENT_DATE + 1 MONTH + 20 DAYS, 1);
-    is_error("Insert into ispitni_rok okt");
-
-    EXEC SQL OPEN ispitniRok;
+    printf("----------------------------------------\n");
+    
+    EXEC SQL OPEN ispitni_rokovi;
     is_error("Open");
 
     for(;;)
     {
         EXEC SQL 
-            FETCH   ispitniRok 
-            INTO    :godina, 
-                    :oznaka, 
-                    :naziv;
+            FETCH   ispitni_rokovi 
+            INTO    :rok;
         is_error("Fetch");
 
         if(SQLCODE == 100)
@@ -104,19 +118,22 @@ int main()
             break;
         }
 
-        printf("Godina %d oznaka: %s i naziv %s \n", godina, oznaka, naziv);
+        printf("%5.5d  %7.7s  %18.18s  %10.10s  %10.10s\n", 
+               rok.sk_godina, rok.oznaka_roka, rok.naziv, rok.datum_pocetka, rok.datum_kraja);
     }
 
-    EXEC SQL CLOSE ispitniRok;    
+    EXEC SQL CLOSE ispitni_rokovi;    
     is_error("Close");
+    
+    printf("----------------------------------------\n");
 
-    printf("Da li zelite da ponistite izmene? \n");
+    printf("Da li zelite da ponistite unos neobaveznih ispitnih rokova? \n");
 
-    odgovor_od_korisnika = getchar();
+    char odgovor_od_korisnika = getchar();
     if (odgovor_od_korisnika == 'd' || odgovor_od_korisnika == 'D')
     {
-        // Ponistavanje izmena samo do tacke cuvanja S1
-        EXEC SQL ROLLBACK TO SAVEPOINT S1;
+        // Ponistavanje izmena samo do prethodno kreirane tacke cuvanja
+        EXEC SQL ROLLBACK TO SAVEPOINT tacka_cuvanja;
         is_error("Rollback");
     }
     else 
@@ -125,16 +142,16 @@ int main()
         is_error("Commit");
     }
 
-    EXEC SQL OPEN ispitniRok;
+    printf("----------------------------------------\n");
+    
+    EXEC SQL OPEN ispitni_rokovi;
     is_error("Open");
 
-    while(1)
+    for(;;)
     {
         EXEC SQL 
-            FETCH   ispitniRok 
-            INTO    :godina, 
-                    :oznaka, 
-                    :naziv;
+            FETCH   ispitni_rokovi 
+            INTO    :rok;
         is_error("Fetch");
 
         if(SQLCODE == 100)
@@ -142,11 +159,14 @@ int main()
             break;
         }
 
-        printf("Godina %d oznaka: %s i naziv %s \n", godina, oznaka, naziv);
+        printf("%5.5d  %7.7s  %18.18s  %10.10s  %10.10s\n", 
+               rok.sk_godina, rok.oznaka_roka, rok.naziv, rok.datum_pocetka, rok.datum_kraja);
     }
 
-    EXEC SQL CLOSE ispitniRok;    
+    EXEC SQL CLOSE ispitni_rokovi;    
     is_error("Close");
+    
+    printf("----------------------------------------\n");
 
     EXEC SQL COMMIT;
     is_error("Potvrdjivanje izmena");

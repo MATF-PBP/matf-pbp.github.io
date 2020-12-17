@@ -1,8 +1,45 @@
-Zadatak 4.2
+#include <stdio.h>
+#include <stdlib.h>
 
-Napisati C/SQL program koji redom:
+EXEC SQL INCLUDE SQLCA;
 
-1. Kreira novi ispitni rok samo za predmete iz prvog semestra u tekućoj godini čija je oznaka 'maj' i naziv 'Maj GODINA' u zavisnosti od tekuće godine (na primer, 'Maj 2019'). Za početak prijavljivanja postaviti današnji datum i postaviti da prijavljivanje traje 20 dana.
-2. Ažurira datum kraja prijavljivanja za prethodno uneti ispitni rok tako što smanjuje trajanje prijavljivanja za 10 dana.
+void is_error(const char *err)
+{
+    if (SQLCODE < 0)
+    {
+        printf("Greska %d: %s\n\n", SQLCODE, err);
+    
+        EXEC SQL ROLLBACK;
+        
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
 
-Obezbediti da se navedene operacije izvrše ili sve ili nijedna.
+int main()
+{
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    is_error("Connect");
+    
+    EXEC SQL 
+        BEGIN COMPOUND ATOMIC STATIC
+            INSERT  INTO DA.ISPITNIROK
+            VALUES  (YEAR(CURRENT_DATE), 'maj', CONCAT('Maj ', YEAR(CURRENT_DATE)), CURRENT_DATE, CURRENT_DATE + 20 days);
+            
+            UPDATE  DA.ISPITNIROK
+            SET     DATKRAJA = DATKRAJA - 10 days
+            WHERE   SKGODINA = YEAR(CURRENT_DATE) AND
+                    OZNAKAROKA = 'maj';
+        END COMPOUND;
+    is_error("Compound");
+    
+    printf("Sve naredbe su uspesno izvrsene!\n");
+    
+    EXEC SQL COMMIT;
+    is_error("Commit");
+    
+    EXEC SQL CONNECT RESET;
+    is_error("Connect reset");
+    
+    return 0;
+}

@@ -6,7 +6,7 @@ under_construction: true
 
 Transakcije predstavljaju izuzetno važan alat za svakog programera koji koristi baze podataka u svojim aplikacijama. Svaka iole kompleksnija operacija nad podacima zahteva korišćenje transakcija da bi se takva operacija uspešno implementirala. Pritom, postoji veliki broj pitanja i potencijalnih problema koji se otvaraju prilikom korišćenja  transakcija. U ovoj sekciji ćemo se upoznati sa različitim naredbama za rad sa transakcijama u DB2 sistemu za upravljanje relacionim bazama podataka. Započnimo ovaj deo teksta narednom definicijom.
 
-{% include lab/definition.html def="*Transakcija* (engl. *transaction*) predstavlja logičku jedinicu posla pri radu sa podacima." %}
+*Transakcija* (engl. *transaction*) predstavlja logičku jedinicu posla pri radu sa podacima.
 
 Transakcija predstavlja niz radnji koji ne narušava uslove integriteta. Sa stanovišta korisnika, izvršavanje transakcije je atomično. Po izvršenju kompletne transakcije stanje baze treba da bude konzistentno, tj. da su ispunjeni uslovi integriteta. Dakle, posmatrana kao jedinica posla, transakcija prevodi jedno konzistentno stanje baze u drugo takvo stanje baze, dok u međukoracima transakcije konzistentnost podataka može biti i narušena. Transakcija na taj način predstavlja i bezbedno sredstvo za interakciju korisnika sa bazom.
 
@@ -14,7 +14,7 @@ Transakcija predstavlja niz radnji koji ne narušava uslove integriteta. Sa stan
 
 Pre nego što započnemo detaljnu diskusiju o implementaciji transakcija, obratićemo pažnju na jedan realan primer izvršavanja programa koji implementira prebacivanje novca sa jednog računa na drugi. Ovaj primer će nam služiti kao glavna motivacija zašto je potrebno da razumemo rad sa transakcijama. Pre nego što demonstriramo primer, dajmo narednu definiciju.
 
-{% include lab/definition.html def="*Atomična* (engl. *atomic*) operacija je ona operacija koju nije moguće podeliti na više manjih operacija (tj. u pitanju je nedeljiva operacija)." %}
+*Atomična* (engl. *atomic*) operacija je ona operacija koju nije moguće podeliti na više manjih operacija (tj. u pitanju je nedeljiva operacija).
 
 Premeštaj novca sa jednog računa na drugi se može implementirati narednim nizom atomičnih operacija (radi čuvanja prostora, iz narednog niza eliminišemo razne provere, kao što su provera da li korisnik može da prebaci novac između računa, provera da li ima dovoljno sredstava na prvom računu, itd.):
 
@@ -25,28 +25,27 @@ Premeštaj novca sa jednog računa na drugi se može implementirati narednim niz
 
 Pretpostavimo da SUBP operacije iz ovih koraka implementira na takav način da se neposredno nakon njihovog izvršavanja sve izmene trajno upisuju u bazu podataka. Naredna slika ilustruje jedno moguće izvršavanje programa koji implementira ove korake. U tom izvršavanju, program prvo naredbom `SELECT` dohvata red u tabeli koji predstavlja prvi račun (koji je na početku imao 100 000 jedinica valute). Zatim, u drugom koraku, naredbom `UPDATE` umanjuje iznos u tom redu za traženu sumu (10 000 jedinica valute). Iz nekog razloga (nestanak struje, prekid mrežne komunikacije, itd.), nakon 2. koraka, program prijavljuje grešku i operativni sistem ga prekida. Međutim, kao što je prikazano na slici, stanje baze je takvo da je prvom računu umanjen iznos i informacija o tome da novac nije uspešno prebačen na drugi račun se izgubila. Drugim rečima, baza se nalazi u *nekonzistentnom* stanju. Zbog toga, važno je zapamtiti da **SUBP nikada ne implementira operacije izmena tako da njihovi efekti budu trajno upisani u bazu podataka neposredno nakon njihovog izvršavanja**.
 
-{:style="max-width: 500px; display: block; margin: auto;"}
-![Nepravilna implementacija transakcija može dovesti do kršenja pravila u poslovnom domenu](./Slike/CitanjePrePotvrdjivanja.png)
+![Nepravilna implementacija transakcija može dovesti do kršenja pravila u poslovnom domenu](./Slike/CitanjePrePotvrdjivanja.png){:class="ui centered large image"}
 
 Sada je validno postaviti pitanje - u kom trenutku se informacije o izmenama zaista upisuju u bazu podataka? Db2 baza podataka definiše naredne dve operacije za rad sa izmenama u bazi podataka.
 
-{% include lab/definition.html def="*Potvrđivanje* (engl *commit*) predstavlja trajno upisivanje izmena u bazu podataka koje su do tada bile izvršene nad tom bazom podataka. Sve načinjene izmene se trajno pamte u bazi podataka i svi ostali procesi dobijaju mogućnost da vide načinjene izmene." %}
+*Potvrđivanje* (engl *commit*) predstavlja trajno upisivanje izmena u bazu podataka koje su do tada bile izvršene nad tom bazom podataka. Sve načinjene izmene se trajno pamte u bazi podataka i svi ostali procesi dobijaju mogućnost da vide načinjene izmene.
 
-{% include lab/definition.html def="*Poništavanje* (engl *rollback*) predstavlja vraćanje stanje baze podataka u ono u kojem se baza podataka našla pre izvršavanja izmena koje su do tada bile izvršene nad tom bazom podataka. Izvršavanjem ove naredbe možemo poništiti sve one akcije koje do trenutka poništavanja nisu prethodno bile potvrđene." %}
+*Poništavanje* (engl *rollback*) predstavlja vraćanje stanje baze podataka u ono u kojem se baza podataka našla pre izvršavanja izmena koje su do tada bile izvršene nad tom bazom podataka. Izvršavanjem ove naredbe možemo poništiti sve one akcije koje do trenutka poništavanja nisu prethodno bile potvrđene.
 
 Da bismo dodatno razumeli koje su to izmene u bazi podataka koje se potvrđuju, odnosno, poništavaju ovim operacijama, potrebno je da definišemo pojam jedinice posla.
 
-{% include lab/definition.html def="*Jedinica posla* (engl. *unit of work*, skr. *UOW*) predstavlja nadoknadivu sekvencu operacija u okviru aplikacionog procesa." %}
+*Jedinica posla* (engl. *unit of work*, skr. *UOW*) predstavlja nadoknadivu sekvencu operacija u okviru aplikacionog procesa.
 
 Jedinica posla se inicijalizuje prilikom pokretanja aplikacionog procesa ili kada se prethodna jedinica posla završila posledicom operacije koja nije prekid aplikacionog procesa. Jedinica posla se završava operacijom potvrđivanja ili poništavanja izmena ili završetkom aplikacionog procesa. Operacije potvrđivanja i poništavanja izmena utiču samo da one promene u bazi podataka koje su izvršene tokom te jedinice posla koja se završava.
 
 Inicijalizacija i završetak jedinice posla definišu tačke konzistentnosti u okviru aplikacionog procesa. Razmotrimo prethodni primer bankarske transakcije u kojoj se vrši premeštaj sredstava sa jednog računa na drugi račun. Kao što smo rekli, nakon drugog koraka (oduzimanja sredstava) podaci su nekonzistentni. Tek nakon izvršavanja četvrtog koraka (uvećavanje sredstava) konzistentnost je obnovljena, što je prikazano na narednoj slici:
 
-!["Grafički prikaz jedne jedinice posla tokom vremena. Ova jedinica posla se uspešno izvršila i sve izmene koje predstavljaju deo te jedinice posla se uspešno potvrđuju u bazi podataka."](./Slike/uow1.png){:style="display: block; margin: auto;"}
+!["Grafički prikaz jedne jedinice posla tokom vremena. Ova jedinica posla se uspešno izvršila i sve izmene koje predstavljaju deo te jedinice posla se uspešno potvrđuju u bazi podataka."](./Slike/uow1.png){:class="ui centered large image"}
 
 Kada se oba koraka izvrše, može se iskoristiti operacija potvrđivanja izmena da bi se završila jedinica posla. Ako dođe do greške pre nego što se jedinica posla uspešno završi, SUBP će poništiti sve nepotvrđene izmene da bi vratio stanje baze podataka u konzistentno, što je prikazano na narednoj slici:
 
-!["Grafički prikaz jedne jedinice posla tokom vremena. U ovoj jedinici posla je došlo do greške, čime je neophodno da se izmene koje su načinjene u bazi podataka ponište."](./Slike/uow2.png){:style="display: block; margin: auto;"}
+!["Grafički prikaz jedne jedinice posla tokom vremena. U ovoj jedinici posla je došlo do greške, čime je neophodno da se izmene koje su načinjene u bazi podataka ponište."](./Slike/uow2.png){:class="ui centered large image"}
 
 Dakle, rešenje problema prenosa novca bismo implementirali narednim koracima:
 
@@ -65,15 +64,15 @@ SQL jezik definiše dve naredbe koje odgovaraju opisanim operacijama:
 
 - Naredba `ROLLBACK` implementira operaciju poništavanja izmena.
 
-O ovim naredbama i njihovim bočnim efektima ćemo detaljnije govoriti u sekcijama [5.4](#54-potvrđivanje-izmena) i [5.5](#55-poništavanje-izmena). Međutim, diskusija koju smo izložili do sada je dovoljna za demonstraciju najosnovnijeg efekta ovih naredbi.
+O ovim naredbama i njihovim bočnim efektima ćemo detaljnije govoriti u sekcijama [o potvr\dj ivanju izmena](#54-potvrđivanje-izmena) i [o poni\v stavanju izmena](#55-poništavanje-izmena). Međutim, diskusija koju smo izložili do sada je dovoljna za demonstraciju najosnovnijeg efekta ovih naredbi.
 
-{% include lab/exercise.html broj="5.1" tekst="Napisati C/SQL program koji redom:\n
-\n
-1. Pronalazi i ispisuje najveći indeks iz tabele `ISPIT`.\n
-2. Briše studenta sa pronađenim indeksom iz tabele `ISPIT` i ispisuje poruku korisniku o uspešnosti brisanja.\n
-3. Ponovo pronalazi i ispisuje najveći indeks iz tabele `ISPIT`.\n
-4. Pita korisnika da li želi da potvrdi ili poništi izmene. U zavisnosti od korisnikovog odgovora, aplikacija potvrđuje ili poništava izmene uz ispisivanje poruke korisniku.\n
-5. Ponovo pronalazi i ispisuje najveći indeks iz tabele `ISPIT`.\n" %}
+{% include lab/exercise.html broj="5.1" tekst="Napisati C/SQL program koji redom:
+
+1. Pronalazi i ispisuje najveći indeks iz tabele `ISPIT`.
+2. Briše studenta sa pronađenim indeksom iz tabele `ISPIT` i ispisuje poruku korisniku o uspešnosti brisanja.
+3. Ponovo pronalazi i ispisuje najveći indeks iz tabele `ISPIT`.
+4. Pita korisnika da li želi da potvrdi ili poništi izmene. U zavisnosti od korisnikovog odgovora, aplikacija potvrđuje ili poništava izmene uz ispisivanje poruke korisniku.
+5. Ponovo pronalazi i ispisuje najveći indeks iz tabele `ISPIT`." %}
 
 Rešenje:
 
@@ -85,13 +84,13 @@ Vrlo je bitno primetiti naredne dve stvari u kodu:
 
 - U slučaju da dođe do greške prilikom izvršavanja programa, pre nego što izađemo iz programa i prijavimo neuspeh, u funkciji `is_error` izvršavamo naredbu `ROLLBACK` kako bismo poništili sve izmene koje je naša aplikacija eventualno izvršila nad bazom podataka.
 
-Ovo je dobra praksa i mi ćemo usvojiti ovaj način rada u našim C/SQL programima.
+Ovo je dobra praksa i mi ćemo usvojiti ovaj način rada u našim C/SQL programima nadalje.
 
 ## 5.2 Složena SQL naredba
 
 U ovoj sekciji ćemo diskutovati o načinima za izvršavanje više SQL naredbi kao jedne naredbe, tzv. složene SQL naredbe. Složene SQL naredbe predstavljaju osnovu rada sa transakcijama, o čemu će biti detaljnije reči u nastavku teksta.
 
-{% include lab/definition.html def="*Složena SQL naredba* (engl. *compound SQL*) predstavlja sekvencu SQL naredbi ograđenu odgovarajućim ključnim rečima kojim se definiše jedan blok izvršavanja." %}
+*Složena SQL naredba* (engl. *compound SQL*) predstavlja sekvencu SQL naredbi ograđenu odgovarajućim ključnim rečima kojim se definiše jedan blok izvršavanja.
 
 Postoje tri tipa složenih SQL naredbi:
 
@@ -128,22 +127,21 @@ U zavisnosti od odabranih vrednosti narednih opcija prilikom deklaracije složen
    - STATIC - Specifikuje da će sve matične promenljive za sve podnaredbe zadržati njihove originalne vrednosti. Na primer, ukoliko se u SQL složenoj naredbi nađe naredba:
 
 ```sql
-SELECT  MAX(OCENA) 
+SELECT  MIN(OCENA) 
 INTO    :ocena 
-FROM    ISPIT
+FROM    DA.ISPIT
 ```
 
 koja je praćena naredbom
 
 ```sql
-UPDATE  ISPIT 
-SET     NAPOMENA = 'Ovo je najveca ocena medju ispitima'
+DELETE  FROM DA.ISPIT 
 WHERE   OCENA = :ocena
 ```
 
-onda će naredba `UPDATE` koristiti vrednost matične promenljive `ocena` koju je ta promenljiva imala na početku bloka koji je definisan složenom SQL naredbom, a ne vrednost koja je dobijena naredbom `SELECT INTO`. Time je transakcija koja se ostvaruje tom SQL složenom naredbom, za koju bismo možda očekivali da bude korektna, zapravo neispravno implementirana, zato što se oslanja na međuvrednost koju dobija promenljiva `ocena` naredbom `SELECT INTO`. Dodatno, ako se vrednost iste promenljive postavlja od strane više SQL podnaredbi, onda će na kraju bloka ta promenljiva sadržati vrednost koju je postavila poslednja SQL podnaredba.
+onda će naredba `DELETE` koristiti vrednost matične promenljive `ocena` koju je ta promenljiva imala na početku bloka koji je definisan složenom SQL naredbom, a ne vrednost koju je naredba `SELECT INTO` upisala u tu mati\v cnu promenljivu. Time je transakcija koja se ostvaruje tom SQL složenom naredbom, za koju bismo možda očekivali da bude korektna, zapravo neispravno implementirana, zato što se oslanja na međuvrednost koju mati\v cna promenljiva `ocena` dobija naredbom `SELECT INTO`. Dodatno, ako se vrednost iste promenljive postavlja od strane više SQL podnaredbi, onda će na kraju bloka ta promenljiva sadržati vrednost koju je postavila poslednja SQL podnaredba.
 
-Napomenimo da u DB2 sistemu nestatičko ponašanje nije podržano. To znači da bi trebalo posmatrati kao da se podnaredbe izvršavaju nesekvencijalno i podnaredbe ne bi trebalo da imaju međuzavisnosti.
+Napomenimo da u DB2 sistemu nestatičko ponašanje nije podržano. To znači da bi trebalo posmatrati kao da se podnaredbe izvršavaju nesekvencijalno i podnaredbe ne bi trebalo da imaju međuzavisnosti, kao u datom primeru.
 
 - Opcionom klauzom `STOP AFTER FIRST` specifikujemo da će se izvršiti samo određeni broj podnaredbi. Matična promenljiva `<MATICNA_PROMENLJIVA>` tipa `short` sadrži ceo broj *N* kojim se specifikuje koliko prvih *N* podnaredbi će biti izvršeno.
 
@@ -182,11 +180,11 @@ Neka dodatne napomene koje treba imati u vidu prilikom rada sa složenih SQL nar
 
 Sada slede primeri korišćenja složenih SQL naredbi. Primetimo da smo, kao i u prethodnom zadatku, koristili naredbu `ROLLBACK` u definiciji funkcije `is_error` da poništimo izmene u bazi podataka u slučaju da dođe do greške, odnosno, naredbu `COMMIT` za potvrđivanje izmena pre raskidanja konekcije.
 
-{% include lab/exercise.html broj="5.2" tekst="Napisati C/SQL program koji redom:\n
-\n
-1. Kreira novi ispitni rok samo za predmete iz prvog semestra u tekućoj godini čija je oznaka `'maj'` i naziv `'Maj GODINA'` u zavisnosti od tekuće godine (na primer, `'Maj 2019'`). Za početak prijavljivanja postaviti današnji datum i postaviti da prijavljivanje traje 20 dana.\n
-2. Ažurira datum kraja prijavljivanja za prethodno uneti ispitni rok tako što smanjuje trajanje prijavljivanja za 10 dana.\n
-\n
+{% include lab/exercise.html broj="5.2" tekst="Napisati C/SQL program koji redom:
+
+1. Kreira novi ispitni rok samo za predmete iz prvog semestra u tekućoj godini čija je oznaka `'maj'` i naziv `'Maj GODINA'` u zavisnosti od tekuće godine (na primer, `'Maj 2021'`). Za početak prijavljivanja postaviti datum izvr\v savanja programa i postaviti da prijavljivanje traje 20 dana.
+2. Ažurira datum kraja prijavljivanja za prethodno uneti ispitni rok tako što smanjuje trajanje prijavljivanja za 10 dana.
+
 Obezbediti da se navedene operacije izvrše ili sve ili nijedna." %}
 
 Rešenje:
@@ -199,7 +197,7 @@ U prethodnim primerima smo videli da možemo da predstavimo transakcije kao slo�
 
 Vrlo često nam je neophodno da imamo precizniju kontrolu nad time šta se tačno poništava, na primer, ukoliko želimo da samo jedan deo transakcije bude poništen, umesto cele transakcije. Da bismo postigli takav efekat, potrebne su nam sofisticiranije metode upravljanja transakcijama. Jedan od takvih metoda podrazumeva korišćenje tačke čuvanja.
 
-{% include lab/definition.html def="*Tačka čuvanja* (engl. *savepoint*) predstavlja mehanizam za poništavanje precizno definisanog skupa izvršenih naredbi." %}
+*Tačka čuvanja* (engl. *savepoint*) predstavlja mehanizam za poništavanje precizno definisanog skupa izvršenih naredbi.
 
 Ukoliko se desi neka greška prilikom izvršavanja transakcije, tačka čuvanja se može koristiti da poništi dejstvo naredbi od trenutka kada je tačka čuvanja započeta do trenutka kada je poništenje akcija zahtevano.
 
@@ -217,7 +215,7 @@ ON ROLLBACK RETAIN CURSORS
 
 Ovom naredbom se kreira nova tačka čuvanja naziva `<NAZIV_TACKE_CUVANJA>`. Ukoliko specifikujemo opcionu klauzu `UNIQUE`, onda navodimo da aplikacija ne želi da iskoristi ovo ime tačke čuvanja dok je tačka čuvanja aktivna u okviru trenutnog nivoa čuvanja. DB2 sistem će prijaviti grešku ako pokušamo da kreiramo tačku čuvanja kao jedinstvenu ako već postoji tačka čuvanja sa istim imenom, kao i ako pokušamo da kreiramo tačku čuvanja sa imenom koje je prethodno bilo proglašeno za jedinstveno.
 
-Obaveznom klauzom `ON ROLLBACK RETAIN CURSORS` se specifikuje ponašanje sistema tokom operacija poništavanja izmena do ove tačke čuvanja u odnosu na otvorene kursore nakon ove SAVEPOINT naredbe. Ovom klauzom se indikuje da, kada god je to moguće, kursori bivaju van uticaja operacije poništavanja do tačke čuvanja. Za više detalja o tome kako poništavanje izmena utiče na kursore, pogledati [podsekciju 5.5](#55-poništavanje-izmena).
+Obaveznom klauzom `ON ROLLBACK RETAIN CURSORS` se specifikuje ponašanje sistema tokom operacija poništavanja izmena do ove tačke čuvanja u odnosu na otvorene kursore nakon ove SAVEPOINT naredbe. Ovom klauzom se indikuje da, kada god je to moguće, kursori bivaju van uticaja operacije poništavanja do tačke čuvanja. Za više detalja o tome kako poništavanje izmena utiče na kursore, pogledati sekciju [o poni\v stavanju izmena](#55-poništavanje-izmena).
 
 Opcionom klauzom `ON ROLLBACK RETAIN LOCKS` se specifikuje ponašanje sistema tokom operacija poništavanja izmena do ove tačke čuvanja u odnosu na katance koje je aplikacija dobila nakon ove `SAVEPOINT` naredbe. Ukoliko je navedena, katanci koje je aplikacija dobila neće biti oslobođeni prilikom takve operacije poništavanja.
 
@@ -264,6 +262,7 @@ Efekat ove naredbe je da se prekida jedinica posla u kojoj je izvršena naredba 
 
 - Navođenjem opcione klauze `TO SAVEPOINT`, poništavanje se izvršava parcijalno, odnosno, do poslednje tačke čuvanja. Ukoliko nijedna tačka čuvanja nije aktivna na trenutnom nivou čuvanja, podiže se greška (`SQLSTATE 3B502`). Nakon uspešnog poništavanja, navedena tačka čuvanja `<IME_TACKE_CUVANJA>` nastavlja da postoji, ali svaka ugnežđena tačka čuvanja se oslobađa i nadalje ne postoji. Ugnežđene tačke čuvanja, ako postoje, smatraju se za poništene i oslobođene kao deo poništavanja do navedene tačke čuvanja. Ukoliko `<IME_TACKE_CUVANJA>` nije navedeno, onda se poništavanje vrši do poslednje postavljene tačke čuvanja na tekućem nivou čuvanja.
 <br>
+<br>
 Ako se klauza `TO SAVEPOINT` ne postavi, onda naredba `ROLLBACK` poništava čitavu transakciju. Dodatno, sve tačke čuvanja u okviru te transakcije se oslobađaju. Ukoliko se navede `<IME_TACKE_CUVANJA>`, onda će se poništavanje izvršiti do te imenovane tačke čuvanja. Nakon uspešne operacije poništavanja, navedena imenovana tačka čuvanja nastavlja da postoji. Ukoliko ne postoji imenovana tačka čuvanja sa datim nazivom, podiže se greška (`SQLSTATE 3B001`).
 
 Neka dodatna pravila i napomene koje treba imati u vidu prilikom poništavanja izmena u DB2 sistemu su sledeće:
@@ -290,70 +289,100 @@ Neka dodatna pravila i napomene koje treba imati u vidu prilikom poništavanja i
 
 Naredni primeri ilustruju napredno implementiranje transakcija korišćenjem naredbi `COMMIT` i `ROLLBACK`.
 
-{% include lab/exercise.html broj="5.3" tekst="Napisati C/SQL program kojim se za svaki ispitni rok prvo ispisuju informacije o nazivu i godini roka, a zatim se korisnik pita da li želi da obriše sva polaganja za taj ispitni rok. Ukoliko želi, aplikacija izvršava brisanje i prikazuje poruku korisniku. Obrada jednog ispitnog roka predstavlja jednu transakciju." %}
+{% include lab/exercise.html broj="5.3" tekst="Napisati C/SQL program kojim se za svaki ispitni rok, za koji postoji makar jedno polaganje, prvo ispisuju informacije o nazivu i godini roka, a zatim se korisnik pita da li želi da obriše sva polaganja za taj ispitni rok. Ukoliko želi, aplikacija izvršava brisanje i prikazuje poruku korisniku. Obrada jednog ispitnog roka predstavlja jednu transakciju." %}
 
 Rešenje:
 
 include_source(vezbe/primeri/poglavlje_5/zadatak_5_3.sqc, c)
 
-{% include lab/exercise.html broj="5.4" tekst="Napisati C/SQL program koji za svaki predmet koji nije obrađen izlistava njegov naziv i bodove. Korisniku se nudi opcija da poveća broj bodova za 1. Obrada 5 uzastopnih predmeta predstavlja jednu transakciju. Nakon svakog 5. predmeta pitati korisnika da li želi da nastavi sa daljim izmenama. Ukoliko ne želi, program se prekida. U suprotnom, nastaviti sa daljom obradom predmeta." %}
-
-Rešenje: Pre pokretanja programa, potrebno je kreirati tabelu `OBRADJENI_PREDMETI` sa narednom strukturom:
+Za naredni program je potrebno kreirati tabelu `OBRADJENI_PREDMETI` sa narednom strukturom:
 
 ```sql
-CREATE TABLE OBRADJENI_PREDMETI (
+DROP TABLE DA.OBRADJENI_PREDMETI;
+
+CREATE TABLE DA.OBRADJENI_PREDMETI (
     ID_PREDMETA INTEGER NOT NULL,
     PRIMARY KEY (ID_PREDMETA),
-    FOREIGN KEY (ID_PREDMETA) REFERENCES PREDMET
+    FOREIGN KEY (ID_PREDMETA) REFERENCES DA.PREDMET
 );
 ```
+
+{% include lab/exercise.html broj="5.4" tekst="Napisati C/SQL program koji za svaki predmet koji se ne nalazi u tabeli OBRADJENI_PREDMETI izlistava njegov naziv i ESPB. Korisniku se nudi opcija da poveća broj bodova za 1. Obrada 5 uzastopnih predmeta predstavlja jednu transakciju. Nakon svakog 5. predmeta pitati korisnika da li želi da nastavi sa daljim izmenama. Ukoliko ne želi, program se prekida. U suprotnom, nastaviti sa daljom obradom predmeta." %}
+
+Rešenje: 
 
 include_source(vezbe/primeri/poglavlje_5/zadatak_5_4.sqc, c)
 
 Naredni zadatak ilustruje jednostavan rad sa tačkama čuvanja u okviru transakcija.
 
-{% include lab/exercise.html broj="5.5" tekst="Napisati C/SQL program koji redom:\n
-\n
-1. Unosi novi ispitni rok za april u 2019. godini.\n
-2. Unosi nove ispitne rokove za mart, maj, jun, jul, avgust, septembar i oktobar u 2019. godini.\n
-3. Ispisuje sve ispitne rokove.\n
-4. Pita korisnika da li želi da poništi unos ispitnih rokova u koraku 2. Ukoliko korisnik odgovori potvrdno, odgovarajuće izmene se poništavaju. U suprotno, izmene se potvrđuju.\n
-5. Ispisuje sve ispitne rokove." %}
+Za naredni program je potrebno izvr\v siti naredne SQL naredbe:
+
+```sql
+DELETE  FROM DA.ISPITNIROK
+WHERE   SKGODINA = 2021;
+
+INSERT  INTO DA.SKOLSKAGODINA
+VALUES  (2021, '01/01/2021', '12/31/2021');
+```
+
+{% include lab/exercise.html broj="5.5" tekst="Napisati C/SQL program koji zahteva od korisnika da unese broj obaveznih ispitnih rokova u 2021. godini. Program zatim unosi za svaki mesec, po\v cev\v si od januara 2021. godine, po jedan ispitni rok, pa ispisuje sve ispitne rokove. Program zatim pita korisnika da li želi da poništi unos ispitnih rokova koji nisu obavezni. Ukoliko korisnik odgovori potvrdno, poništiti unos neobaveznih ispitnih rokova. U suprotnom, potvrditi sve izmene. Ispisati sve ispitne rokove ponovo." %}
 
 Rešenje:
 
 include_source(vezbe/primeri/poglavlje_5/zadatak_5_5.sqc, c)
 
-Naredni zadatak ilustruje kompleksniji rad sa ta\v ckama \v cuvanja u okviru transakcija.
+Naredni zadaci ilustruju kompleksniju upotrebu ta\v caka \v cuvanja u okviru transakcija.
 
-{% include lab/exercise.html broj="5.6" tekst="Napisati C/SQL program kojim se omogu\'cuje da radnik u studentskoj slu\v zbi poni\v stava studentske ispite. Obrada jednog studenta u jednoj godini roka, koja je opisana u nastavku, mora da predstavlja zasebnu transakciju. Transakcija se sastoji od narednih koraka:\n
-\n
-1. Aplikacija zahteva od korisnika da unese indeks studenta.\n
-2. Aplikacija na osnovu unetog indeksa ispisuje godine rokova u kojima student ima neke polo\v zene ispite, ali samo ukoliko ve\'c nije prethodno ta godina roka obra\dj ena za tog studenta (ova informacija se \v cuva u tabeli `OBRADJENA_POLAGANJA`).\n
-3. Korisnik bira jednu od ispisanih godina.\n
-4. Aplikacija pronalazi sve polo\v zene ispite za datog studenta u odabranoj godini studija. Za svaki ispit, aplikacija ispisuje naziv polo\v zenog predmeta i ocenu koju je student ostvario. Tako\dj e, aplikacija pita korisnika da li \v zeli da poni\v sti teku\'ci ispit \v cije su informacije ispisane. Ukoliko korisnik odgovori potvrdno, aplikacija poni\v stava teku\'ci ispit. U svakom slu\v caju, aplikacija prelazi na naredni ispit sve do ispisivanja svih ispita.\n
-5. Kada se svi ispiti obrade, aplikacija pita korisnika da potvrdi sve izmene u teku\'coj transakciji. Ukoliko korisnik odgovori odri\v cno, onda je potrebno poni\v stiti sve izmene koje se ti\v cu poni\v stavanja ispita iz koraka 4. Me\dj utim, potrebno je omogu\'citi da, u svakom slu\v caju, teku\'ca godina roka za dati indeks bude obra\dj ena (tj. trajno zapam\'cena u tabeli `OBRADJENA_POLAGANJA`).\n
-\n
-Na kraju svake transakcije, aplikacija pita korisnika da li \v zeli da zavr\v si sa radom. Ukoliko korisnik odgovori potvrdno, aplikacija se zavr\v sava. U suprotnom, zapo\v cinje se nova transakcija sa prethodno opisanim koracima." %}
-
-Pre pokretanja programa, izvr\v siti naredne SQL naredbe:
+Za naredni program je potrebno izvr\v siti naredne SQL naredbe:
 
 ```sql
-DROP TABLE OBRADJENA_POLAGANJA;
+DROP    TABLE DA.STATISTIKA_POLAGANJA;
 
-CREATE TABLE OBRADJENA_POLAGANJA (
+CREATE  TABLE DA.STATISTIKA_POLAGANJA (
+    SKGODINA    SMALLINT NOT NULL,
+    OZNAKAROKA  VARCHAR(20) NOT NULL,
+    IDPREDMETA  INTEGER NOT NULL,
+    USPESNOST   DOUBLE,
+    PRIMARY KEY (SKGODINA, OZNAKAROKA, IDPREDMETA),
+    FOREIGN KEY (SKGODINA, OZNAKAROKA) 
+                REFERENCES DA.ISPITNIROK,
+    FOREIGN KEY (IDPREDMETA)
+                REFERENCES DA.PREDMET
+);
+```
+
+{% include lab/exercise.html broj="5.6" tekst="Napisati C/SQL program koji izra\v cunava statistiku polaganja predmeta po ispitnim rokovima i te podatke upisuje u tabelu `STATISTIKA_POLAGANJA`. Program prvo ispisuje procenat polo\v zenih ispita u odnosu na ukupan broj polaganih ispita za predmete po ispitnim rokovima, ali samo za one predmete u ispitnom rokovima koji nemaju statistiku, pa zatim bele\v zi izra\v cunatu statistiku. Nakon unosa polaganja, pitati korisnika da li \v zeli da poni\v sti zabele\v zenu statistiku, ali omogu\'citi da se sa\v cuva informacija o tome da je statistika zabele\v zena (tj. da kolona `USPESNOST` bude `NULL`). Cela obrada jednog predmeta u jednom ispitnom roku predstavlja jednu transakciju." %}
+
+Rešenje:
+
+include_source(vezbe/primeri/poglavlje_5/zadatak_5_6.sqc, c)
+
+Za naredni program je potrebno izvr\v siti naredne SQL naredbe:
+
+```sql
+DROP TABLE DA.OBRADJENA_POLAGANJA;
+
+CREATE TABLE DA.OBRADJENA_POLAGANJA (
     INDEKS INTEGER NOT NULL,
     GODINA SMALLINT NOT NULL,
     PRIMARY KEY (INDEKS, GODINA),
     FOREIGN KEY (INDEKS)
-        REFERENCES DOSIJE
+        REFERENCES DA.DOSIJE
 );
 
-INSERT INTO OBRADJENA_POLAGANJA
-VALUES (20100050, 2011);
+INSERT INTO DA.OBRADJENA_POLAGANJA
+VALUES (20180050, 2018);
 ```
 
-{% include lab/output.html datoteka="5.6.txt" %}
+{% include lab/exercise.html broj="5.7" tekst="Napisati C/SQL program kojim se omogu\'cuje da radnik u studentskoj slu\v zbi poni\v stava studentske ispite. Obrada jednog studenta u jednoj godini roka, koja je opisana u nastavku, mora da predstavlja zasebnu transakciju. Transakcija se sastoji od narednih koraka:
+
+1. Aplikacija zahteva od korisnika da unese indeks studenta.
+2. Aplikacija na osnovu unetog indeksa ispisuje godine rokova u kojima student ima neke polo\v zene ispite, ali samo ukoliko ve\'c nije prethodno ta godina roka obra\dj ena za tog studenta (ova informacija se \v cuva u tabeli `OBRADJENA_POLAGANJA`).
+3. Korisnik bira jednu od ispisanih godina.
+4. Aplikacija pronalazi sve polo\v zene ispite za datog studenta u odabranoj godini studija. Za svaki ispit, aplikacija ispisuje naziv polo\v zenog predmeta i ocenu koju je student ostvario. Tako\dj e, aplikacija pita korisnika da li \v zeli da poni\v sti teku\'ci ispit \v cije su informacije ispisane. Ukoliko korisnik odgovori potvrdno, aplikacija poni\v stava teku\'ci ispit. U svakom slu\v caju, aplikacija prelazi na naredni ispit sve do ispisivanja svih ispita.
+5. Kada se svi ispiti obrade, aplikacija pita korisnika da potvrdi sve izmene u teku\'coj transakciji. Ukoliko korisnik odgovori odri\v cno, onda je potrebno poni\v stiti sve izmene koje se ti\v cu poni\v stavanja ispita iz koraka 4. Me\dj utim, potrebno je omogu\'citi da, u svakom slu\v caju, teku\'ca godina roka za dati indeks bude obra\dj ena (tj. trajno zapam\'cena u tabeli `OBRADJENA_POLAGANJA`).
+
+Na kraju svake transakcije, aplikacija pita korisnika da li \v zeli da zavr\v si sa radom. Ukoliko korisnik odgovori potvrdno, aplikacija se zavr\v sava. U suprotnom, zapo\v cinje se nova transakcija sa prethodno opisanim koracima." %}
 
 Rešenje: Da bismo lak\v se modulirali na\v se re\v senje, implementirajmo naredne funkcije:
 
@@ -376,33 +405,33 @@ include_source(vezbe/primeri/poglavlje_5/zadatak_5_6.sqc, c)
 
 ## 5.6 Zadaci za vežbu
 
-{% include lab/exercise.html broj="5.7" tekst="Napisati C/SQL program koji redom:\n
-\n
-1. Kreira novi ispitni rok samo za predmete iz prvog semestra u 2019. godini čija je oznaka `'apr'` i naziv `'April 2019'`. Za početak prijavljivanja postaviti današnji datum i postaviti da prijavljivanje traje 10 dana.\n
-2. Ažurira tip za prethodno uneti ispitni rok na tip `'Z'`. \n
-\n
+{% include lab/exercise.html broj="5.7" tekst="Napisati C/SQL program koji redom:
+
+1. Kreira novi ispitni rok samo za predmete iz prvog semestra u 2019. godini čija je oznaka `'apr'` i naziv `'April 2019'`. Za početak prijavljivanja postaviti današnji datum i postaviti da prijavljivanje traje 10 dana.
+2. Ažurira tip za prethodno uneti ispitni rok na tip `'Z'`. 
+
 Obezbediti da se navedene operacije izvrše ili sve ili nijedna." %}
 
-{% include lab/exercise.html broj="5.8" tekst="Napisati C/SQL program koji redom:\n
-\n
-1. Kreira novi ispitni rok samo za predmete iz prvog semestra u 2019. godini čija je oznaka `'apr'` i naziv `'April 2019'`. Za početak prijavljivanja postaviti današnji datum i postaviti da prijavljivanje traje 10 dana.\n
-2. Ažurira tip za prethodno uneti ispitni rok na tip `'Z'`. \n
-\n
+{% include lab/exercise.html broj="5.8" tekst="Napisati C/SQL program koji redom:
+
+1. Kreira novi ispitni rok samo za predmete iz prvog semestra u 2019. godini čija je oznaka `'apr'` i naziv `'April 2019'`. Za početak prijavljivanja postaviti današnji datum i postaviti da prijavljivanje traje 10 dana.
+2. Ažurira tip za prethodno uneti ispitni rok na tip `'Z'`. 
+
 Obezbediti da se navedene operacije izvrše zasebno." %}
 
-{% include lab/exercise.html broj="5.9" tekst="Napisati C/SQL program koji omogućava korisniku da unese nove ispitne rokove samo za predmete iz prvog semestra u 2019. godini za svaki mesec od marta do oktobra, sa odgovarajućim oznakama i nazivima. Za svaki ispitni rok postaviti da je datum početka prijavljivanja današnji datum pomeren za odgovarajući broj meseci, kao i da prijavljivanje traje 20 dana.\n
-\n
-Omogućiti da korisnik unese broj ispitnih rokova koji želi da kreira. Minimalni broj ispitnih rokova je 0, a maksimalni broj je 6. U zavisnosti od unetog broja, kreirati odgovarajući broj ispitnih rokova. \n
-\n
+{% include lab/exercise.html broj="5.9" tekst="Napisati C/SQL program koji omogućava korisniku da unese nove ispitne rokove samo za predmete iz prvog semestra u 2019. godini za svaki mesec od marta do oktobra, sa odgovarajućim oznakama i nazivima. Za svaki ispitni rok postaviti da je datum početka prijavljivanja današnji datum pomeren za odgovarajući broj meseci, kao i da prijavljivanje traje 20 dana.
+
+Omogućiti da korisnik unese broj ispitnih rokova koji želi da kreira. Minimalni broj ispitnih rokova je 0, a maksimalni broj je 6. U zavisnosti od unetog broja, kreirati odgovarajući broj ispitnih rokova. 
+
 Obezbediti da se navedene operacije izvrše zasebno." %}
 
 {% include lab/exercise.html broj="5.10" tekst="Napisati C/SQL program koji za svaki predmet koji je obavezan na smeru čiji je identifikator 201, pita korisnika da li želi da poveća broj bodova za 1. Ukoliko je odgovor korisnika 'da', izvršava se odgovarajuća naredba. Obrada jednog predmeta treba da predstavlja jednu transakciju." %}
 
-{% include lab/exercise.html broj="5.11" tekst="Napisati C/SQL program koji omogućava korisniku da obriše informacije o studentima koji su upisani u godini koja se unosi sa standardnog ulaza. Za svakog studenta, program pita korisnika da li želi da obriše informacije. Ako korisnik potvrdi, obrisati podatke iz tabela `ISPIT`, `UPISAN_KURS`, `UPIS_GODINE`, `STATUS` i `DOSIJE` (tim redosledom) za tekućeg studenta i ispisati poruku o uspešnosti brisanja za svaku tabelu ponaosob. Nakon toga, aplikacija pita korisnika da li želi da izvrši potvrđivanje ili poništavanje dotadašnjih izmena. Korisnik može da bira jednu od tri opcije:\n
-1. Izvršavanje potvrđivanja\n
-2. Izvršavanje poništavanja\n
-3. Bez akcije\n
-\n
-U slučaju akcija 1. i 2. potrebno je izvršiti odgovarajuću SQL naredbu i prikazati poruku korisniku o uspešnosti akcije. Takođe ispisati i informaciju o tome za koliko studenata je izvršeno potvrđivanje/poništavanje, na primer: `'TRANSAKCIJA JE ZAVRSENA: POTVRDILI STE BRISANJE 7 STUDENATA'` ili `'TRANSAKCIJA JE ZAVRSENA: PONIŠTILI STE BRISANJE 7 STUDENATA'` (ukoliko je pre tekuće akcije korisnik 7 puta odabrao 3. akciju). \n
-\n
+{% include lab/exercise.html broj="5.11" tekst="Napisati C/SQL program koji omogućava korisniku da obriše informacije o studentima koji su upisani u godini koja se unosi sa standardnog ulaza. Za svakog studenta, program pita korisnika da li želi da obriše informacije. Ako korisnik potvrdi, obrisati podatke iz tabela `ISPIT`, `UPISAN_KURS`, `UPIS_GODINE`, `STATUS` i `DOSIJE` (tim redosledom) za tekućeg studenta i ispisati poruku o uspešnosti brisanja za svaku tabelu ponaosob. Nakon toga, aplikacija pita korisnika da li želi da izvrši potvrđivanje ili poništavanje dotadašnjih izmena. Korisnik može da bira jednu od tri opcije:
+1. Izvršavanje potvrđivanja
+2. Izvršavanje poništavanja
+3. Bez akcije
+
+U slučaju akcija 1. i 2. potrebno je izvršiti odgovarajuću SQL naredbu i prikazati poruku korisniku o uspešnosti akcije. Takođe ispisati i informaciju o tome za koliko studenata je izvršeno potvrđivanje/poništavanje, na primer: `'TRANSAKCIJA JE ZAVRSENA: POTVRDILI STE BRISANJE 7 STUDENATA'` ili `'TRANSAKCIJA JE ZAVRSENA: PONIŠTILI STE BRISANJE 7 STUDENATA'` (ukoliko je pre tekuće akcije korisnik 7 puta odabrao 3. akciju). 
+
 U slučaju akcije 3. potrebno je samo uvećati broj studenata koji je obrisan u tekućoj jedinici posla. Naravno, prilikom izvršavanja akcije 1. ili 2. ovaj broj se mora postaviti na 0." %}
