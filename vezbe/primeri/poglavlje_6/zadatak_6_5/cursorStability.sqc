@@ -11,13 +11,13 @@ char pocetak[11],
      kraj[11];
 EXEC SQL END DECLARE SECTION;
 
-void is_error(char *err)
-{
-    if (SQLCODE < 0)
-    {
-        printf("SQLCODE %d: %s\n\n", SQLCODE, err);
+void is_error(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
 
         EXEC SQL ROLLBACK;
+
+        EXEC SQL CONNECT RESET;
         exit(EXIT_FAILURE);
     }
 }

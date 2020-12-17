@@ -16,7 +16,7 @@ EXEC SQL END DECLARE SECTION;
 // Db2 pretprocesor bi izdao upozorenje da se kursor koristi pre deklaracije.
 // Funkcija vraca 1 ukoliko je doslo do problema, a 0 inace.
 int obradi_cekanje();
-void is_error(const char* err);
+void is_error(const char *str);
 
 int main() {
     char odgovor_od_korisnika;
@@ -95,6 +95,17 @@ int main() {
     is_error("Connect reset");
 
     return 0;
+}
+
+void is_error(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL ROLLBACK;
+
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
 }
 
 int obradi_cekanje() {

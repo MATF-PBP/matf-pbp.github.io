@@ -19,8 +19,8 @@ void is_error(const char *str)
         short LineWidth = 50;
         sqlaintp(Buffer, BufferSize, LineWidth, &sqlca);
 
-        printf("Greska %d: %s\n", sqlca.sqlcode, str);
-        printf("%s\n", Buffer);
+        fprintf(stderr, "Greska %d: %s\n", sqlca.sqlcode, str);
+        fprintf(stderr, "%s\n", Buffer);
         exit(EXIT_FAILURE);
     }
 }

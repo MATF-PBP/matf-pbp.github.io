@@ -11,11 +11,13 @@ char ime[21];
 char prezime[21];
 EXEC SQL END DECLARE SECTION;
 
-void is_error(const char* err)
+void is_error(const char *str)
 {
-    if (SQLCODE < 0)
+    if(SQLCODE < 0)
     {
-        printf("SQLCODE %d: %s\n\n", SQLCODE, err);
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL CONNECT RESET;
         exit(EXIT_FAILURE);
     }
 }

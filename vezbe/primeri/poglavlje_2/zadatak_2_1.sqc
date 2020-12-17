@@ -9,11 +9,15 @@ sqlint32 maxIndeks;
 EXEC SQL END DECLARE SECTION;
 
 // Definicija funkcije za obradu gresaka
-void is_error(const char* str)
+void is_error(const char *str)
 {
     if(SQLCODE < 0)
     {
+        // Ispisujemo kod greske na standardni izlaz za greske, zajedno sa porukom koju smo prosledili
         fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        // Zatvaramo konekciju sa bazom podataka i zavrsavamo program sa neuspehom
+        EXEC SQL CONNECT RESET;
         exit(EXIT_FAILURE);
     }
 }
