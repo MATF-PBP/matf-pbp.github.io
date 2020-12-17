@@ -13,11 +13,13 @@ char datum_diplomiranja[11];
 short ind_datum_diplomiranja;
 EXEC SQL END DECLARE SECTION;
 
-void is_error(const char* str)
+void is_error(const char *str)
 {
     if(SQLCODE < 0)
     {
         fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL CONNECT RESET;
         exit(EXIT_FAILURE);
     }
 }

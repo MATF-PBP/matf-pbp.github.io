@@ -46,7 +46,7 @@ double dohvati_double_iz_decimal(char *sqldata, short sqllen);
 // END funkcije za obradu dinamickih naredbi
 
 // Funkcije za obradu gresaka
-void is_error(const char *err, int linenum);
+void is_error(const char *str, int linenum);
 void izadji_bez_uspeha_sa_oslobadjanjem_memorije();
 
 // Makro koji poziva funkciju `is_error` za obradu greske,
@@ -545,16 +545,16 @@ double dohvati_double_iz_decimal(char *sqldata, short sqllen) {
     return atof(buf);
 }
 
-void is_error(const char *err, int linenum) {
+void is_error(const char *str, int linenum) {
     if(sqlca.sqlcode < 0) {
         char Buffer[1024];
         short BufferSize = sizeof(Buffer);
         short LineWidth = 50;
         sqlaintp(Buffer, BufferSize, LineWidth, &sqlca);
 
-        printf("Greska %d: %s (linija %d)\n\n", sqlca.sqlcode, err, linenum);
-        printf("%s\n", Buffer);
-        
+        fprintf(stderr, "Greska %d: %s\n", sqlca.sqlcode, str);
+        fprintf(stderr, "%s\n", Buffer);
+
         izadji_bez_uspeha_sa_oslobadjanjem_memorije();
     }
 }

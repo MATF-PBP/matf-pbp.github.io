@@ -11,11 +11,13 @@ char naziv[151];
 short bodovi;
 EXEC SQL END DECLARE SECTION;
 
-void is_error(const char* str)
+void is_error(const char *str)
 {
     if(SQLCODE < 0)
     {
-        printf("Greska %d: %s\n", SQLCODE, str);
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL CONNECT RESET;
         exit(EXIT_FAILURE);
     }
 }

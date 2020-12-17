@@ -17,11 +17,13 @@ struct {
 short ind_opis;
 EXEC SQL END DECLARE SECTION;
 
-void is_error(const char* str)
+void is_error(const char *str)
 {
-    if (SQLCODE < 0)
+    if(SQLCODE < 0)
     {
-        printf("SQLCODE %d: %s\n", SQLCODE, str);
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL CONNECT RESET;
         exit(EXIT_FAILURE);
     }
 }

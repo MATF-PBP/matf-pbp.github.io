@@ -246,37 +246,6 @@ Na primer, ukoliko želimo da vidimo šta znači greška čiji je kod `-502`, po
 db2 ? sql-502
 ```
 
-Naredni deo koda ilustruje najjednostavniji način provere da li je došlo do greške. Definišemo funkciju `is_error` koja će izvršavati proveru grešaka i njihovu obradu. Ova funkcija se poziva nakon svake SQL naredbe koja dolazi do izražaja u fazi izvršavanja. Funkcija kao argument prihvata nisku koja sadrži opis SQL naredbe nakon koje se poziva. Ovo ima smisla zbog toga što, u slučaju da dođe do greške, možemo vrlo jednostavno videti u kom delu izvornog koda je došlo do greške.
-
-```c
-#include <stdio.h>
-#include <stdlib.h>
-
-EXEC SQL INCLUDE SQLCA;
-
-void is_error(const char* str)
-{
-    if(SQLCODE < 0)
-    {
-        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
-        exit(EXIT_FAILURE);
-    }
-}
-
-int main()
-{
-    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
-    is_error("Konekcija na bazu podataka");
-
-    // ...
-
-    EXEC SQL CONNECT RESET;
-    is_error("Prekidanje konekcije sa bazom podataka");
-
-    return 0;
-}
-```
-
 ### 2.2.7 Tok pisanja programa
 
 Ovo poglavlje završavamo sekcijom koja opisuje koji su to osnovni koraci u programiranju C/SQL aplikacija na jednostavnom uvodnom primeru. 
@@ -346,7 +315,43 @@ printf("Najveci indeks je %d\n", maxIndeks);
 
 **Obrada SQL grešaka**
 
-Pretpostavljamo da imamo definisanu funkciju `is_error`, kao u podsekciji 2.2.6. Nakon svake `EXEC SQL` naredbe pozivamo funkciju `is_error` kojoj prosleđujemo nisku koja sadrži opis te SQL naredbe.
+Naredni deo koda ilustruje najjednostavniji način provere da li je došlo do greške. Definišemo funkciju `is_error` koja će izvršavati proveru grešaka i njihovu obradu. Ova funkcija se poziva nakon svake SQL naredbe koja dolazi do izražaja u fazi izvršavanja. Funkcija kao argument prihvata nisku koja sadrži opis SQL naredbe nakon koje se poziva. Ovo ima smisla zbog toga što, u slučaju da dođe do greške, možemo vrlo jednostavno videti u kom delu izvornog koda je došlo do greške.
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+// Definicija funkcije za obradu gresaka
+void is_error(const char *str)
+{
+    if(SQLCODE < 0)
+    {
+        // Ispisujemo kod greske na standardni izlaz za greske, zajedno sa porukom koju smo prosledili
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        // Zatvaramo konekciju sa bazom podataka i zavrsavamo program sa neuspehom
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main()
+{
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    is_error("Konekcija na bazu podataka");
+
+    // ...
+
+    EXEC SQL CONNECT RESET;
+    is_error("Prekidanje konekcije sa bazom podataka");
+
+    return 0;
+}
+```
+
+U svakom na\v sem programu \'cemo definisati funkciju `is_error`, koja je prikazana iznad. Dodatno, nakon svake `EXEC SQL` naredbe (koja \'ce se pozvati u fazi izvr\v savanja programa, dakle, sve naredbe osim `EXEC SQL INCLUDE`, `EXEC SQL BEGIN DECLARE SECTION` i `EXEC SQL END DECLARE SECTION`) neophodno je da pozovemo funkciju `is_error`, pri \v cemu \'cemo joj proslediti nisku koja sadrži opis te SQL naredbe, kako bismo lak\v se znali na kom mestu u programu je do\v slo do problema.
 
 **Prekidanje konekcije sa bazom podataka**
 

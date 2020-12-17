@@ -14,7 +14,7 @@ EXEC SQL END DECLARE SECTION;
 sqlint32 obradjeni_predmeti[1000];
 unsigned broj_obradjenih_predmeta = 0u;
 
-void is_error(const char* err);
+void is_error(const char *str);
 int obradi_cekanje();
 int predmet_je_obradjen(sqlint32 id);
 void oznaci_kao_obradjen(sqlint32 id);
@@ -124,11 +124,13 @@ int main() {
     return 0;
 }
 
-void is_error(const char* err) {
-    if (SQLCODE < 0) {
-        fprintf(stderr, "Greska %d: %s\n\n", SQLCODE, err);
-        
+void is_error(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
         EXEC SQL ROLLBACK;
+
+        EXEC SQL CONNECT RESET;
         exit(EXIT_FAILURE);
     }
 }

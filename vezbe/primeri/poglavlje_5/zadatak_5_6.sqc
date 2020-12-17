@@ -11,14 +11,14 @@ sqlint32 id_predmeta;
 double uspesnost;
 EXEC SQL END DECLARE SECTION;
 
-void is_error(const char *err) 
+void is_error(const char *str)
 {
-    if (SQLCODE < 0) 
+    if(SQLCODE < 0)
     {
-        printf("Greska %d: %s\n\n", SQLCODE, err);
-    
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
         EXEC SQL ROLLBACK;
-        
+
         EXEC SQL CONNECT RESET;
         exit(EXIT_FAILURE);
     }
