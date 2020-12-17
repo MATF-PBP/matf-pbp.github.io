@@ -4,46 +4,54 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-sqlint32 godina;
-char naziv[51],
-     oznaka[11];
+short sk_godina;
+char naziv[31],
+     oznaka[21];
 EXEC SQL END DECLARE SECTION;
 
 void is_error(const char* err)
 {
     if (SQLCODE < 0)
     {
-        printf("SQLCODE %d: %s\n\n", SQLCODE, err);
+        printf("Greska %d: %s\n\n", SQLCODE, err);
         
         EXEC SQL ROLLBACK;
+        
+        EXEC SQL CONNECT RESET;
         exit(EXIT_FAILURE);
     }
 }
 
 int main()
 {
-    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
     is_error("Connect");
 
     // Primetimo da smo morali da navedemo klauzu WITH HOLD ovde
     // zato sto vrsimo potvrdjivanje izmena tokom obrade kursora.
     EXEC SQL 
-        DECLARE ispitniRok CURSOR WITH HOLD FOR 
+        DECLARE ispitni_rokovi CURSOR WITH HOLD FOR 
         SELECT  NAZIV,
-                GODINA,
-                OZNAKA
-        FROM    ISPITNI_ROK;
+                SKGODINA,
+                OZNAKAROKA
+        FROM    DA.ISPITNIROK IR
+        WHERE   EXISTS (
+                    SELECT  *
+                    FROM    DA.ISPIT I
+                    WHERE   I.SKGODINA = IR.SKGODINA AND
+                            I.OZNAKAROKA = IR.OZNAKAROKA
+                );
     is_error("Declare");
 
-    EXEC SQL OPEN ispitniRok;
+    EXEC SQL OPEN ispitni_rokovi;
     is_error("Open");
 
     for(;;)
     {
         EXEC SQL 
-            FETCH   ispitniRok 
+            FETCH   ispitni_rokovi 
             INTO    :naziv,
-                    :godina,
+                    :sk_godina,
                     :oznaka;
         is_error("Fetch");
 
@@ -52,35 +60,37 @@ int main()
             break;
         }
 
-        printf("\nObradjujem ispitni rok %s u %d. godini\n"
-            "Da li zelite da obrisete polaganja u ovom ispitnom roku? [d/n] ", naziv, godina);
+        printf("Obradjujem ispitni rok %s u %hd. godini\n"
+            "Da li zelite da obrisete polaganja u ovom ispitnom roku? [d/n] ", naziv, sk_godina);
             
         char odgovor_od_korisnika;
         scanf("%c", &odgovor_od_korisnika);
-        
         getchar(); // Za citanje novog reda
 
-        if (odgovor_od_korisnika == 'd')
+        if (odgovor_od_korisnika == 'n')
         {
-            EXEC SQL
-                DELETE 
-                FROM    ISPIT
-                WHERE   GODINA_ROKA = :godina AND
-                        OZNAKA_ROKA = :oznaka;
-            is_error("Delete");
+            printf("Preskacem obradu za ovaj ispitni rok\n\n");
             
-            // Da nismo naveli klauzu WITH HOLD pri deklaraciji kursora, 
-            // onda bi naredni poziv naredbe COMMIT zatvorio kursor,
-            // pa bi poziv FETCH naredbe u narednoj iteraciji petlje prijavio gresku 
-            // (jer dohvatamo podatak nad zatvorenim kursorom).
-            EXEC SQL COMMIT;
-            is_error("Commit");
-            
-            printf("Podaci su uspesno obrisani\n");
+            continue;
         }
+        
+        EXEC SQL
+            DELETE  FROM DA.ISPIT
+            WHERE   SKGODINA = :sk_godina AND
+                    OZNAKAROKA = :oznaka;
+        is_error("Delete");
+        
+        // Da nismo naveli klauzu WITH HOLD pri deklaraciji kursora, 
+        // onda bi naredni poziv naredbe COMMIT zatvorio kursor,
+        // pa bi poziv FETCH naredbe u narednoj iteraciji petlje prijavio gresku 
+        // (jer dohvatamo podatak nad zatvorenim kursorom).
+        EXEC SQL COMMIT;
+        is_error("Commit");
+        
+        printf("Podaci su uspesno obrisani\n\n");
     }
 
-    EXEC SQL CLOSE ispitniRok;    
+    EXEC SQL CLOSE ispitni_rokovi;    
     is_error("Close");
 
     EXEC SQL COMMIT;
@@ -91,3 +101,4 @@ int main()
 
     return 0;
 }
+ 

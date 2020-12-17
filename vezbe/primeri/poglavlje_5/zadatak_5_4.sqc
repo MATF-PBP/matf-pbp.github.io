@@ -5,7 +5,7 @@ EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
 sqlint32 id_predmeta;
-short bodovi;
+short espb;
 char naziv[201];
 EXEC SQL END DECLARE SECTION;
 
@@ -13,32 +13,34 @@ void is_error(const char* err)
 {
     if (SQLCODE < 0)
     {
-        printf("SQLCODE %d: %s\n\n", SQLCODE, err);
+        printf("Greska %d: %s\n\n", SQLCODE, err);
         
         EXEC SQL ROLLBACK;
+        
+        EXEC SQL CONNECT RESET;
         exit(EXIT_FAILURE);
     }
 }
 
 int main()
 {
-    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
     is_error("Connect");
 
     EXEC SQL 
-        DECLARE neobradjeniPredmeti CURSOR WITH HOLD FOR 
-        SELECT  ID_PREDMETA,
+        DECLARE neobradjeni_predmeti CURSOR WITH HOLD FOR 
+        SELECT  ID,
                 RTRIM(NAZIV),
-                BODOVI
-        FROM    PREDMET
-        WHERE   ID_PREDMETA NOT IN (
+                ESPB
+        FROM    DA.PREDMET
+        WHERE   ID NOT IN (
                     SELECT  ID_PREDMETA
-                    FROM    OBRADJENI_PREDMETI
+                    FROM    DA.OBRADJENI_PREDMETI
                 )
-        FOR     UPDATE OF BODOVI;
+        FOR     UPDATE OF ESPB;
     is_error("Declare");
 
-    EXEC SQL OPEN neobradjeniPredmeti;
+    EXEC SQL OPEN neobradjeni_predmeti;
     is_error("Open");
 
     unsigned broj_obradjenih = 0;
@@ -46,10 +48,10 @@ int main()
     for(;;)
     {
         EXEC SQL 
-            FETCH   neobradjeniPredmeti 
+            FETCH   neobradjeni_predmeti 
             INTO    :id_predmeta,
                     :naziv,
-                    :bodovi;
+                    :espb;
         is_error("Fetch");
 
         if(SQLCODE == 100)
@@ -57,8 +59,8 @@ int main()
             break;
         }
 
-        printf("\nPredmet %s ima broj bodova: %d.\n"
-            "Da li zelite da povecate broj bodova za 1? [d/n] ", naziv, bodovi);
+        printf("\nPredmet %s ima broj bodova: %hd.\n"
+            "Da li zelite da povecate broj bodova za 1? [d/n] ", naziv, espb);
             
         char odgovor_od_korisnika;
         scanf("%c", &odgovor_od_korisnika);
@@ -68,9 +70,9 @@ int main()
         if (odgovor_od_korisnika == 'd')
         {
             EXEC SQL 
-                UPDATE  PREDMET
-                SET     BODOVI = BODOVI + 1
-                WHERE   CURRENT OF neobradjeniPredmeti;
+                UPDATE  DA.PREDMET
+                SET     ESPB = ESPB + 1
+                WHERE   CURRENT OF neobradjeni_predmeti;
             is_error("Update");            
             
             printf("Podaci su uspesno azurirani\n");
@@ -78,8 +80,7 @@ int main()
         
         // Ubelezavamo u BP da smo obradili tekuci predmet
         EXEC SQL
-            INSERT 
-            INTO    OBRADJENI_PREDMETI
+            INSERT  INTO DA.OBRADJENI_PREDMETI
             VALUES  (:id_predmeta);
         is_error("Insert into");
         
@@ -108,7 +109,7 @@ int main()
         }
     }
 
-    EXEC SQL CLOSE neobradjeniPredmeti;
+    EXEC SQL CLOSE neobradjeni_predmeti;
     is_error("Close");
 
     EXEC SQL COMMIT;
