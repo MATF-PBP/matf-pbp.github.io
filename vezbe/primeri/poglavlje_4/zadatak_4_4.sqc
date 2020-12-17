@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sql.h>
 
 // Za SQLTYPE simbolicka imena
 #include <sqlenv.h>
@@ -53,7 +54,7 @@ void izadji_bez_uspeha_sa_oslobadjanjem_memorije();
 #define IS_ERROR_WITH_LINE(err) is_error(err, __LINE__)
 
 int main() {
-    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
     IS_ERROR_WITH_LINE("Connect");
     
     unesi_i_pripremi_naredbu();    
@@ -210,6 +211,7 @@ void alociraj_prostor_za_sqlda(struct sqlda *sqldaptr) {
             case SQL_TYP_VARCHAR:
             case SQL_TYP_CHAR:
             case SQL_TYP_CSTR:
+            case SQL_TYP_LONG:
                 sqldaptr->sqlvar[i].sqldata = (char*)calloc(1, sqllen);
                 sqldaptr->sqlvar[i].sqlind = (short*)calloc(1, sizeof(short));
                 sqldaptr->sqlvar[i].sqltype = SQL_TYP_CSTR;
@@ -221,6 +223,7 @@ void alociraj_prostor_za_sqlda(struct sqlda *sqldaptr) {
             case SQL_TYP_NVARCHAR:
             case SQL_TYP_NCHAR:
             case SQL_TYP_NCSTR:
+            case SQL_TYP_NLONG:
                 sqldaptr->sqlvar[i].sqldata = (char*)calloc(1, sqllen);
                 sqldaptr->sqlvar[i].sqlind = (short*)calloc(1, sizeof(short));
                 sqldaptr->sqlvar[i].sqltype = SQL_TYP_NCSTR;
@@ -317,6 +320,7 @@ void zatrazi_vrednosti_za_parametarske_oznake() {
             case SQL_TYP_VARCHAR:
             case SQL_TYP_CHAR:
             case SQL_TYP_CSTR:
+            case SQL_TYP_LONG:
                 for (short j = 0; j < sqllen;) {
                     char c = getchar();
                     if (c == '\n') {
@@ -336,6 +340,7 @@ void zatrazi_vrednosti_za_parametarske_oznake() {
             case SQL_TYP_NVARCHAR:
             case SQL_TYP_NCHAR:
             case SQL_TYP_NCSTR:
+            case SQL_TYP_NLONG:
                 for (short j = 0; j < sqllen;) {
                     char c = getchar();
                     if (c == '\n') {
@@ -541,9 +546,14 @@ double dohvati_double_iz_decimal(char *sqldata, short sqllen) {
 }
 
 void is_error(const char *err, int linenum) {
-    if (SQLCODE < 0) {
-        printf("Greska %d: %s (linija %d)\n\n", 
-            SQLCODE, err, linenum);
+    if(sqlca.sqlcode < 0) {
+        char Buffer[1024];
+        short BufferSize = sizeof(Buffer);
+        short LineWidth = 50;
+        sqlaintp(Buffer, BufferSize, LineWidth, &sqlca);
+
+        printf("Greska %d: %s (linija %d)\n\n", sqlca.sqlcode, err, linenum);
+        printf("%s\n", Buffer);
         
         izadji_bez_uspeha_sa_oslobadjanjem_memorije();
     }

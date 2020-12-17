@@ -1,76 +1,86 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sql.h>
 
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-sqlint32 d_id;
-char d_oznaka[11];
-char d_naziv[201];
-short d_semestara;
-short d_bodovi;
+sqlint32 id_stud_programa;
+char oznaka[11];
+char naziv[51];
 
 char naredba[255];
-short uneseno_semestara;
+short id_nivoa;
 EXEC SQL END DECLARE SECTION;
 
-void is_error(const char* err)
+void is_error(const char *str)
 {
-    if (SQLCODE < 0)
+    // `SQLCODE` je makro koji se razvija u `sqlca.sqlcode`
+    if(sqlca.sqlcode < 0)
     {
-        printf("Greska %d: %s\n\n", SQLCODE, err);
+        char Buffer[1024];
+        short BufferSize = sizeof(Buffer);
+        short LineWidth = 50;
+        sqlaintp(Buffer, BufferSize, LineWidth, &sqlca);
+
+        printf("Greska %d: %s\n\n", sqlca.sqlcode, str);
+        printf("%s\n", Buffer);
         exit(EXIT_FAILURE);
     }
 }
 
 int main()
 {
-    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
     is_error("Connect");
     
-    // Kreiranje niske naredbe sa netipiziranom parametarskom oznakom
+    // Kreiranje tekstualne reprezentacije naredbe sa tipiziranom parametarskom oznakom.
+    // Primetite da se na kraju svakog reda nalazi karakter razmaka.
+    // Ovo je neophodno zato sto ce C kompilator samo nadovezati ove niske,
+    // pa ako ne navedemo razmake, onda ce "slepiti" nazive kolona i klauza.
     sprintf(naredba, 
-        "SELECT ID_SMERA, "
+        "SELECT ID, "
         "       OZNAKA, "
-        "       RTRIM(NAZIV), "
-        "       SEMESTARA, "
-        "       BODOVI "
-        "FROM   SMER "
-        "WHERE  SEMESTARA = ?");
+        "       RTRIM(NAZIV) "
+        "FROM   DA.STUDIJSKIPROGRAM "
+        "WHERE  IDNIVOA = CAST(? AS SMALLINT)");
     
-    // Prevodjenje niske naredbe u pripremljenu naredbu 
-    // sa nazivom PREP_NAREDBA
+    // Prevodjenje tekstualne reprezentacije naredbe u pripremljenu naredbu
     EXEC SQL 
         PREPARE PREP_NAREDBA 
         FROM    :naredba;
     is_error("Prepare");
 
-    // Deklaracija kursora na osnovu pripremljene naredbe.
-    // Ne navodimo dvotacku ispred PREP_NAREDBA jer je to identifikator,
-    // a ne maticna promenljiva.
+    // S obzirom da koristimo SELECT naredbu, ne mozemo da koristimo EXECUTE.
+    // Umesto toga, moramo da deklarisemo kursor na osnovu pripremljene naredbe.
+    // Ne navodimo dvotacku ispred PREP_NAREDBA jer je to identifikator, a ne maticna promenljiva.
     EXEC SQL 
-        DECLARE SMEROVI CURSOR FOR 
+        DECLARE studijskiprogrami CURSOR FOR 
         PREP_NAREDBA;
     is_error("Declare cursor");
 
-    printf("Unesite broj semestara: ");
-    scanf("%hd", &uneseno_semestara);
+    printf("Unesite identifikator nivoa studija: ");
+    scanf("%hd", &id_nivoa);
 
     // Otvaranje kursora i navodjenje vrednosti parametarske oznake
     EXEC SQL 
-        OPEN    SMEROVI 
-        USING   :uneseno_semestara;
+        OPEN    studijskiprogrami 
+        USING   :id_nivoa;
     is_error("Open cursor");
+    
+    printf("+-------------------------------------------+\n");
+    printf("|             STUDIJSKI PROGRAM             |\n");
+    printf("+-----+------+------------------------------+\n");
+    printf("|ID   |OZNAKA|NAZIV                         |\n");
+    printf("|-----+------+------------------------------+\n");
 
     for(;;)
     {
         EXEC SQL 
-            FETCH   SMEROVI
-            INTO    :d_id, 
-                    :d_oznaka, 
-                    :d_naziv, 
-                    :d_semestara, 
-                    :d_bodovi;
+            FETCH   studijskiprogrami
+            INTO    :id_stud_programa, 
+                    :oznaka, 
+                    :naziv;
         is_error("Fetch cursor");
 
         if (SQLCODE == 100)
@@ -78,11 +88,13 @@ int main()
             break;
         }
 
-        printf("ID: %d   OZNAKA: %s   NAZIV: %.70s   SEMESTARA: %d   BODOVI: %d\n", 
-            d_id, d_oznaka, d_naziv, d_semestara, d_bodovi);
+        printf("|%-5d|%-6s|%30.30s|\n", id_stud_programa, oznaka, naziv);
+        printf("+-----+------+------------------------------+\n");
     }
+    
+    printf("+-----+------+------------------------------+\n");
 
-    EXEC SQL CLOSE SMEROVI;
+    EXEC SQL CLOSE studijskiprogrami;
     is_error("Close cursor");
 
     EXEC SQL CONNECT RESET;

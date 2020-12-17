@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sql.h>
 
 EXEC SQL INCLUDE SQLCA;
 
@@ -9,11 +10,17 @@ EXEC SQL BEGIN DECLARE SECTION;
 char stmt[255];
 EXEC SQL END DECLARE SECTION;
 
-void is_error(const char* err)
+void is_error(const char *str)
 {
-    if (SQLCODE < 0)
+    if(sqlca.sqlcode < 0)
     {
-        printf("Greska %d: %s\n\n", SQLCODE, err);
+        char Buffer[1024];
+        short BufferSize = sizeof(Buffer);
+        short LineWidth = 50;
+        sqlaintp(Buffer, BufferSize, LineWidth, &sqlca);
+
+        printf("Greska %d: %s\n", sqlca.sqlcode, str);
+        printf("%s\n", Buffer);
         exit(EXIT_FAILURE);
     }
 }
@@ -35,7 +42,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
     is_error("Connect");
     
     int c; // `int` umesto `char` zbog EOF
@@ -49,7 +56,7 @@ int main(int argc, char *argv[])
             break;
         }
         
-        stmt[broj_karaktera++] = c;
+        stmt[broj_karaktera++] = (char)c;
     }
 
     fclose(ulaz);

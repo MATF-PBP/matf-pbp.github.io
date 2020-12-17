@@ -1,83 +1,77 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sql.h>
 
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
 char stmt[255];
-sqlint32 godina;
-char sifra[11], 
-     naziv[51], 
-     pocetak_prijave[11], 
-     kraj_prijave[11], 
-     tip[3];
+short skolska_godina;
+char oznaka_roka[21], 
+     naziv_roka[31], 
+     datum_pocetka[11], 
+     datum_kraja[11];
 EXEC SQL END DECLARE SECTION;
 
-void is_error(const char* err)
+void is_error(const char *str)
 {
-    if (SQLCODE < 0)
+    // `SQLCODE` je makro koji se razvija u `sqlca.sqlcode`
+    if(sqlca.sqlcode < 0)
     {
-        printf("Greska %d: %s\n\n", SQLCODE, err);
+        char Buffer[1024];
+        short BufferSize = sizeof(Buffer);
+        short LineWidth = 50;
+        sqlaintp(Buffer, BufferSize, LineWidth, &sqlca);
+
+        printf("Greska %d: %s\n\n", sqlca.sqlcode, str);
+        printf("%s\n", Buffer);
         exit(EXIT_FAILURE);
     }
 }
 
 int main()
 {
-    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
     is_error("Connect");
 
-    // Kreiramo dinamicku SQL naredbu sa netipiziranim i neimenovanim parametarskim oznakama.
-    // Primetimo po jedan karakter razmaka na kraju svake niske!!!
-    // Ovo je vazna napomena, zato sto ce pretprocesor programskog jezika C
-    // jednostavno konkatenirati date doslovne niske u jednu nisku,
-    // tako da je neophodno da ostavimo karakter razmaka
-    // kako ne bismo kreirali neispravnu SQL naredbu.
-    sprintf(stmt, 
-        "INSERT "
-        "INTO   ISPITNI_ROK "
-        "VALUES (?, ?, ?, ?, ?, ?)");
+    // Kreiramo tekstualni oblik dinamicke SQL naredbe sa netipiziranim i neimenovanim parametarskim oznakama.
+    sprintf(stmt, "INSERT INTO DA.ISPITNIROK VALUES (?, ?, ?, ?, ?)");
 
-    // Pripremamo naredbu za izvrsavanje
+    // Kreiramo pripremljenu naredbu od njenog tekstualnog oblika
     EXEC SQL 
         PREPARE PREP_NAREDBA 
         FROM    :stmt;
     is_error("PREPARE");
     
-    // Ucitavamo podatke za unosenje u tabelu ispitni_rok
+    // Ucitavamo podatke za unosenje u tabelu ISPITNIROK
     printf("Unesite godinu roka:\n");
-    scanf("%d", &godina);
+    scanf("%hd", &skolska_godina);
 
-    printf("Unesite sifru roka:\n");
-    scanf("%s", sifra);
-    getchar(); // novi red
+    printf("Unesite oznaku roka:\n");
+    scanf("%s", oznaka_roka);
+    getchar(); // Citanje novog reda zbog poziva fgets() u nastavku
     
     printf("Unesite naziv roka:\n");
-    // Funkcija fgets ce procitati i karakter za novi red,
+    // Funkcija fgets ce procitati i karakter za novi red na kraju unosa,
     // tako da moramo da ga postavimo na terminirajucu nulu.
-    fgets(naziv, sizeof(naziv), stdin);
-    naziv[strcspn(naziv, "\n")] = '\0';
+    fgets(naziv_roka, sizeof(naziv_roka), stdin);
+    naziv_roka[strcspn(naziv_roka, "\n")] = '\0';
     
-    printf("Unesite pocetak prijave roka:\n");
-    scanf("%s", pocetak_prijave);
+    printf("Unesite datum pocetka prijave roka:\n");
+    scanf("%s", datum_pocetka);
 
-    printf("Unesite kraj prijave roka:\n");
-    scanf("%s", kraj_prijave);
+    printf("Unesite datum kraja prijave roka:\n");
+    scanf("%s", datum_kraja);
 
-    printf("Unesite tip roka:\n");
-    scanf("%s", tip);
-
-    // Izvrsavamo prethodno pripremljenu naredbu 
-    // koriscenjem maticnih promenljivih
+    // Izvrsavamo prethodno pripremljenu naredbu koriscenjem maticnih promenljivih
     EXEC SQL 
         EXECUTE PREP_NAREDBA 
-        USING   :godina, 
-                :sifra, 
-                :naziv, 
-                :pocetak_prijave, 
-                :kraj_prijave, 
-                :tip;
+        USING   :skolska_godina, 
+                :oznaka_roka, 
+                :naziv_roka, 
+                :datum_pocetka, 
+                :datum_kraja;
     is_error("Execute");
     
     printf("Novi ispitni rok je uspesno unet!\n");

@@ -17,7 +17,7 @@ promenljiva-niska sadrži tekstualnu formu SQL naredbe. Ova naredba, koja je zad
 
 Naredna slika prikazuje deo programskog koda koji procesira dinamičku SQL naredbu `SELECT`. Na početku, dinamička SQL naredba je zadata kao niska. Prvi korak se sastoji u procesiranju tog tekstualnog oblika SQL naredbe. Rezultat ove naredbe je pripremljena SQL naredba, odnosno, njen izvršivi oblik. Dodatno, moguće je ovom naredbom upisati informacije o samoj dinamičkoj SQL naredbi u odgovarajuće strukture podataka. Nakon toga, drugi korak se sastoji u samom izvršavanju pripremljene naredbe. Prilikom izvršavanja se informacije koje su bile nepoznate zamenjuju konkretnim vrednostima, naravno, ako je dinamička SQL naredba imala nepoznate informacije.
 
-!["Proces izvršavanja dinamičkih SQL naredbi u dva koraka"](./Slike/dinamicke_naredbe.png)
+!["Proces izvršavanja dinamičkih SQL naredbi u dva koraka"](./Slike/dinamicke_naredbe.png){:class="ui centered huge image"}
 
 Tekstualni oblik naredbe neće biti procesiran prilikom prekompilacije aplikacije. Zapravo, sam tekstualni sadrži ne mora ni da postoji u fazi pretprocesiranja. Umesto toga, o dinamičkoj SQL naredbi možemo razmišljati kao matičnoj promenljivoj tokom faze prekompilacije na koju će se referisati prilikom faze izvršavanja.
 
@@ -35,6 +35,43 @@ Da bismo tekstualni oblik SQL naredbe transformisali u njegov izvršivi oblik, p
 - Naredba `EXECUTE` vrši drugu fazu izvršavanja dinamičke SQL naredbe: izvršava prethodno pripremljenu dinamičku SQL naredbu.
 
 - Naredba `DESCRIBE` upisuje informacije o dinamičkoj SQL naredbi u specijalnim SQLDA strukturama.
+
+### 4.1.1 Prikazivanje detalja greške u programima
+
+S obzirom da se dinami\v cke SQL naredbe procesiraju tek u fazi izvr\v savanja programa, Db2 pretprocesor nije u stanju da analizira upit i da nam u fazi prevo\dj enja javi ukoliko je do\v slo do gre\v ske. Ovo nam mo\v ze predstavljati problem po\v sto na\v sa funkcija za obradu gre\v ske samo ispisuje njen kod. Zna\v cilo bi nam da imamo neke dodatne informacije ispisane pored samog koda.
+
+Srećom po nas, ovo je moguće i veoma je jednostavno za uraditi. Ukoliko uključimo zaglavlje `sql.h`, na raspolaganju će nam biti funkcija `sqlaintp`, koju možemo da iskoristimo da dohvatimo tekstualni opis greške koja se dogodila. Ova funkcija ima naredna četiri argumenta:
+
+1. `char ∗pBuffer` - Karakterni bafer u koji će biti smešten tekstualni opis greške. Ukoliko je veličina bafera manja nego što je dužina opisa, opis će biti skraćen na veličinu bafera i biće postavljena terminirajuća nula na kraju bafera.
+2. `short BufferSize` - Veličina bafera koji se prosleđuje kao prvi argument.
+3. `short LineWidth` - Najveća veličina svake linije u tekstu opisa. Linije će biti razbijene odgovarajućim karakterom za novi red tako da reči u datoj liniji ostanu cele. Ukoliko prosledimo vrednost 0, poruka neće sadržati karaktere za novi red.
+4. `struct sqlca ∗pSqlca` - Pokazivač na strukturu `sqlca` na osnovu koje će funkcija zaključiti do koje greške je došlo. S obzirom da mi koristimo globalnu strukturu koja se dobija uklju\v civanjem zaglavlja `SQLCA` Db2 pretprocesorskom direktivom `INCLUDE`, a koja se koristi za dohvatanje informacije o gre\v sci, onda \'cemo ovde prosle\dj ivati upravo tu globalno-definisanu strukturu.
+
+Na\v sa funkcija za obradu gre\v ske \'ce sada izgledati:
+
+```c
+#include <sql.h> // Za funkciju sqlaintp()
+
+// Podsetnik: Naredna Db2 pretprocesorka direktiva ce ucitati zaglavlje `sqlca.h` 
+// i definisati globalnu `sqlca` strukturu koja se koristi u celom programu.
+EXEC SQL INCLUDE SQLCA;
+
+void is_error(const char *str)
+{
+    // `SQLCODE` je makro koji se razvija u `sqlca.sqlcode`
+    if(sqlca.sqlcode < 0)
+    {
+        char Buffer[1024];
+        short BufferSize = sizeof(Buffer);
+        short LineWidth = 50;
+        sqlaintp(Buffer, BufferSize, LineWidth, &sqlca);
+
+        printf("Greska %d: %s\n", sqlca.sqlcode, str);
+        printf("%s\n", Buffer);
+        exit(EXIT_FAILURE);
+    }
+}
+```
 
 ## 4.2 Naredba `EXECUTE IMMEDIATE`
 
@@ -70,11 +107,19 @@ Niska koja sadrži naredbu ne sme imati parametarske oznake ili reference na mat
 
 Kada se naredba `EXECUTE IMMEDIATE` izvrši, specifikovana naredba se parsira i proveravaju se greške. Ako SQL naredba nije validna, ona se neće izvršiti i uslov koji je doveo do greške se izveštava kroz SQLCA. Ako je SQL naredba validna, ali njeno izvršavanje dovodi do greške, onda se ta greška takođe izveštava kroz SQLCA.
 
-{% include lab/exercise.html broj="4.1" tekst="Napisati C/SQL program u kojem se naredbe izvršavaju dinamički koji čita SQL naredbu iz datoteke čiji se naziv zadaje kao prvi argument komandne linije. SQL naredba se čita do pojave karaktera `;` ili do kraja datoteke, ispisuje se korisniku, a potom se izvršava. Pretpostaviti da korisnik neće uneti naredbu `SELECT`, kao ni da neće sadržati parametarske oznake. Pretpostaviti da upit koji se čita iz datoteke nije duži od 255 karaktera." %}
+{% include lab/exercise.html broj="4.1" tekst="Napisati: 
+
+- C/SQL program u kojem se naredbe izvršavaju dinamički koji čita SQL naredbu iz datoteke čiji se naziv zadaje kao prvi argument komandne linije. SQL naredba se čita do pojave karaktera `;` ili do kraja datoteke, ispisuje se korisniku, a potom se izvršava. Pretpostaviti da korisnik neće uneti naredbu `SELECT`, kao ni da neće sadržati parametarske oznake. Pretpostaviti da nareda koja se čita iz datoteke nije duža od 255 karaktera.
+
+- Datoteku koja sadr\v zi SQL naredbu koja pove\'cava ESPB bodove svim predmetima za 1. Izvr\v siti naredbu iz ove datoteke napisanim programom." %}
 
 Rešenje:
 
 include_source(vezbe/primeri/poglavlje_4/zadatak_4_1.sqc, c)
+
+include_source(vezbe/primeri/poglavlje_4/zadatak_4_1.sql, sql)
+
+**Pokretanje**: ./zadatak_4_1 zadatak_4_1.sql
 
 ## 4.3 Naredba `PREPARE`
 
@@ -120,12 +165,12 @@ Takođe, parametarske oznake imaju i dva tipa:
 - *Netipizirana* parametarska oznaka se navodi bez tipa njenog rezultata i ima neimenovanu formu. Sam tip vrednosti netipizirane parametarske oznake se izvodi iz konteksta u kojem se upotrebljava. Na primer, u SQL naredbi
 
 ```sql
-UPDATE  ISPIT
-SET     NAPOMENA = 'Ovaj student je polozio sve ispite'
+UPDATE  DA.ISPIT
+SET     OCENA = 10
 WHERE   INDEKS = ?
 ```
 
-koristi se netipizirana parametarska oznaka kao predikat restrikcije, čiji će tip biti implicitno postavljen na onaj tip kojim je definisana kolona `INDEKS`. Netipizirane parametarske oznake se mogu koristiti u dinamičkim SQL naredbama sve dok se tip parametarske oznake može izvesti iz konteksta upotrebe. U suprotnom, SUBP prijavljuje `SQLSTATE` vrednost `42610` (`SQLCODE -418`).
+koristi se netipizirana parametarska oznaka kao predikat restrikcije, čiji će tip biti implicitno postavljen na onaj tip kojim je definisana kolona `INDEKS` u tabeli `DA.ISPIT`. Netipizirane parametarske oznake se mogu koristiti u dinamičkim SQL naredbama sve dok se tip parametarske oznake može izvesti iz konteksta upotrebe. U suprotnom, SUBP prijavljuje `SQLSTATE` vrednost `42610` (`SQLCODE -418`).
 
 - *Tipizirana* parametarska oznaka se navodi zajedno sa tipom rezultata. Sintaksa koja se koristi u ovom slučaju je
 
@@ -133,18 +178,17 @@ koristi se netipizirana parametarska oznaka kao predikat restrikcije, čiji će 
 CAST(? AS <TIP_PODATAKA>)
 ```
 
-gde je `<TIP_PODATAKA>` odgovarajući tip. Ova notacija ne predstavlja poziv funkcije ili eksplicitnu konverziju, već tek "obećanje" da će tip vrednosti, koja će se koristiti umesto navedene tipizirane parametarske oznake, odgovarati tipu koji je naveden ili da se makar može konvertovati u njega. Na primer, u SQL naredbi
+gde je `<TIP_PODATAKA>` odgovarajući Db2 tip. Ova notacija ne predstavlja poziv funkcije ili eksplicitnu konverziju, već tek "obećanje" da će tip vrednosti, koja će se koristiti umesto navedene tipizirane parametarske oznake kada se naredba bude izvr\v savala, odgovarati tipu koji je naveden ili da se makar može konvertovati u njega. Na primer, u SQL naredbi
 
 ```sql
-UPDATE  DOSIJE
+UPDATE  DA.DOSIJE
 SET     PREZIME = TRANSLATE(CAST(? AS VARCHAR(50)))
-WHERE   INDEKS = 20100050
+WHERE   INDEKS = 20150050
 ```
 
-vrednost argumenta funkcije `TRANSLATE` biće navedena tokom faze izvršavanja. Očekuje se da je tip te vrednosti bilo `VARCHAR(50)` ili tip koji se može konvertovati u
-njega. Tipizirane parametarske oznake se mogu koristiti u dinamičkim SQL naredbama gde god se očekuje matična promenljiva i tip podataka je kompatibilan sa "obećanjem" navedenim u `CAST` funkciji.
+vrednost argumenta funkcije `TRANSLATE` biće navedena tokom faze izvršavanja. Očekuje se da je tip te vrednosti bilo `VARCHAR(50)` ili tip koji se može konvertovati u njega. Tipizirane parametarske oznake se mogu koristiti u dinamičkim SQL naredbama gde god se očekuje matična promenljiva i tip podataka je kompatibilan sa "obećanjem" navedenim u `CAST` funkciji.
 
-Kada se naredba `PREPARE` izvrši, specifikovana naredba se parsira i proveravaju se greške. Ako SQL naredba nije validna, ona se neće izvršiti i uslov koji je doveo do greške se izveštava kroz SQLCA. Svako naredno izvršavanje naredbi `EXECUTE` ili `OPEN` koji referišu na ovu naredbu će takođe dobiti istu grešku, osim ukoliko se prethodno ne ispravi.
+Kada se naredba `PREPARE` izvrši, specifikovana naredba se parsira i proveravaju se greške. Ako SQL naredba nije validna, ona se neće izvršiti i uslov koji je doveo do greške se izveštava kroz SQLCA strukturu. Svako naredno izvršavanje naredbi `EXECUTE` ili `OPEN` koji referišu na ovu naredbu će takođe dobiti istu grešku, osim ukoliko se prethodno ne ispravi.
 
 Pripremljena naredba može biti referisana u narednim naredbama, sa odgovarajućim ograničenjima navedenim u zagradama:
 
@@ -152,11 +196,11 @@ Pripremljena naredba može biti referisana u narednim naredbama, sa odgovarajuć
 - `DECLARE CURSOR` (može biti isključivo `SELECT` naredba)
 - `EXECUTE` (ne sme biti `SELECT` naredba)
 
-Prednost korišćenja pripremljenih naredbi je u činjenici da se one mogu izvršavati više puta. Ipak, ukoliko naredba ne sadrži parametarske oznake i izvršava se samo jednom, onda se preporučuje korišćenje `EXECUTE IMMEDIATE` naredbe umesto korišćenja naredbi `PREPARE` i `EXECUTE`.
+Prednost korišćenja pripremljenih naredbi je u činjenici da se one mogu izvršavati više puta, sa potencijalno razli\v citim vrednostima parametarskih oznaka. Dakle, jednom pripremljenu naredbu nema potrebe pripremati opet. Ipak, ukoliko naredba koja nije `SELECT` ne sadrži parametarske oznake i izvršava se samo jednom, onda se preporučuje korišćenje `EXECUTE IMMEDIATE` naredbe umesto korišćenja kombinacije naredbi `PREPARE` i `EXECUTE`.
 
 ## 4.4 Naredba `EXECUTE`
 
-Naredba `EXECUTE` izvršava prethodno pripremljenu SQL naredbu. Sintaksa ove naredbe je data u nastavku:
+Naredba `EXECUTE` izvršava prethodno pripremljenu SQL naredbu koja nije `SELECT`. Sintaksa ove naredbe je data u nastavku:
 
 ```sql
 EXECUTE <NAZIV_NAREDBE>
@@ -164,17 +208,17 @@ EXECUTE <NAZIV_NAREDBE>
 [USING (<LISTA_MATIČNIH_PROMENLJIVIH> | DESCRIPTOR <NAZIV_OPISIVAČA_ULAZA>)]
 ```
 
-Ova naredba izvršava prethodno pripremljenu naredbu koja se identifikuje pomoću `<NAZIV_NAREDBE>`. Ta vrednost mora odgovarati prethodno pripremljenoj naredbi i ta naredba ne sme biti `SELECT`. Pripremljena naredba se može izvršiti više puta.
+Ova naredba izvršava prethodno pripremljenu naredbu koja se identifikuje pomoću `<NAZIV_NAREDBE>`. Ta vrednost mora odgovarati nekoj prethodno pripremljenoj naredbi. Pripremljena naredba se može izvršiti više puta. Ukoliko pripremljena naredba sadr\v zi parametarske oznake, onda mo\v zemo menjati vrednosti parametarskih oznaka svaki put kada izvr\v savamo naredbu, ukoliko za time ima potrebe.
 
 U zavisnosti od korišćenja narednih klauza, ova naredba ima sledeće efekte:
 
-- Klauzom `INTO DESCRIPTOR` se identifikuje izlazna SQLDA struktura `<NAZIV_OPISIVAČA_IZLAZA>` koja mora sadržati validne opise matičnih promenljivih. Videti sekciju 4.5.1 za dodatne napomene.
+- Klauzom `INTO DESCRIPTOR` se identifikuje izlazna SQLDA struktura `<NAZIV_OPISIVAČA_IZLAZA>` koja mora sadržati validne opise matičnih promenljivih. Videti sekciju 4.6 za dodatne napomene. Umesto ovoga se mo\v ze koristiti naredba `DESCRIBE OUTPUT`.
 
 - Klauzom `USING` se idenfitikuje lista matičnih promenljivih ili izraza koje će se koristiti prilikom zamene vrednosti za ulazne parametarske oznake u pripremljenoj naredbi. Ako se makar jedna ulazna parametarska oznaka nalazi u pripremljenoj naredbi, onda se mora specifikovati klauza `USING`. U suprotnom, SUBP prijavljuje `SQLSTATE` vrednost `07004`. Vrednosti se mogu specifikovati na dva načina:
 
    - `<LISTA_MATIČNIH_PROMENLJIVIH>` predstavlja listu matičnih promenljivih koje su razdvojene karakterom zapete (`,`). Broj matičnih promenljivih u listi mora biti jednak broju ulaznih parametarskih oznaka u pripremljenoj naredbi. Dodatno, *n*-ta matična promenljiva u listi odgovara *n*-toj parametarskoj oznaci u pripremljenoj naredbi.
 
-   - `DESCRIPTOR <NAZIV_OPISIVAČA_ULAZA>` identifikuje ulaznu SQLDA strukturu koja mora sadržati validne opise matičnih promenljivih. Videti sekciju 4.5.1 za dodatne napomene.
+   - `DESCRIPTOR <NAZIV_OPISIVAČA_ULAZA>` identifikuje ulaznu SQLDA strukturu koja mora sadržati validne opise matičnih promenljivih. Videti sekciju 4.6 za dodatne napomene.
 
 Pre samog izvršavanja pripremljene naredbe, svaka ulazna parametarska oznaka se zamenjuje vrednošću odgovarajuće promenljive ili izraza. Za tipizirane parametarske oznake, atributi ciljne promenljive ili izraza su oni koji su navedeni u `CAST` specifikaciji. Za netipizirane parametarske oznake, atributi ciljne promenljive ili izraza se izvode iz konteksta upotrebe parametarske oznake.
 
@@ -184,15 +228,17 @@ Rešenje:
 
 include_source(vezbe/primeri/poglavlje_4/zadatak_4_2.sqc, c)
 
+## 4.5 Naredba `DECLARE CURSOR` sa dinami\v ckim SQL naredbama
+
 Kao što smo rekli, moguće je pripremiti dinamičku SQL naredbu `SELECT` naredbom `PREPARE`. Međutim, ovakvu naredbu nije moguće izvršiti naredbom `EXECUTE`. Umesto toga, koristimo isti pristup rada sa kursorima, sa razlikom da se prilikom deklaracije kursora koristi pripremljena naredba umesto kursora, kao i da se prilikom otvaranja kursora navode matične promenljive ili izrazi koji će biti zamenjeni umesto parametarskih oznaka u `SELECT` naredbi, ako ih takva naredba sadrži. Naredni zadatak ilustruje rad sa dinamičkom SQL naredbom `SELECT`.
 
-{% include lab/exercise.html broj="4.3" tekst="Napisati C/SQL program u kojem se naredbe izvršavaju dinamički. Izdvojiti naredne podatke o smerovima: identifikator, oznaka, naziv, broj semestara i bodovi, za svaki smer čiji se broj semestara unosi sa standardnog ulaza." %}
+{% include lab/exercise.html broj="4.3" tekst="Napisati C/SQL program u kojem se naredbe izvršavaju dinamički. Izdvojiti naredne podatke o studijskim programima: identifikator, oznaka i naziv, za svaki studijski program čiji se identifikator nivoa unosi sa standardnog ulaza." %}
 
 Rešenje:
 
 include_source(vezbe/primeri/poglavlje_4/zadatak_4_3.sqc, c)
 
-## 4.5 SQL prostor za opisivanje (SQLDA)
+## 4.6 SQL prostor za opisivanje (SQLDA)
 
 *SQL prostor za opisivanje* (engl. *SQL Description Area*, skr. *SQLDA*) predstavlja kolekciju promenljivih koje su neophodne za dohvatanje informacija o dinamičkim SQL naredbama. Da bismo mogli da ga koristimo, zaglavlje je potrebno uključiti pomoću naredbe `INCLUDE`:
 
@@ -204,7 +250,7 @@ Promenljive deklarisane u SQLDA zaglavlju predstavljaju podešavanja koja se mog
 
 U nastavku sledi opis strukture SQLDA, a grafički prikaz se nalazi na narednoj slici.
 
-!["Struktura SQLDA."](./Slike/sqlda.png)
+!["Struktura SQLDA."](./Slike/sqlda.png){:class="ui centered large image"}
 
 Zaglavlje strukture se sastoji od narednih informacija:
 
@@ -286,7 +332,7 @@ Naredna tabela opisuje SQL tipove kolona i njihove odgovarajuće `SQLTYPE` tipov
 | n/a | 968/969 | SQL_TYP_DBCLOB_LOCATOR / SQL_TYP_NDBCLOB_LOCATOR |
 | XML | 988/989 | SQL_TYP_XML / SQL_TYP_XML |
 
-### 4.5.1 Efekat naredbe `EXECUTE` na SQLDA strukturu
+### 4.6.1 Efekat naredbe `EXECUTE` na SQLDA strukturu
 
 Pre nego što se naredba `EXECUTE` izvrši, korisnik mora da postavi naredna polja u ulaznoj SQLDA strukturi:
 
@@ -310,17 +356,17 @@ Drugim rečima, količina prostora koju treba alocirati je (`SQLD` je odgovaraju
 
 Na raspolaganju nam je makro `SQLDASIZE` koji će izračunati ovu vrednost za nas, uzimajući u obzir specifičnosti platforme. Njegov obavezni argument je upravo vrednost `SQLD`. Dodatno, `SQLD` mora biti postavljen na vrednost veću ili jednaku nuli i manju od ili jednaku `SQLN`.
 
-### 4.5.2 Efekat naredbe `PREPARE` na SQLDA strukturu
+### 4.6.2 Efekat naredbe `PREPARE` na SQLDA strukturu
 
 Prilikom izvršavanja naredbe `PREPARE INPUT`, SUBP uvek postavlja `SQLD` na broj ulaznih parametarskih oznaka u naredbi.
 
 Prilikom izvršavanja naredbe `PREPARE OUTPUT`, SUBP uvek postavlja `SQLD` na broj kolona u rezultujućoj tabeli ili na broj izlaznih parametarskih oznaka.
 
-## 4.6 Naredba `DESCRIBE`
+## 4.7 Naredba `DESCRIBE`
 
 Naredba `DESCRIBE` dohvata informacije o pripremljenoj naredbi. Postoje dva tipa informacija koja se mogu dobiti ovom naredbom, i svaki od njih ćemo posebno opisati.
 
-### 4.6.1 Naredba `DESCRIBE INPUT`
+### 4.7.1 Naredba `DESCRIBE INPUT`
 
 Ova naredba dohvata informacije o ulaznim parametarskim oznakama u pripremljenoj naredbi. Ova informacija se smešta u SQLDA strukturu.
 
@@ -363,7 +409,7 @@ Nakon izvršavanja naredbe `DESCRIBE INPUT`, SUBP dodeljuje vrednosti promenljiv
 
 - Za svako pojavljivanje `SQLVAR`: ako je vrednost `SQLD` jednaka nuli ili veća od `SQLN`, ne postavljaju se vrednosti za pojavljivanja SQLVAR. Ako je vrednost `SQLD` jednaka *n*, gde je *n > 0* i *n <= `SQLN`*, onda se vrednosti dodeljuju prvih *n* pojavljivanja `SQLVAR`. Ove vrednosti opisuju parametarske oznake za ulazne parametre prodecure, redom.
 
-### 4.6.2 Naredba `DESCRIBE OUTPUT`
+### 4.7.2 Naredba `DESCRIBE OUTPUT`
 
 Ova naredba dohvata informacije o pripremljenoj naredbi ili informacije o listi kolona u pripremljenoj `SELECT` naredbi. Ova informacija se smešta u SQLDA strukturu.
 
@@ -412,8 +458,8 @@ Rešenje:
 
 include_source(vezbe/primeri/poglavlje_4/zadatak_4_4.sqc, c)
 
-## 4.6 Zadaci za vežbu
+## 4.8 Zadaci za vežbu
 
 {% include lab/exercise.html broj="4.5" tekst="Napisati C/SQL program u kojem se naredbe izvršavaju dinamički. Izdvojiti naziv predmeta, prosečnu ocenu i procenat studenata iz tog predmeta u školskoj godini koja se unosi sa standardnog ulaza." %}
 
-{% include lab/exercise.html broj="4.6" tekst="Uraditi zadatke za ve\v zbu iz poglavlja 2 i 3 kori\v s\'cenjem dinami\v ckog SQL-a." %}
+{% include lab/exercise.html broj="4.6" tekst="Uraditi zadatke za ve\v zbu iz poglavlja 2 i 3 kori\v s\'cenjem dinami\v ckih SQL naredbi." %}
