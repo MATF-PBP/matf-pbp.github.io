@@ -14,42 +14,42 @@ void is_error(const char *str) {
     }
 }
 
-void obradi_cekanje()
-{
-    printf("Objekat je zakljucan od strane druge transakcije. "
-        "Sacekati neko vreme...\n");
-    
-    EXEC SQL ROLLBACK;
-    is_error("Rollback");
+int wait_for_lock(const char *code_hint) {
+    if (SQLCODE == -911 || SQLCODE == -913) {
+        printf("[%s] Objekat je zakljucan od strane druge transakcije. "
+            "Sacekati neko vreme...\n", code_hint);
+
+        EXEC SQL ROLLBACK;
+        is_error("Rollback");
+
+        return 1;
+    }
+    return 0;
 }
 
-int main()
-{
-    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+int main() {
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
     is_error("Connect");
     
     EXEC SQL SET CURRENT LOCK TIMEOUT 5;
     is_error("Set timeout");
     
-    for(;;)
-    {
+    for (;;) {
         EXEC SQL 
-            INSERT 
-            INTO    ISPITNI_ROK
-            VALUES  (2016, 'mar', 'Mart 2016', CURRENT_DATE - 1 MONTH, CURRENT_DATE - 1 MONTH + 20 DAYS, 1);
-      
-        if (SQLCODE == 0)
-        {
-            break;
-        }
+            UPDATE  DA.ISPITNIROK
+            SET     DATKRAJA = DATKRAJA + 3 DAYS
+            WHERE   SKGODINA = 2021;
             
-        if (SQLCODE == -911 || SQLCODE == -913)
-        {
-            obradi_cekanje();
+        if (wait_for_lock("UPDATE")) {
+            continue;
         }
         
         is_error("Insert");
-    }
+        
+        if (SQLCODE == 0) {
+            break;
+        }
+    };
 
     EXEC SQL SET CURRENT LOCK TIMEOUT NULL;
     is_error("Set timeout");

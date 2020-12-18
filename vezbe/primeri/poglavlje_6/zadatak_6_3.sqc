@@ -1,0 +1,165 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 id_stud_programa;
+
+sqlint32 indeks;
+char ime[26];
+char prezime[26];
+sqlint32 broj_polozenih;
+sqlint32 broj_espb;
+
+sqlint32 id_drzave;
+char naziv[51];
+EXEC SQL END DECLARE SECTION;
+
+void is_error(const char *str);
+int wait_for_lock(const char *code_hint);
+
+int main() {
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    is_error("CONNECT TO");
+    
+    EXEC SQL SET CURRENT LOCK TIMEOUT 5;
+    is_error("CURRENT LOCK TIMEOUT 5");
+    
+    printf("Unesite identifikator studijskog programa sa osnovnih studija: ");
+    scanf("%d", &id_stud_programa);
+    
+    EXEC SQL DECLARE c_studenti CURSOR WITH HOLD FOR 
+        SELECT      D.INDEKS,
+                    RTRIM(D.IME),
+                    RTRIM(D.PREZIME),
+                    COUNT(*) AS BROJ_POLOZENIH,
+                    SUM(P.ESPB) AS BROJ_ESPB
+        FROM        DA.DOSIJE D JOIN
+                    DA.ISPIT I ON D.INDEKS = I.INDEKS JOIN
+                    DA.PREDMET P ON I.IDPREDMETA = P.ID
+        WHERE       D.IDPROGRAMA = :id_stud_programa AND
+                    I.OCENA > 5 AND
+                    I.STATUS = 'o' AND
+                    D.INDEKS NOT IN (
+                        SELECT  INDEKS
+                        FROM    DA.EKSKURZIJA
+                    )
+        GROUP BY    D.INDEKS,
+                    D.IME,
+                    D.PREZIME
+        HAVING      COUNT(*) >= 12 AND
+                    SUM(P.ESPB) >= 120
+        FOR         READ ONLY;
+    is_error("DECLARE");
+        
+    EXEC SQL OPEN c_studenti;
+    is_error("OPEN");
+    
+    unsigned broj_obradjenih_studenata = 0u;
+    
+    for(;;) {
+        EXEC SQL FETCH c_studenti INTO
+            :indeks,
+            :ime,
+            :prezime,
+            :broj_polozenih,
+            :broj_espb;
+        if (wait_for_lock("FETCH")) {
+            continue;
+        }
+        is_error("FETCH");
+        
+        if (SQLCODE == 100) {
+            break;
+        }
+        
+        printf("\n----------------------------------------------------------------------------------------------------------------------\n");
+        printf("Anketiram studenta: %-10.10s %-15.15s (%d) - broj polozenih ispita = %5.5d, broj polozenih espb = %5.5d", 
+               ime, prezime, indeks, broj_polozenih, broj_espb);
+        printf("\n----------------------------------------------------------------------------------------------------------------------\n");
+        
+        printf("\nUnesite identifikator drzave ili 0: ");
+        scanf("%d", &id_drzave);
+        
+        if (!id_drzave) {
+            continue;
+        }
+        
+        printf("Unosim Vas glas za drzavu sa identifikatorom %d...\n", id_drzave);
+        
+        for (;;) {
+            EXEC SQL
+                INSERT  INTO DA.EKSKURZIJA
+                VALUES  (:indeks, :id_drzave, CURRENT_DATE);
+            if (wait_for_lock("INSERT INTO")) {
+                continue;
+            }
+            is_error("INSERT INTO");
+            
+            break;
+        }
+        
+        printf("Vas glas je uspesno zabelezen!\n");
+        
+        EXEC SQL COMMIT;
+        is_error("COMMIT");
+        
+        printf("\n********** END TRANSACTION **********\n");
+        
+        ++broj_obradjenih_studenata;
+        
+        if (!(broj_obradjenih_studenata % 3)) {
+            printf("Da li zelite da zavrsite anketiranje? [da/ne] ");
+            char odgovor[3];
+            scanf("%s", odgovor);
+            
+            if (!strcmp(odgovor, "da")) {
+                printf("Zavrsavam program!\n");
+                break;
+            }
+        }
+    }
+    
+    EXEC SQL CLOSE c_studenti;
+    is_error("CLOSE");
+    
+    EXEC SQL SET CURRENT LOCK TIMEOUT NULL;
+    is_error("CURRENT LOCK TIMEOUT NULL");
+    
+    EXEC SQL COMMIT;
+    is_error("COMMIT - kraj programa");
+    
+    EXEC SQL CONNECT RESET;
+    is_error("CONNECT RESET");
+    
+    return 0;
+}
+
+void is_error(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL ROLLBACK;
+
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int wait_for_lock(const char *code_hint) {
+    if (SQLCODE == -911 || SQLCODE == -913) {
+        printf("[%s] Objekat je zakljucan od strane druge transakcije. "
+            "Sacekati neko vreme...\n", code_hint);
+
+        EXEC SQL ROLLBACK;
+        is_error("Rollback");
+
+        EXEC SQL OPEN c_studenti;    
+        is_error("Open predmeti - obrada cekanja");
+
+        return 1;
+    }
+    return 0;
+}

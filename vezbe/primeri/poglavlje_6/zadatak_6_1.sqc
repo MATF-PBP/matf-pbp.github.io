@@ -4,24 +4,22 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-char d_naziv[201];
-short d_bodovi;
+char naziv[201];
+short espb;
 EXEC SQL END DECLARE SECTION;
 
-// Definisemo funkciju koja ce vrsiti obradu cekanja
-// u slucaju da dodje do problema u visekorisnickom okruzenju.
+// Definisemo funkciju koja ce vrsiti obradu cekanja u slucaju da dodje do problema u visekorisnickom okruzenju.
 // Primetimo da je definicija funkcije odvojena od njene deklaracije,
-// zato sto se u definiciji ove funkcije koristi kursor `c_smerovi`.
-// Da se definicija nasla ispred `main` funkcije,
-// Db2 pretprocesor bi izdao upozorenje da se kursor koristi pre deklaracije.
+// zato sto se u definiciji ove funkcije koristi (otvara) kursor `c_studijski_programi`.
+// Ako bismo stavili definiciju ove funkcije ispred `main` funkcije,
+// onda bi Db2 pretprocesor izdao upozorenje da se kursor koristi (otvara) pre deklaracije.
 // Funkcija vraca 1 ukoliko je doslo do problema, a 0 inace.
-int obradi_cekanje();
+int wait_for_lock();
+
 void is_error(const char *str);
 
 int main() {
-    char odgovor_od_korisnika;
-    
-    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
     is_error("Connect");
     
     // Postavljanje isteka vremena na 5 sekundi
@@ -29,60 +27,65 @@ int main() {
     is_error("Set current lock timeout 5");
     
     EXEC SQL 
-        DECLARE c_smerovi CURSOR FOR 
+        DECLARE c_studijski_programi CURSOR FOR 
         SELECT  TRIM(NAZIV), 
-                BODOVI
-        FROM    SMER
-        FOR     UPDATE OF BODOVI;
-    is_error("Declare c_smerovi");
+                OBIMESPB
+        FROM    DA.STUDIJSKIPROGRAM
+        FOR     UPDATE OF OBIMESPB;
+    is_error("Declare c_studijski_programi");
     
-    EXEC SQL OPEN c_smerovi;
-    is_error("Open c_smerovi");
+    EXEC SQL OPEN c_studijski_programi;
+    is_error("Open c_studijski_programi");
 
     for(;;) {
         // Naredba FETCH dohvata jedan red iz rezultata upita.
         // Bilo da li se informacije koriste za citanje ili za eventualnu izmenu,
         // SUBP mora da dodeli aplikaciji odgovarajuci katanac.
         EXEC SQL 
-            FETCH   c_smerovi 
-            INTO    :d_naziv, 
-                    :d_bodovi;
-        if (obradi_cekanje()) {
+            FETCH   c_studijski_programi 
+            INTO    :naziv, 
+                    :espb;
+        if (wait_for_lock()) {
             continue;
         }
-        is_error("Fetch c_smerovi");
+        is_error("Fetch c_studijski_programi");
 
         if (SQLCODE == 100) {
-            printf("Nema vise smerova za obradjivanje!\n");
+            printf("Nema vise studijskih programa za obradjivanje!\n");
             break;
         }
             
-        printf("%s (%hd)\n", d_naziv, d_bodovi);
+        EXEC SQL COMMIT;
+        is_error("Commit fetch");
+            
+        printf("%s (%hd)\n", naziv, espb);
 
-        printf("Da li zelite da promenite bodove za ovaj smer? [d/n] ");
-        scanf("%c", &odgovor_od_korisnika);
+        printf("Da li zelite da promenite bodove za ovaj studijski program? [d/n] ");
+        char odgovor_od_korisnika = getchar();
         getchar();  // novi red
 
-        if (odgovor_od_korisnika == 'd' || odgovor_od_korisnika == 'D') {
-            printf("Unesite broj bodova: ");
-            scanf("%hd", &d_bodovi);
-
-            // Izvrsavanje naredbe UPDATE uvek trazi katanac za azuriranje podataka
-            EXEC SQL 
-                UPDATE  SMER
-                SET     BODOVI = :d_bodovi
-                WHERE   CURRENT OF c_smerovi;
-            if (obradi_cekanje()) {
-                continue;
-            }
-            is_error("Update");
-
-            printf("Bodovi su azurirani!\n\n");
+        if (odgovor_od_korisnika != 'd') {
+            continue;
         }
+        
+        printf("Unesite broj bodova: ");
+        scanf("%hd", &espb);
+
+        // Izvrsavanje naredbe UPDATE uvek trazi katanac za azuriranje podataka
+        EXEC SQL 
+            UPDATE  DA.STUDIJSKIPROGRAM
+            SET     OBIMESPB = :espb
+            WHERE   CURRENT OF c_studijski_programi;
+        if (wait_for_lock()) {
+            continue;
+        }
+        is_error("Update");
+
+        printf("Bodovi su azurirani!\n\n");
     }
 
-    EXEC SQL CLOSE c_smerovi;
-    is_error("Close c_smerovi");
+    EXEC SQL CLOSE c_studijski_programi;
+    is_error("Close c_studijski_programi");
 
     // Vracamo istek vremena na podrazumevanu vrednost
     EXEC SQL SET CURRENT LOCK TIMEOUT NULL;
@@ -108,13 +111,16 @@ void is_error(const char *str) {
     }
 }
 
-int obradi_cekanje() {
+int wait_for_lock() {
     if (SQLCODE == -911 || SQLCODE == -913) {
         printf("Objekat je zakljucan od strane druge transakcije. "
             "Sacekati neko vreme...\n");
+        
+        EXEC SQL ROLLBACK;
+        is_error("Rollback");
 
-        EXEC SQL OPEN c_smerovi;
-        is_error("Open c_smerovi - obradi_cekanje");
+        EXEC SQL OPEN c_studijski_programi;
+        is_error("Open c_studijski_programi - wait_for_lock");
 
         return 1;
     }

@@ -1,8 +1,0 @@
-DELETE 
-FROM    ISPITNI_ROK
-WHERE   GODINA = 2016;
-
-INSERT 
-INTO    ISPITNI_ROK 
-VALUES  (2016, 'Jan2016', 'Januar 2016', '01/01/2016', '01/12/2016', '1'),
-        (2016, 'Feb2016', 'Februar 2016', '02/01/2016', '02/12/2016', '1');

@@ -1,5 +1,0 @@
-!#/bin/bash 
-
-db2 connect to vstud user student using abcdef
-db2 -t -f pripremaBaze.sql
-db2 connect reset

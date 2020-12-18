@@ -4,11 +4,10 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-sqlint32 d_id;
-char d_oznaka[11];
-char d_naziv[201];
-short d_semestara;
-short d_bodovi;
+sqlint32 id_predmeta;
+char oznaka[11];
+char naziv[201];
+short espb;
 EXEC SQL END DECLARE SECTION;
 
 void is_error(const char *str) {
@@ -22,37 +21,33 @@ void is_error(const char *str) {
     }
 }
 
-int main()
-{
-    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+int main() {
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
     is_error("Connect");
     
-    // Zakljucavamo tabelu SMER u deljenom rezimu
-    EXEC SQL LOCK TABLE SMER IN SHARE MODE;
+    // Zakljucavamo tabelu PREDMET u privatnom rezimu
+    EXEC SQL LOCK TABLE DA.PREDMET IN EXCLUSIVE MODE;
     is_error("Lock table");
     
     EXEC SQL 
-        DECLARE c_smer CURSOR FOR 
-        SELECT  ID_SMERA, 
+        DECLARE c_predmeti CURSOR FOR 
+        SELECT  ID, 
                 OZNAKA, 
                 NAZIV, 
-                SEMESTARA, 
-                BODOVI 
-        FROM    SMER;
+                ESPB
+        FROM    DA.PREDMET;
     is_error("Declare cursor");
     
-    EXEC SQL OPEN c_smer;
+    EXEC SQL OPEN c_predmeti;
     is_error("Open cursor");
     
-    for(;;)
-    {
+    for(;;) {
         EXEC SQL 
-            FETCH   c_smer
-            INTO    :d_id, 
-                    :d_oznaka, 
-                    :d_naziv, 
-                    :d_semestara, 
-                    :d_bodovi;
+            FETCH   c_predmeti
+            INTO    :id_predmeta, 
+                    :oznaka, 
+                    :naziv, 
+                    :espb;
         is_error("Fetch cursor");
     
         if (SQLCODE == 100)
@@ -60,14 +55,13 @@ int main()
             break;
         }
 
-        printf("ID:%d   OZNAKA:%s   NAZIV:%.70s   SEMESTARA:%d   bodovi:%d\n", 
-            d_id, d_oznaka, d_naziv, d_semestara, d_bodovi);
+        printf("%4.4d %-10.10s %-30.30s %d\n", id_predmeta, oznaka, naziv, espb);
 
-        printf("Pritisnite neki taster za naredno citanje\n");
+        printf("Pritisnite ENTER za dalje citanje\n");
         getchar();
     }
 
-    EXEC SQL CLOSE c_smer;
+    EXEC SQL CLOSE c_predmeti;
     is_error("Close cursor");
     
     EXEC SQL COMMIT;
