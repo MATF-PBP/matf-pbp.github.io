@@ -324,7 +324,7 @@ Naredni primeri ilustruju različite efekte iste aplikacije pri različitim nivo
 
 Rešenje: Za potrebe prevo\dj enja i pripremanja podataka u bazi, napravljena je `Makefile` datoteka čiji je sadržaj: 
 
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_4/pripremaBaze, shell)
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_4/Makefile, makefile)
 
 Prevo\dj enje programa se vr\v si pozivom alata `make`, a mogu\'ce je i o\v cistiti artefakte prevo\dj enja pozivom `make clean`. Pre ilustracije rada programa `repeatableRead`, potrebno je pozvati `make db` koji će pripremiti informacije o ispitnim rokovima u bazu podataka na osnovu skripta `pripremaBaze.sql` čiji je sadržaj:
 
