@@ -12,13 +12,13 @@ Svi SQL-aplikativni programi se izvršavaju kao deo *aplikacionih procesa* ili *
 
 U višekorisničkom okruženju, osnovna pretpostavka je da više od jednog aplikacionog procesa može da zahteva pristup istim podacima u isto vreme. U tu svrhu, da bi se obezbedio integritet podataka, potrebno je implementirati i koristiti mehanizam poznat pod nazivom zaključavanje.
 
-{% include lab/definition.html def="*Zaključavanje* (engl. *locking*) predstavlja mehanizam zasnovan na katancima koji se koristi za održavanje integriteta podataka pod uslovima višekorisničkog okruženja." %}
+*Zaključavanje* (engl. *locking*) predstavlja mehanizam zasnovan na katancima koji se koristi za održavanje integriteta podataka pod uslovima višekorisničkog okruženja.
 
 Korišćenjem zaključavanja se može sprečiti da, na primer, dva aplikaciona procesa izvrše ažuriranje istog reda u isto vreme.
 
 SUBP upravlja katancima da bi onemogućio da nepotvrđene izmene napravljene od strane jednog aplikacionog procesa budu vidljive od bilo kog drugog procesa. U trenutku kada se neki proces završi, tada se svi katanci koje je proces dobio od strane RSUBP, i držao ih, oslobađaju. Ipak, aplikacioni proces može da eksplicitno zahteva da se neki katanac oslobodi ranije. Ovo je omogućeno korišćenjem operacije potvrđivanja izmena, koja oslobađa katance koji su dobijeni tokom jedinice posla i koja, takođe, potvrđuje sve izmene koje su obavljene tokom te jedinice posla.
 
-{% include lab/definition.html def="Direktni pozivi DB2 funkcija i ugnežđeni SQL omogućavaju režim konekcije koji se naziva *konkurentne transakcije* (engl. *concurrent transactions*) kojim se omogućavaju višestruke konekcije ka bazama podataka, pri čemu svaka od njih predstavlja nezavisnu transakciju." %}
+Direktni pozivi DB2 funkcija i ugnežđeni SQL omogućavaju režim konekcije koji se naziva *konkurentne transakcije* (engl. *concurrent transactions*) kojim se omogućavaju višestruke konekcije ka bazama podataka, pri čemu svaka od njih predstavlja nezavisnu transakciju.
 
 Aplikacija može da ima više konkurentnih konekcija ka istoj bazi podataka.
 
@@ -58,19 +58,17 @@ Očigledno, primenom različitih vrsta katanaca, može doći do sukoba u smislu 
 
 U slučaju da katanci nisu kompatibilni, nije moguće dodeliti traženi katanac aplikacionom procesu. Tada taj proces mora da pređe u stanje čekanja dok proces ne oslobodi nekompatibilni katanac koji drži, kao i dok se svi ostali nekompatibilni katanci ne oslobode. U nekim slučajevima može doći do *isteka vremena* (engl. *timeout*) dok zatražilac čeka na katanac. O tome će nešto detaljnije biti reči u nastavku, a za sada ćemo prikazati kompatibilnosti između katanaca u narednoj tabeli. Oznaka *N* znači da nad resursom nema katanca, odnosno, da aplikacioni proces ne traži katanac.
 
-!["Tabela kompatibilnosti katanaca."](./Slike/tabela-kompatibilnosti-katanaca.png)
+!["Tabela kompatibilnosti katanaca."](./Slike/tabela-kompatibilnosti-katanaca.png){:class="ui centered large image"}
 
 ### 6.2.1 Konverzija katanaca
 
 Konverzija katanca se ostvaruje u situacijama kada aplikacioni proces pristupa objektu nad kojim već drži katanac, a taj pristup zahteva restriktivniji katanac od onog koji se već drži. Proces nad objektom može da drži najviše jedan katanac u nekom trenutku, ali može da traži različite katance nad istim objektom indirektno kroz izvršavanje naredbi.
 
-{% include lab/definition.html def="Promena režima katanca koji se već drži se naziva *konverzija katanca* (engl. *lock conversion*)." %}
+Promena režima katanca koji se već drži se naziva *konverzija katanca* (engl. *lock conversion*).
 
 Neki režimi katanaca se primenjuju samo za tabele, neki samo za redove, blokove ili particije podataka. Za redove ili blokove, konverzija se uglavnom izvršava ukoliko se traži katanac *X*, a već se drži katanac *S* ili *U*.
 
-Katanci *IX* i *S* imaju specijalan odnos — nijedan od ova dva katanca se smatra restriktivnijim u odnosu na drugi. Ukoliko aplikacioni proces drži jedan od ova dva katanca i zahteva drugi, onda će se izvršiti konverzija u katanac *SIX*. Sve ostale konverzije se vrše po narednom principu:
-
-{% include lab/center_quote.html content="Ukoliko je katanac koji se zahteva restriktivniji u odnosu na katanac koji se drži, onda se katanac koji se drži konvertuje u katanac koji se zahteva." %}
+Katanci *IX* i *S* imaju specijalan odnos — nijedan od ova dva katanca se smatra restriktivnijim u odnosu na drugi. Ukoliko aplikacioni proces drži jedan od ova dva katanca i zahteva drugi, onda će se izvršiti konverzija u katanac *SIX*. Sve ostale konverzije se vrše po narednom principu: **Ukoliko je katanac koji se zahteva restriktivniji u odnosu na katanac koji se drži, onda se katanac koji se drži konvertuje u katanac koji se zahteva.**
 
 Naravno, da bi se uspešno izvršila konverzija katanca, nad objektom nad kojim se zahteva novi katanac ne sme postojati neki drugi katanac koji je nekompatibilan sa njim.
 
@@ -94,11 +92,11 @@ Pretpostavimo da postoje dve aplikacije A i B koje rade konkurentno i da je meha
    - Aplikacija A je u stanju čekanja.
    - Aplikacija B je u stanju čekanja.
 
-!["Ilustracija pojave mrtve petlje prilikom izvršavanja dva aplikaciona procesa."](./Slike/mrtva-petlja.png)
+!["Ilustracija pojave mrtve petlje prilikom izvršavanja dva aplikaciona procesa."](./Slike/mrtva-petlja.png){:class="ui centered large image"}
 
 Očigledno, počevši od trenutka T3, obe aplikacije će čekati jedna na drugu beskonačno dugo i neće se "nikad" završiti. Ova pojava se naziva mrtva petlja.
 
-{% include lab/definition.html def="*Mrtva petlja* (engl. *deadlock*) predstavlja pojavu kada dve aplikacije (ili više njih) zaključaju podatak koji je neophodan jedan drugoj, što rezultuje u situaciji da se obe aplikacije blokiraju i nijedna ne može da nastavi sa daljim izvršavanjem." %}
+*Mrtva petlja* (engl. *deadlock*) predstavlja pojavu kada dve aplikacije (ili više njih) zaključaju podatak koji je neophodan jedan drugoj, što rezultuje u situaciji da se obe aplikacije blokiraju i nijedna ne može da nastavi sa daljim izvršavanjem.
 
 Zbog toga što aplikacije neće "volonterski" osloboditi katance koje drže nad podacima, da bi se prevazišla mrtva petlja, mora se pristupiti procesu prepoznavanja mrtve petlje. Mehanizam prepoznavanja mrtve petlje nadgleda informacije o agentima koji čekaju na katance i pokreće se na interval specifikovan kroz parametar `dlchktime` podešavanja baze podataka.
 
@@ -152,24 +150,24 @@ Ovoj naredbi je moguće specifikovati naredne vrednosti:
 
 - Navođenjem `<MATIČNA PROMENLJIVA>` specifikuje se celobrojna vrednost iz intervala `[-1, 32767]` koja se čita iz vrednosti date matične promenljive. Ako data vrednost pripada intervalu `[1, 32767]`, onda će SUBP čekati toliko sekundi pre nego što aplikaciji prosledi grešku. Vrednosti `-1` i `0` odgovaraju specifikovanju prethodno opisanih klauza `WAIT` i `NO WAIT`, redom.
 
-{% include lab/exercise.html broj="6.1" tekst="Napisati C/SQL program koji za svaki smer pita korisnika da li \v zeli da promeni broj bodova na tom smeru. Ukoliko korisnik odgovori potvrdno, aplikacija zahteva od korisnika da unese novi broj bodova nakon \v cega se vr\v si izmena podataka.\n
-\n
-Napisati program tako da može da radi u višekorisničkom okruženju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi.\n
-\n
+{% include lab/exercise.html broj="6.1" tekst="Napisati C/SQL program koji za svaki smer pita korisnika da li \v zeli da promeni broj bodova na tom smeru. Ukoliko korisnik odgovori potvrdno, aplikacija zahteva od korisnika da unese novi broj bodova nakon \v cega se vr\v si izmena podataka.
+
+Napisati program tako da može da radi u višekorisničkom okruženju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi.
+
 Pokrenuti dve instance aplikacije. Uveriti se da dok jedna aplikacija obra\dj uje teku\'ci smer, druga aplikacija ne mo\v ze da dobije katanac nad odgovaraju\'cim slogom." %}
 
-Re\v senje: Nakon izvr\v savanja svake SQL naredbe koja mo\v ze da zahteva zaklju\v cavanje nekog sloga u tabeli, potrebno je izvr\v siti proveru da li aplikacija mo\v ze da dobije odgovaraju\'ci katanac. Provera se sastoji u ispitivanju vrednosti makroa `SQLCODE` i to pre poziva funkcije za obradu gre\v ske, kako se proces ne bi zavr\v sio pre obrade katanaca. Sama obrada gre\v ske je u ovom slu\v caju vrlo jednostavna - potrebno je ispisati poruku korisniku da je isteklo vreme za \v cekanje trenutnog katanca i nastaviti dalje sa izvr\v savanjem.
+Re\v senje: Nakon izvr\v savanja svake SQL naredbe koja mo\v ze da zahteva zaklju\v cavanje nekog sloga u tabeli, potrebno je izvr\v siti proveru da li aplikacija mo\v ze da dobije odgovaraju\'ci katanac. Provera se sastoji u ispitivanju vrednosti makroa `SQLCODE` i to pre poziva funkcije za obradu gre\v ske, kako se proces ne bi zavr\v sio pre obrade katanaca. Sama obrada \v cekanja je u ovom slu\v caju vrlo jednostavna - potrebno je ispisati poruku korisniku da je isteklo vreme za \v cekanje trenutnog katanca i nastaviti dalje sa izvr\v savanjem (poni\v stiti eventualne izmene i ponovo otvoriti kursor koji se obra\dj uje).
 
 include_source(vezbe/primeri/poglavlje_6/zadatak_6_1.sqc, c)
 
 ## 6.3 Obrada transakcija u višekorisničkom okruženju
 
-Problem sa pristupom obrade gre\v saka u prethodnom zadatku je taj \v sto se pod transakcijom smatra izvr\v savanje celog programa, te ako bilo gde u obradi do\dj e do problema dobijanja katanaca, sve izmene koje su do tada na\v cinjene se poni\v stavaju. Umesto toga, pouzdanija tehnika jeste definisati da jedna transakcija obuhvata obradu jednog podatka. U prethodnom primeru, to bi zna\v cilo da jedna transakcija obuhvata izmenu ta\v cno jednog smera, a ne svih smerova. Dodatno, \v cesto je po\v zeljno da aplikacija pamti koji podaci su ve\'c obra\dj eni, kako ih ne bi obra\dj ivala dva puta.
+Problem sa pristupom obrade gre\v saka u prethodnom zadatku je taj \v sto se pod transakcijom smatra izvr\v savanje celog programa, te ako bilo gde u obradi do\dj e do problema dobijanja katanaca, sve izmene koje su do tada na\v cinjene se poni\v stavaju. Umesto toga, pouzdanija tehnika jeste definisati da jedna transakcija obuhvata obradu jednog podatka. U prethodnom primeru, to bi zna\v cilo da jedna transakcija obuhvata izmenu ta\v cno jednog smera, a ne svih smerova. Dodatno, \v cesto je po\v zeljno da aplikacija pamti koji podaci su ve\'c obra\dj eni, kako ih ne bi obra\dj ivala dva puta. Ovo je va\v zno pamtiti zbog toga \v sto otvaranjem kursora u obradi \v cekanja, kursor se pozicionira na po\v cetak rezultuju\'ce tabele, a ne tamo gde je obrada stala. (Alternativno, mo\v zemo pamtiti broj obra\dj enih redova u neku mati\v cnu promenljivu `row_count`, pa zatim koristiti klauzu `OFFSET :row_count ROWS` u `SELECT` naredbi.)
 
 Naredni zadatak ilustruje obradu transakcija u višekorisničkom okruženju korišćenjem znanja iz ovog poglavlja.
 
-{% include lab/exercise.html broj="6.2" tekst="Napisati C/SQL program koji za svaki predmet omogućuje korisniku da poveća broj semestra u kome se taj predmet sluša za 1. Nakon svakog ažuriranja, proveriti da li je odgovarajuci red u tabeli izmenjen ponovnim dohvatanjem informacija.\n
-\n
+{% include lab/exercise.html broj="6.2" tekst="Napisati C/SQL program koji za svaki predmet omogućuje korisniku da poveća broj semestra u kome se taj predmet sluša za 1. Nakon svakog ažuriranja, proveriti da li je odgovarajuci red u tabeli izmenjen ponovnim dohvatanjem informacija.
+
 Napisati program tako da može da radi u višekorisničkom okruženju. Obrada jednog predmeta predstavlja jednu transakciju. Postaviti istek vremena za zahtevanje katanaca na 10 sekundi." %}
 
 Rešenje: S obzirom da se ovoga puta obrada katanaca vr\v si kao deo zasebne transakcije, onda je potrebno da poni\v stavamo izmene ukoliko do\dj e do isteka vremena za dobijanje katanaca. Zbog toga, funkciji za obradu \v cekanja dodajemo naredbu `ROLLBACK`. Dodatno, kako \'ce ta naredba zatvoriti sve otvorene kursore u transakciji (pa \v cak i one deklarisane klauzom `WITH HOLD`), potrebno je otvoriti kursor koji se koristio pre nego \v sto se pre\dj e u narednu iteraciju petlje koja obra\dj uje taj kursor. 
@@ -178,11 +176,45 @@ Tako\dj e, primetimo da aplikacija \v cuva niz obra\dj enih predmeta tokom svog 
 
 include_source(vezbe/primeri/poglavlje_6/zadatak_6_2.sqc, c)
 
+Sledi jo\v s jedan zadatak koji ilustruje koncept konkurentnih transakcija u vi\v sekorisni\v ckom okru\v zenju. Za potrebe ovog zadatka je neophodno izvr\v siti naredne SQL naredbe:
+
+```sql
+CREATE TABLE DA.DRZAVA (
+    ID_DRZAVE INTEGER NOT NULL PRIMARY KEY,
+    NAZIV VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE DA.EKSKURZIJA (
+    INDEKS INTEGER NOT NULL,
+    ID_DRZAVE INTEGER NOT NULL,
+    TRENUTAK_PRIJAVE TIMESTAMP NOT NULL,
+    PRIMARY KEY (INDEKS),
+    FOREIGN KEY (INDEKS) REFERENCES DA.DOSIJE,
+    FOREIGN KEY (ID_DRZAVE) REFERENCES DA.DRZAVA
+);
+
+INSERT  INTO DA.DRZAVA
+VALUES  (1, 'Spanija'),
+        (2, 'Italija'),
+        (3, 'Grcka'),
+        (4, 'Nemacka'),
+        (5, 'Rusija'),
+        (6, 'Francuska');
+```
+
+{% include lab/exercise.html broj="6.3" tekst="Napisati C/SQL program koji od korisnika zahteva da unese identifikator studijskog programa sa osnovnih studija. Program na osnovu unetog podatka pronalazi naredne informacije o studentima sa datog studijskog programa: (1) broj indeksa, (2) ime, (3) prezime, (4) broj položenih ispita tog studenta, (5) broj položenih ESPB bodova, ali samo ukoliko student ima položeno bar 12 predmeta, ima skupljeno bar 120 bodova i ako se studentov indeks već ne nalazi u tabeli EKSKURZIJA.
+
+Za svakog pronađenog studenta, korisnik unosi ceo broj koji predstavlja jedan od identifikatora država iz tabele DRZAVA ili 0 (pretpostaviti da je ispravan unos). Ukoliko korisnik unese identifikator, aplikacija unosi informacije u tabelu EKSKURZIJA, a ukoliko unese 0, prelazi se na sledećeg studenta.Nakon svaka 3 uneta glasa, ponuditi korisniku mogućnost da prekine sa daljom obradom i napusti program, unošenjem odgovora 'da'.
+
+Napomene: Obrada jednog studenta predstavlja jednu transakciju. Proveravati greške koje se javljaju prilikom izvršavanja aplikacije u višekorisničkom okruženju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
+
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_3.sqc, c)
+
 ## 6.4 Nivoi izolovanosti
 
 U najosnovnijem slučaju, svaka transakcija je u potpunosti izolovana od svih drugih transakcija. Međutim, videli smo da ovakva, potpuna izolovanost, može brzo dovesti do problema poput mrtve petlje u konkurentnom sistemu izvršavanja. Zbog toga, da bi se povećala konkurentnost između aplikacionih procesa, DB2 SUBP definiše različite nivoe izolovanosti na kojima aplikacija može da se izvršava.
 
-{% include lab/definition.html def="*Nivo izolovanosti* (engl. *isolation level*) koji se pridružuje aplikacionom procesu određuje stepen zaključavanja ili izolacije u kojem su podaci kojima taj proces pristupa, u odnosu na druge konkurentne procese." %}
+*Nivo izolovanosti* (engl. *isolation level*) koji se pridružuje aplikacionom procesu određuje stepen zaključavanja ili izolacije u kojem su podaci kojima taj proces pristupa, u odnosu na druge konkurentne procese.
 
 Drugim rečima, nivo izolovanosti jednog aplikacionog procesa P specifikuje sledeće:
 
@@ -212,11 +244,11 @@ Osim ekskluzivnih katanaca, proces na RS nivou izolovanosti dobija bar deljive k
 
 ```sql
 SELECT  *
-FROM    SMER
-WHERE   ID_NIVOA = 10
+FROM    DA.STUDIJSKIPROGRAM
+WHERE   IDNIVOA = 1
 ```
 
-U slučaju RR nivoa izolovanosti izvršavanje ovog upita izazvaće zaključavanje svih redova tabele `SMER`, a u slučaju RS nivoa izolovanosti zaključavanje se vrši samo nad onim redovima koji ispunjavaju uslov restrikcije `ID_NIVOA = 10`. Zbog toga, ako neki drugi proces unese novi red koji zadovoljava datu restrikciju, u slučaju RR nivoa izolovanosti to neće biti moguće, dok će ponovo izvršavanje upita u slučaju RS nivoa izolovanosti proizvesti prikazivanje i tih novih redova.
+U slučaju RR nivoa izolovanosti izvršavanje ovog upita izazvaće zaključavanje svih redova tabele `SMER`, a u slučaju RS nivoa izolovanosti zaključavanje se vrši samo nad onim redovima koji ispunjavaju uslov restrikcije `IDNIVOA = 1`. Zbog toga, ako neki drugi proces unese novi red koji zadovoljava datu restrikciju, u slučaju RR nivoa izolovanosti to neće biti moguće, dok će ponovo izvršavanje upita u slučaju RS nivoa izolovanosti proizvesti prikazivanje i tih novih redova.
 
 ### 6.4.3 Stabilni kursor
 
@@ -285,77 +317,72 @@ Ukoliko se ne specifikuje nivo izolacije, DB2 će podrazumevano koristiti nivo C
 
 Naredni primeri ilustruju različite efekte iste aplikacije pri različitim nivoima izolovanosti. Primetimo da smo u narednim primerima koristili klauzu `WITH` za postavljanje nivoa izolovanosti.
 
-{% include lab/exercise.html broj="6.3" tekst="Napisati C/SQL program `repeatableRead` koji dva puta ispisuje informacije o godini, oznaci, nazivu i periodu prijavljivanja za svaki ispitni rok u 2016. godini. Omogućiti da se prilikom oba ispisivanja dobijaju iste informacije.\n
-\n
-Napisati C/SQL program `insertIspitniRok` koji unosi novi ispitni rok za mesec mart u 2016. godini. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
+{% include lab/exercise.html broj="6.4" tekst="Napisati: 
 
-Rešenje: Pre početka izvršavanja bilo kog programa, pokrenuti skript `pripremaBaze` čiji je sadržaj: 
+- C/SQL program `repeatableRead` koji dva puta ispisuje informacije o godini, oznaci, nazivu i periodu prijavljivanja za svaki ispitni rok u 2021. godini. Omogućiti da se prilikom oba ispisivanja dobijaju iste informacije.
+- C/SQL program `insertIspitniRok` koji unosi novi ispitni rok za mesec mart u 2021. godini. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
 
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_3/pripremaBaze, shell)
-
-a koji će uneti neke informacije o ispitnim rokovima u bazu podataka na osnovu skripta `pripremaBaze.sql` čiji je sadržaj:
-
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_3/pripremaBaze.sql, sql)
-
-Pokrenuti program `repeatableRead` i započeti prvo ispisivanje. U toku ispisivanja ili nakon njega, pokrenuti program `insertIspitniRok`, pa nastaviti sa daljim ispisivanjem ispitnih rokova.
-
-Uveriti se da program `insertIspitniRok` ne može da izvrši unos sve dok program `repeatableRead` ne završi sa svim ispisivanjima i takođe da oba ispisivanja imaju iste vrednosti.
-
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_3/repeatableRead.sqc, c)
-
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_3/insertIspitniRok.sqc, c)
-
-{% include lab/exercise.html broj="6.4" tekst="Napisati C/SQL program `readStability` koji dva puta ispisuje informacije o godini, oznaci, nazivu i periodu prijavljivanja za svaki ispitni rok u 2016. godini. Dozvoljeno je da se prilikom drugog ispisivanja pojave novi redovi, ali ne i da budu vidljive izmene pročitanih redova. \n
-\n
-Napisati C/SQL program `insertIspitniRok` koji unosi novi ispitni rok za mesec mart u 2016. godini. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi.\n
-\n
-Napisati C/SQL program `updateIspitniRok` koji za svaki ispitni rok u 2016. godini produžava period prijavljivanja za 3 dana. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
-
-Rešenje: Pre početka izvršavanja bilo kog programa, pokrenuti skript `pripremaBaze` čiji je sadržaj: 
+Rešenje: Za potrebe prevo\dj enja i pripremanja podataka u bazi, napravljena je `Makefile` datoteka čiji je sadržaj: 
 
 include_source(vezbe/primeri/poglavlje_6/zadatak_6_4/pripremaBaze, shell)
 
-a koji će uneti neke informacije o ispitnim rokovima u bazu podataka na osnovu skripta `pripremaBaze.sql` čiji je sadržaj:
+Prevo\dj enje programa se vr\v si pozivom alata `make`, a mogu\'ce je i o\v cistiti artefakte prevo\dj enja pozivom `make clean`. Pre ilustracije rada programa `repeatableRead`, potrebno je pozvati `make db` koji će pripremiti informacije o ispitnim rokovima u bazu podataka na osnovu skripta `pripremaBaze.sql` čiji je sadržaj:
 
 include_source(vezbe/primeri/poglavlje_6/zadatak_6_4/pripremaBaze.sql, sql)
 
-Pokrenuti program `readStability` i započeti prvo ispisivanje. U toku ispisivanja ili nakon njega, pokrenuti programe `insertIspitniRok` i `updateIspitniRok`, pa nastaviti sa daljim ispisivanjem ispitnih rokova.
+Pokrenuti program `repeatableRead` i započeti prvo ispisivanje. U toku prvog ispisivanja ili nakon njega, pokrenuti program `insertIspitniRok`, pa nastaviti sa daljim ispisivanjem ispitnih rokova u programu `repeatableRead`. Uveriti se da program `insertIspitniRok` ne može da izvrši unos sve dok program `repeatableRead` ne završi sa svim ispisivanjima i, takođe, da oba ispisivanja u tom programu imaju iste vrednosti.
 
-Uveriti se da program `insertIspitniRok` može da izvrši unos novog ispitnog roka tokom rada programa `readStability` i da se novi rok vidi prilikom drugog ispisivanja. 
-
-Takođe, uveriti se i da program `updateIspitniRok` ne može da promeni informacije o ispitnim rokovima sve dok program `readStability` ne završi sa izvršavanjem.
-
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_4/readStability.sqc, c)
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_4/repeatableRead.sqc, c)
 
 include_source(vezbe/primeri/poglavlje_6/zadatak_6_4/insertIspitniRok.sqc, c)
 
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_4/updateIspitniRok.sqc, c)
+{% include lab/exercise.html broj="6.5" tekst="Napisati: 
 
-{% include lab/exercise.html broj="6.5" tekst="Napisati C/SQL program `cursorStability` koji dva puta ispisuje informacije o godini, oznaci, nazivu i periodu prijavljivanja za svaki ispitni rok u 2016. godini. Dozvoljeno je da se prilikom drugog ispisivanja pojave novi redovi, kao i da budu vidljive izmene pročitanih redova.\n
-\n
-Napisati C/SQL program `insertIspitniRok` koji unosi novi ispitni rok za mesec mart u 2016. godini. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi.\n
-\n
-Napisati C/SQL program `updateIspitniRok` koji za svaki ispitni rok u 2016. godini produžava period prijavljivanja za 3 dana. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
+- C/SQL program `readStability` koji dva puta ispisuje informacije o godini, oznaci, nazivu i periodu prijavljivanja za svaki ispitni rok u 2021. godini. Dozvoljeno je da se prilikom drugog ispisivanja pojave novi redovi, ali ne i da budu vidljive izmene pročitanih redova. 
+- C/SQL program `insertIspitniRok` koji unosi novi ispitni rok za mesec mart u 2021. godini. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi.
+- C/SQL program `updateIspitniRok` koji za svaki ispitni rok u 2021. godini produžava period prijavljivanja za 3 dana. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
 
-Rešenje: Pre početka izvršavanja bilo kog programa, pokrenuti skript `pripremaBaze` čiji je sadržaj: 
+Rešenje: Kao i u prethodnom zadatku, napravljena je `Makefile` koja slu\v zi za pozivanje alata `make` na ve\'c opisan na\v cin.
 
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_5/pripremaBaze, shell)
+Pokrenuti program `readStability` i započeti prvo ispisivanje. U toku ispisivanja ili nakon njega, pokrenuti program `insertIspitniRok`, pa nastaviti sa daljim ispisivanjem ispitnih rokova. Uveriti se da program `insertIspitniRok` može da izvrši unos novog ispitnog roka tokom rada programa `readStability` i da se novi rok vidi prilikom drugog ispisivanja. Zatim, ponovo pokrenuti program `readStability` (nakon ponovnog pripremanja baze podataka pozivom `make db`), pa u toku prvog ispisivanja ili nakon njega, pokrenuti program `updateIspitniRok`. Uveriti se da program `updateIspitniRok` ne može da promeni informacije o ispitnim rokovima dok program `readStability` radi.
 
-a koji će uneti neke informacije o ispitnim rokovima u bazu podataka na osnovu skripta `pripremaBaze.sql` čiji je sadržaj:
-
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_5/pripremaBaze.sql, sql)
-
-Pokrenuti program `cursorStability` i započeti prvo ispisivanje. U toku ispisivanja ili nakon njega, pokrenuti programe `insertIspitniRok` i `updateIspitniRok`, pa nastaviti sa daljim ispisivanjem ispitnih rokova. 
-
-Uveriti se da program `insertIspitniRok` može da izvrši unos novog ispitnog roka tokom rada programa `cursorStability` i da se novi rok vidi prilikom drugog ispisivanja.
-
-Takođe, uveriti se i da program `updateIspitniRok` može da promeni informacije o ispitnim rokovima i da se izmene vide u programu `cursorStability` tokom drugog ispisivanja.
-
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_5/cursorStability.sqc, c)
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_5/readStability.sqc, c)
 
 include_source(vezbe/primeri/poglavlje_6/zadatak_6_5/insertIspitniRok.sqc, c)
 
 include_source(vezbe/primeri/poglavlje_6/zadatak_6_5/updateIspitniRok.sqc, c)
+
+{% include lab/exercise.html broj="6.6" tekst="Napisati: 
+
+- C/SQL program `cursorStability` koji dva puta ispisuje informacije o godini, oznaci, nazivu i periodu prijavljivanja za svaki ispitni rok u 2021. godini. Dozvoljeno je da se prilikom drugog ispisivanja pojave novi redovi i da budu vidljive izmene pročitanih redova, ali ne i nepotvr\dj ene izmene. 
+- C/SQL program `insertIspitniRok` koji unosi novi ispitni rok za mesec mart u 2021. godini. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi.
+- C/SQL program `updateIspitniRok` koji za svaki ispitni rok u 2021. godini produžava period prijavljivanja za 3 dana. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
+
+Rešenje: Kao i u prethodnom zadatku, napravljena je `Makefile` koja slu\v zi za pozivanje alata `make` na ve\'c opisan na\v cin.
+
+Pokrenuti program `cursorStability` i započeti prvo ispisivanje. U toku ispisivanja ili nakon njega, pokrenuti program `insertIspitniRok`, pa nastaviti sa daljim ispisivanjem ispitnih rokova. Uveriti se da program `insertIspitniRok` može da izvrši unos novog ispitnog roka tokom rada programa `readStability` i da se novi rok vidi prilikom drugog ispisivanja. Zatim, ponovo pokrenuti program `readStability` (nakon ponovnog pripremanja baze podataka pozivom `make db`), pa u toku prvog ispisivanja ili nakon njega, pokrenuti program `updateIspitniRok`. Uveriti se da program `updateIspitniRok` ovoga puta može da promeni informacije o ispitnim rokovima, \v cak i dok program `cursorStability` radi, kao i da \'ce ovoga puta program `cursorStability` videti te izmene prilikom drugog ispisivanja, \v sto nije bio slu\v caj za nivo izolovanosti RS ili stro\v zijim od njega.
+
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_6/cursorStability.sqc, c)
+
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_6/insertIspitniRok.sqc, c)
+
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_6/updateIspitniRok.sqc, c)
+
+{% include lab/exercise.html broj="6.7" tekst="Napisati: 
+
+- C/SQL program `uncommittedRead` koji dva puta ispisuje informacije o godini, oznaci, nazivu i periodu prijavljivanja za svaki ispitni rok u 2021. godini. Dozvoljeno je da se prilikom drugog ispisivanja pojave novi redovi, da budu vidljive izmene pročitanih redova, bilo one potvr\dj ene ili ne. 
+- C/SQL program `insertIspitniRok` koji unosi novi ispitni rok za mesec mart u 2021. godini. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi. Zahtevati od korisnika eksplicitno potvr\dj ivanje izmena nakon unosa.
+- C/SQL program `updateIspitniRok` koji za svaki ispitni rok u 2021. godini produžava period prijavljivanja za 3 dana. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi. Zahtevati od korisnika eksplicitno potvr\dj ivanje izmena nakon a\v zuriranja." %}
+
+Rešenje: Kao i u prethodnom zadatku, napravljena je `Makefile` koja slu\v zi za pozivanje alata `make` na ve\'c opisan na\v cin.
+
+Pokrenuti program `uncommittedRead` i započeti prvo ispisivanje. U toku ispisivanja ili nakon njega, pokrenuti program `insertIspitniRok`, ali ne potvrditi izmene jo\v s uvek. Zatim, nastaviti sa daljim ispisivanjem ispitnih rokova u programu `uncommittedRead`. Uveriti se da program `insertIspitniRok` može da izvrši unos novog ispitnog roka tokom rada programa `uncommittedRead` i da se novi rok vidi prilikom drugog ispisivanja, bez obzira \v sto izmene u programu `insertIspitniRok` nisu potvr\dj ene. Zatim, ponovo pokrenuti program `readStability` (nakon ponovnog pripremanja baze podataka pozivom `make db`) i uraditi isti postupak sa programom `updateIspitniRok` umesto `insertIspitniRok`. Uveriti se \'ce i ovoga puta program `uncommittedRead` videti nepotvr\dj ene izmene od strane programa `updateIspitniRok`, sli\v cno kao i u slu\v caju programa `insertIspitniRok`. Ovo je pona\v sanje koje se ne\'ce javiti u slu\v caju nivoa izolovanosti CS ili stro\v zijim od njega.
+
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_7/uncommittedRead.sqc, c)
+
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_7/insertIspitniRok.sqc, c)
+
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_7/updateIspitniRok.sqc, c)
 
 ## 6.5 Programersko zaključavanje tabela
 
@@ -379,19 +406,19 @@ Ovom naredbom se traži odgovarajući katanac nad tabelom `<IME_TABELE>`. U zavi
 
 - Kluza `EXCLUSIVE` onemogućava konkurentnoj aplikaciji da izvrši bilo koju operaciju nad tabelom. Napomenimo da ovaj režim ne onemogućava da aplikacioni procesi izvršavaju naredbe čitanja podataka iz tabele ukoliko oni rade na nivou izolacije nepotvrđeno čitanje (UR).
 
-{% include lab/exercise.html broj="6.6" tekst="Napisati C/SQL program `shareMode` koji ispisuje identifikator, oznaku, naziv, broj semestara i bodove za svaki smer u bazi podataka. Omogućiti da ostale aplikacije ne mogu da menjaju ove podatke tokom ispisivanja podataka.\n
-\n
+{% include lab/exercise.html broj="6.6" tekst="Napisati C/SQL program `shareMode` koji ispisuje identifikator, oznaku, naziv, broj semestara i bodove za svaki smer u bazi podataka. Omogućiti da ostale aplikacije ne mogu da menjaju ove podatke tokom ispisivanja podataka.
+
 Napisati C/SQL program `exclusiveMode` koji ispisuje identifikator, oznaku, naziv, broj semestara i bodove za svaki smer u bazi podataka. Omogućiti da ostale aplikacije ne mogu da menjaju ove podatke tokom ispisivanja podataka, kao ni da ih čitaju." %}
 
-Rešenje: Isprobati sve kombinacije redosleda izvršavanja programa `exclusiveMode` i `shareMode` i uveriti se da jedino kombinacija `(shareMode, shareMode)` može raditi konkurentno.
+Rešenje: Isprobati sve kombinacije redosleda izvršavanja programa `exclusiveMode` i `shareMode` i uveriti se da jedino kombinacija `(shareMode, shareMode)` može raditi konkurentno. Primetimo da u ovom zadatku nismo koristili obradu \v cekanja na katance niti smo postavili vreme za istek katanaca, \v sto zna\v ci da \'ce jedna aplikacija \v cekati sve dok druga ne zavr\v si sa radom.
 
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_6/shareMode.sqc, c)
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_8/shareMode.sqc, c)
 
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_6/exclusiveMode.sqc, c)
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_8/exclusiveMode.sqc, c)
 
 ## 6.6 Zadaci za vežbu
 
-{% include lab/exercise.html broj="6.7" tekst="Napisati C/SQL program koji za sve ispitne rokove pronalazi informacije o polaganjima za svaki polo\v zeni predmet u tom ispitnom roku i te podatke unosi u tabelu `ISPITNI_ROKOVI_POLAGANJA`. Nakon jednog unosa podataka ispisati unete podatke odvojene zapetom. Nakon svih unosa podataka, potrebno je odgovaraju\'com SQL naredbom izra\v cunati broj unetih redova u tabeli `ISPITNI_ROKOVI_POLAGANJA` i ispisati rezultat na standardni izlaz. Napisati program tako da mo\v ze da radi u vi\v sekorisni\v ckom okru\v zenju. Unos podataka za jedan ispitni rok i jedno polaganje predstavlja jednu transakciju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
+{% include lab/exercise.html broj="6.9" tekst="Napisati C/SQL program koji za sve ispitne rokove pronalazi informacije o polaganjima za svaki polo\v zeni predmet u tom ispitnom roku i te podatke unosi u tabelu `ISPITNI_ROKOVI_POLAGANJA`. Nakon jednog unosa podataka ispisati unete podatke odvojene zapetom. Nakon svih unosa podataka, potrebno je odgovaraju\'com SQL naredbom izra\v cunati broj unetih redova u tabeli `ISPITNI_ROKOVI_POLAGANJA` i ispisati rezultat na standardni izlaz. Napisati program tako da mo\v ze da radi u vi\v sekorisni\v ckom okru\v zenju. Unos podataka za jedan ispitni rok i jedno polaganje predstavlja jednu transakciju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
 
 Napraviti tabelu `ISPITNI_ROKOVI_POLAGANJA` koja sadr\v zi kolone sa podacima o:
 - godini roka
@@ -404,7 +431,7 @@ Napraviti tabelu `ISPITNI_ROKOVI_POLAGANJA` koja sadr\v zi kolone sa podacima o:
 
 Definisati primarni klju\v c na osnovu prvih 5 kolona i strane klju\v ceve ka odgovaraju\'cim tabelama. 
 
-{% include lab/exercise.html broj="6.8" tekst="Napisati C/SQL program koji za sve studente pronalazi informacije o smeru na kojem studiraju i te podatke unosi u tabelu `SMER_STUDENTI`. Nakon jednog unosa podataka ispisati unete podatke odvojene zapetom. Nakon svih unosa podataka, potrebno je odgovaraju\'com SQL naredbom izra\v cunati broj unetih redova u tabeli `SMER_STUDENTI` i ispisati rezultat na standardni izlaz. Napisati program tako da mo\v ze da radi u vi\v sekorisni\v ckom okru\v zenju. Unos podataka za jednog studenta i jedan smer predstavlja jednu transakciju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
+{% include lab/exercise.html broj="6.10" tekst="Napisati C/SQL program koji za sve studente pronalazi informacije o smeru na kojem studiraju i te podatke unosi u tabelu `SMER_STUDENTI`. Nakon jednog unosa podataka ispisati unete podatke odvojene zapetom. Nakon svih unosa podataka, potrebno je odgovaraju\'com SQL naredbom izra\v cunati broj unetih redova u tabeli `SMER_STUDENTI` i ispisati rezultat na standardni izlaz. Napisati program tako da mo\v ze da radi u vi\v sekorisni\v ckom okru\v zenju. Unos podataka za jednog studenta i jedan smer predstavlja jednu transakciju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
 
 Napraviti tabelu `SMER_STUDENTI` koja sadr\v zi kolone sa podacima o:
 - indeksu studenta
@@ -417,13 +444,13 @@ Napraviti tabelu `SMER_STUDENTI` koja sadr\v zi kolone sa podacima o:
 
 Definisati primarni klju\v c na osnovu prve 2 kolone i strane klju\v ceve ka odgovaraju\'cim tabelama. 
 
-{% include lab/exercise.html broj="6.9" tekst="Napisati C/SQL program koji redom omogu\'cava naredne funkcionalnosti:\n
-\n
-1. Student zapo\v cinje prijavljivanje na praksu navo\dj enjem broja indeksa, nakon \v cega mu se nudi spisak numerisanih naziva predmeta za koje se mo\v ze prijaviti da radi praksu. Za prijavljivanje studentu se nude samo predmeti koje je polo\v zio sa ocenom ve\'com od prose\v cne ocene sa polo\v zenih ispita iz tog predmeta.\n
+{% include lab/exercise.html broj="6.11" tekst="Napisati C/SQL program koji redom omogu\'cava naredne funkcionalnosti:
+
+1. Student zapo\v cinje prijavljivanje na praksu navo\dj enjem broja indeksa, nakon \v cega mu se nudi spisak numerisanih naziva predmeta za koje se mo\v ze prijaviti da radi praksu. Za prijavljivanje studentu se nude samo predmeti koje je polo\v zio sa ocenom ve\'com od prose\v cne ocene sa polo\v zenih ispita iz tog predmeta.
 2. Zatim student (potencijalno vi\v se puta) upisuje identifikator predmeta iz koga \v zeli da radi praksu, ili 0 za kraj. Posle svakog izabranog predmeta studentu se nudi izmenjen spisak predmeta u kome se ne nalaze
-ve\'c izabrani predmeti. Odabrani predmet se unosi u tabelu `PRAKSA`.\n
-3. Na kraju se ispisuje izve\v staj koji za svaki prijavljeni predmet sadr\v zi: naziv predmeta, broj do tada prijavljenih studenata za praksu iz tog predmeta; prose\v cnu prolaznost (ukupnu) u poslednjih 5 godina. Izve\v staj urediti u opadaju\'cem redosledu po prolaznosti. Prolaznost ra\v cunati kao koli\v cnik broja polo\v zenih ispita sa ocenom ve\'com od 5 nevezano od statusa prijave i broja izlazaka na ispit (broja unosa u tabelu ispit sa statusom prijave razli\v citim od 'n').\n
-\n
+ve\'c izabrani predmeti. Odabrani predmet se unosi u tabelu `PRAKSA`.
+3. Na kraju se ispisuje izve\v staj koji za svaki prijavljeni predmet sadr\v zi: naziv predmeta, broj do tada prijavljenih studenata za praksu iz tog predmeta; prose\v cnu prolaznost (ukupnu) u poslednjih 5 godina. Izve\v staj urediti u opadaju\'cem redosledu po prolaznosti. Prolaznost ra\v cunati kao koli\v cnik broja polo\v zenih ispita sa ocenom ve\'com od 5 nevezano od statusa prijave i broja izlazaka na ispit (broja unosa u tabelu ispit sa statusom prijave razli\v citim od 'n').
+
 Svako prijavljivanje predstavlja nezavisnu transakciju. Napisati program tako da radi ispravno u vi\v sekorisni\v ckom okru\v zenju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
 
 Potrebno je u bazi vstud kreirati naredbu koja pravi tabelu `PRAKSA` koja ima kolone:

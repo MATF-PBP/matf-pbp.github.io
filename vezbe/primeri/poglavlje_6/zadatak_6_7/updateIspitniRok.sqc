@@ -54,6 +54,9 @@ int main() {
     EXEC SQL SET CURRENT LOCK TIMEOUT NULL;
     is_error("Set timeout");
     
+    printf("\nPritisnuti enter za potvrdjivanje izmena: ");
+    getchar();
+    
     EXEC SQL COMMIT;
     is_error("Potvrdjivanje izmena");
 

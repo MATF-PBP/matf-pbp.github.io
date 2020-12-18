@@ -4,25 +4,28 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-sqlint32 d_id;
-char d_sifra[21], 
-     d_naziv[201];
-short d_broj_semestara, 
-      d_bodovi;
+sqlint32 id_predmeta;
+char oznaka[21], 
+     naziv[151];
+short espb;
 EXEC SQL END DECLARE SECTION;
 
+// Niz identifikatora predmeta obradjenih od strane ovog programa.
+// Ovde koristimo staticki niz radi ilustracije, ali broj predmeta nije poznat unapred, naravno,
+// pa bi korektnije resenje koristilo dinamicki inicijalizovan niz.
 sqlint32 obradjeni_predmeti[1000];
-unsigned broj_obradjenih_predmeta = 0u;
+size_t broj_obradjenih_predmeta = 0u;
 
-void is_error(const char *str);
-int obradi_cekanje();
+// Pomocne funkcije sa rad sa nizom identifikatora predmeta
 int predmet_je_obradjen(sqlint32 id);
 void oznaci_kao_obradjen(sqlint32 id);
 
+// Pomocne funkcije za obradu gresaka i cekanja na katance
+void is_error(const char *str);
+int wait_for_lock();
+
 int main() {
-    char odgovor_od_korisnika;
-    
-    EXEC SQL CONNECT TO vstud USER student USING abcdef;
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
     is_error("Connect");
     
     EXEC SQL SET CURRENT LOCK TIMEOUT 5;
@@ -30,27 +33,27 @@ int main() {
     
     EXEC SQL 
         DECLARE predmeti CURSOR WITH HOLD FOR 
-        SELECT  ID_PREDMETA, 
-                TRIM(SIFRA), 
+        SELECT  ID, 
+                TRIM(OZNAKA), 
                 TRIM(NAZIV), 
-                BROJ_SEMESTARA, 
-                BODOVI
-        FROM    PREDMET
-        FOR     UPDATE OF BROJ_SEMESTARA;
+                ESPB
+        FROM    DA.PREDMET
+        FOR     UPDATE OF ESPB;
     is_error("Declare predmeti");
     
     EXEC SQL OPEN predmeti;
     is_error("Open predmeti");
+    
+    printf("PREDMETI\n");
 
     for(;;) {
         EXEC SQL 
             FETCH   predmeti 
-            INTO    :d_id, 
-                    :d_sifra, 
-                    :d_naziv, 
-                    :d_broj_semestara, 
-                    :d_bodovi;
-        if (obradi_cekanje()) {
+            INTO    :id_predmeta, 
+                    :oznaka, 
+                    :naziv, 
+                    :espb;
+        if (wait_for_lock()) {
             continue;
         }
         is_error("Fetch predmeti");
@@ -62,46 +65,45 @@ int main() {
 
         // Provera da li je predmet vec obradjen 
         // od strane ove instance aplikacije
-        if (predmet_je_obradjen(d_id)) {
+        if (predmet_je_obradjen(id_predmeta)) {
             continue;
         }
-            
-        printf("Predmet - id = %d sifra = %.5s naziv = %.40s "
-            "broj_semestara = %d bodovi = %d\n", 
-            d_id, d_sifra, d_naziv, d_broj_semestara, d_bodovi);
+        
+        printf("\n---------------------------------------------------------------\n");
+        printf("%5.5d %-10.10s %-40.40s %5.5d", id_predmeta, oznaka, naziv, espb);
+        printf("\n---------------------------------------------------------------\n");
 
-        printf("Da li se zeli promena semestra "
-            "u kome se slusa ovaj predmet? "
-            "Odgovoriti sa d ili n.\n");
-        scanf("%c", &odgovor_od_korisnika);
+        printf("\nDa li zelite da uvecate broj ESPB za ovaj predmet za 1? [d/n] ");
+        char odgovor_od_korisnika = getchar();
         getchar();  // novi red
 
-        if (odgovor_od_korisnika == 'd' || odgovor_od_korisnika == 'D') {
+        if (odgovor_od_korisnika == 'd') {
+            // Azuriranje podataka zahteva katanac za menjanje podataka
             EXEC SQL 
-                UPDATE  PREDMET
-                SET     BROJ_SEMESTARA = :d_broj_semestara + 1
+                UPDATE  DA.PREDMET
+                SET     ESPB = ESPB + 1
                 WHERE   CURRENT OF predmeti;
-            if (obradi_cekanje()) {
+            if (wait_for_lock()) {
                 continue;
             }
             is_error("Update");
 
             // Slicno kao i FETCH, naredba SELECT INTO zahteva katanac za citanje
             EXEC SQL 
-                SELECT  BROJ_SEMESTARA
-                INTO    :d_broj_semestara 
-                FROM    PREDMET
-                WHERE   ID_PREDMETA = :d_id;
-            if (obradi_cekanje()) {
+                SELECT  ESPB
+                INTO    :espb
+                FROM    DA.PREDMET
+                WHERE   ID = :id_predmeta;
+            if (wait_for_lock()) {
                 continue;
             }
             is_error("Select into");
 
-            printf("Semestar u kome se slusa predmet je sada %d\n\n", d_broj_semestara);
+            printf("Broj ESPB je sada %hd\n", espb);
         }
 
         // Evidentiramo izmene u nizu namenjenim za to.
-        oznaci_kao_obradjen(d_id);
+        oznaci_kao_obradjen(id_predmeta);
         
         // Potvrdjivanje izmena u tekucoj transakciji
         EXEC SQL COMMIT;
@@ -135,7 +137,7 @@ void is_error(const char *str) {
     }
 }
 
-int obradi_cekanje() {
+int wait_for_lock() {
     if (SQLCODE == -911 || SQLCODE == -913) {
         printf("Objekat je zakljucan od strane druge transakcije. "
             "Sacekati neko vreme...\n");
