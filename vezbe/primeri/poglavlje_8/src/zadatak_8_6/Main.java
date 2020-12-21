@@ -18,7 +18,7 @@ public class Main {
             
             String sql = 
                 "SELECT     * " + 
-                "FROM       ISPITNI_ROK " + 
+                "FROM       DA.ISPITNIROK " + 
                 "ORDER BY   NAZIV";
             Statement stmt = con.createStatement(
                 // Podesavamo da je kursor bidirekcioni i nesenzitivni,
@@ -30,8 +30,8 @@ public class Main {
                 ResultSet.CONCUR_READ_ONLY);
             ResultSet res = stmt.executeQuery(sql);
 
-            System.out.printf("%-10s %-10s %-20s %-20s %-20s %-5s\n\n", 
-                "GODINA", "OZNAKA", "NAZIV", "POCETAK PRIJAVE", "KRAJ PRIJAVE", "TIP");
+            System.out.printf("%-10s %-15s %-20s %-20s %-20s\n\n", 
+                "GODINA", "OZNAKA", "NAZIV", "DATUM_POCETKA", "DATUM_KRAJA");
 
             // Pozicioniranje na kraj kursora
             res.afterLast();
@@ -43,10 +43,9 @@ public class Main {
                 String naziv = res.getString(3).trim();
                 Date datum_pocetka = res.getDate(4);
                 Date datum_kraja = res.getDate(5);
-                String tip = res.getString(6).trim();
 
-                System.out.printf("%-10d %-10s %-20s %-20s %-20s %-5s\n", 
-                    godina, oznaka, naziv, datum_pocetka.toString(), datum_kraja.toString(), tip);
+                System.out.printf("%-10d %-15s %-20s %-20s %-20s\n", 
+                    godina, oznaka, naziv, datum_pocetka.toString(), datum_kraja.toString());
             }
 
             res.close();
