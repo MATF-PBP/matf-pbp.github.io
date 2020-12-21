@@ -17,7 +17,7 @@ public class Main {
 
         try (Connection con = DriverManager.getConnection(url, "student", "abcdef")) {
             
-            ispisi_i_azuriraj_predmete(con);
+            ispisiIAzurirajPredmete(con);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -33,8 +33,8 @@ public class Main {
         }
     }
 
-    private static void ispisi_i_azuriraj_predmete(Connection con) throws SQLException {
-        int[] ucitaniESPB = ucitaj_stare_i_nove_espb();
+    private static void ispisiIAzurirajPredmete(Connection con) throws SQLException {
+        int[] ucitaniESPB = ucitajStareINoveESPB();
         
         String sql = 
             "SELECT * " + 
@@ -76,7 +76,7 @@ public class Main {
         stmt.close();
     }
     
-    private static int[] ucitaj_stare_i_nove_espb() {
+    private static int[] ucitajStareINoveESPB() {
         int[] rezultat = new int[2];
         
         try (Scanner ulaz = new Scanner(System.in)) {

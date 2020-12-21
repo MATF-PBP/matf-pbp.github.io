@@ -31,7 +31,7 @@ public class Main {
             ResultSet res = stmt.executeQuery(sql);
 
             System.out.printf("%-10s %-15s %-20s %-20s %-20s\n\n", 
-                "GODINA", "OZNAKA", "NAZIV", "DATUM_POCETKA", "DATUM_KRAJA");
+                "GODINA", "OZNAKA", "NAZIV", "DATUM POCETKA", "DATUM KRAJA");
 
             // Pozicioniranje na kraj kursora
             res.afterLast();
@@ -41,11 +41,11 @@ public class Main {
                 int godina = res.getInt(1);
                 String oznaka = res.getString(2).trim();
                 String naziv = res.getString(3).trim();
-                Date datum_pocetka = res.getDate(4);
-                Date datum_kraja = res.getDate(5);
+                Date datumPocetka = res.getDate(4);
+                Date datumKraja = res.getDate(5);
 
                 System.out.printf("%-10d %-15s %-20s %-20s %-20s\n", 
-                    godina, oznaka, naziv, datum_pocetka.toString(), datum_kraja.toString());
+                    godina, oznaka, naziv, datumPocetka.toString(), datumKraja.toString());
             }
 
             res.close();
