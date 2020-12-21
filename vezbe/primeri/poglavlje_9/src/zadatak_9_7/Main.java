@@ -26,7 +26,7 @@ public class Main {
     }
 
     public static void main(String argv[]) {
-        String urlVstud = "jdbc:db2://localhost:50001/vstud";
+        String urlVstud = "jdbc:db2://localhost:50000/stud2020";
         String urlMstud = "jdbc:db2://localhost:50001/mstud";
 
         try (

@@ -90,7 +90,7 @@ The code in the following example returns the connection as `Connection` class o
 ```java
 public static void main(String argv[]) {
     Connection con = null;
-    String url = "jdbc:db2://localhost:50001/vstud";
+    String url = "jdbc:db2://localhost:50000/stud2020";
     
     // Open database connection
     con = DriverManager.getConnection(url, "student", "abcdef");
@@ -106,7 +106,7 @@ Možemo koristiti i try-with-resources naredbu u okviru koje ćemo otvoriti kone
 
 ```java
 public static void main(String argv[]) {
-    String url = "jdbc:db2://localhost:50001/vstud";
+    String url = "jdbc:db2://localhost:50000/stud2020";
     try (Connection con = DriverManager.getConnection(url, "student", "abcdef")) {
 
         // Do something...

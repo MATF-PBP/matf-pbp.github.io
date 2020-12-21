@@ -24,7 +24,7 @@ public class Main {
     }
 
     public static void main(String argv[]) {
-        String url = "jdbc:db2://localhost:50001/vstud";
+        String url = "jdbc:db2://localhost:50000/stud2020";
         ArrayList<StatistikaPolaganja> statistike = new ArrayList<>();
 
         try (Connection con = DriverManager.getConnection(url, "student", "abcdef")) {

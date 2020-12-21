@@ -16,7 +16,7 @@ public class Main {
 
     public static void main(String argv[]) {
         // URL za JDBC konekciju tipa 4
-        String url = "jdbc:db2://localhost:50001/vstud";
+        String url = "jdbc:db2://localhost:50000/stud2020";
 
         // Objekat koji ce sadrzati konekciju
         // Kreiramo konekciju na bazi podataka zadatoj u promenljivoj url,
