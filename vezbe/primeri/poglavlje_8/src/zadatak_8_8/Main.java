@@ -14,12 +14,12 @@ public class Main {
     }
     
     private static class StatistikaPolaganja {
-        public int id_predmeta;
-        public int broj_polaganja;
+        public int idPredmeta;
+        public int brojPolaganja;
         
-        public StatistikaPolaganja(int id_predmeta, int broj_polaganja) {
-            this.id_predmeta = id_predmeta;
-            this.broj_polaganja = broj_polaganja;
+        public StatistikaPolaganja(int idPredmeta, int brojPolaganja) {
+            this.idPredmeta = idPredmeta;
+            this.brojPolaganja = brojPolaganja;
         }
     }
 
@@ -29,9 +29,9 @@ public class Main {
 
         try (Connection con = DriverManager.getConnection(url, "student", "abcdef")) {
             
-            kreiraj_tabelu(con);
-            sakupi_statistiku(con, statistike);
-            unesi_predmete_iz_statistike(con, statistike);
+            kreirajTabelu(con);
+            sakupiStatistiku(con, statistike);
+            unesiPredmeteIzStatistike(con, statistike);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -47,12 +47,12 @@ public class Main {
         }
     }
     
-    private static void kreiraj_tabelu(Connection con) throws SQLException {
-        String sql = "CREATE TABLE UNETI_PREDMETI ( "
-                + "ID_PREDMETA INTEGER NOT NULL, "
-                + "BROJ_POLOZENIH INTEGER NOT NULL, "
-                + "PRIMARY KEY (ID_PREDMETA), "
-                + "FOREIGN KEY (ID_PREDMETA) REFERENCES PREDMET "
+    private static void kreirajTabelu(Connection con) throws SQLException {
+        String sql = "CREATE TABLE DA.UNETIPREDMETI ( "
+                + "IDPREDMETA INTEGER NOT NULL, "
+                + "BROJPOLOZENIH INTEGER NOT NULL, "
+                + "PRIMARY KEY (IDPREDMETA), "
+                + "FOREIGN KEY (IDPREDMETA) REFERENCES DA.PREDMET "
                 + ")";
         Statement stmt = con.createStatement();
         try {
@@ -67,28 +67,28 @@ public class Main {
         stmt.close();
     }
 
-    private static void sakupi_statistiku(Connection con, ArrayList<StatistikaPolaganja> statistike) throws SQLException {
-        String sql = "SELECT  ID_PREDMETA, COUNT(OCENA) " +
-            "FROM    ISPIT " +
+    private static void sakupiStatistiku(Connection con, ArrayList<StatistikaPolaganja> statistike) throws SQLException {
+        String sql = "SELECT  IDPREDMETA, COUNT(OCENA) " +
+            "FROM    DA.ISPIT " +
             "WHERE   OCENA > 5 AND " +
-            "        STATUS_PRIJAVE = 'o' AND " +
-            "        ID_PREDMETA NOT IN (SELECT ID_PREDMETA FROM UNETI_PREDMETI) " +
-            "GROUP BY ID_PREDMETA";
+            "        STATUS = 'o' AND " +
+            "        IDPREDMETA NOT IN (SELECT IDPREDMETA FROM DA.UNETIPREDMETI) " +
+            "GROUP BY IDPREDMETA";
         Statement stmt = con.createStatement();
         ResultSet kursor = stmt.executeQuery(sql);
         while (kursor.next()) {
-            int id_predmeta = kursor.getInt(1);
-            int broj_polaganja = kursor.getInt(2); 
-            statistike.add(new StatistikaPolaganja(id_predmeta, broj_polaganja));
+            int idPredmeta = kursor.getInt(1);
+            int brojPolaganja = kursor.getInt(2); 
+            statistike.add(new StatistikaPolaganja(idPredmeta, brojPolaganja));
         }
         kursor.close();
         stmt.close();
     }
     
-    private static void unesi_predmete_iz_statistike(Connection con, ArrayList<StatistikaPolaganja> statistike) throws SQLException {
+    private static void unesiPredmeteIzStatistike(Connection con, ArrayList<StatistikaPolaganja> statistike) throws SQLException {
         String sql = 
             "SELECT * " + 
-            "FROM   UNETI_PREDMETI";
+            "FROM   DA.UNETIPREDMETI";
         Statement stmt = con.createStatement( 
                 // Dovoljan nam je kursor koji prolazi unapred kroz redove.
                 ResultSet.TYPE_FORWARD_ONLY,
@@ -104,14 +104,14 @@ public class Main {
             // Pozicioniramo kursor na "slog za unos"
             kursor.moveToInsertRow();
             // Konstruisemo "slog za unos" navodjenjem vrednost za svaku kolonu
-            kursor.updateInt(1, statistika.id_predmeta);
-            kursor.updateInt(2, statistika.broj_polaganja);
+            kursor.updateInt(1, statistika.idPredmeta);
+            kursor.updateInt(2, statistika.brojPolaganja);
             // Izvrsavamo ili ponistavamo unos u zavisnosti od korisnikovog odgovora
-            System.out.println("Da li zelite da unete statistiku za predmet " + statistika.id_predmeta + "? [da/ne]");
+            System.out.println("Da li zelite da unete statistiku za predmet " + statistika.idPredmeta + "? [da/ne]");
             String odgovor = ulaz.nextLine();
             if (odgovor.equalsIgnoreCase("da")) {
                 kursor.insertRow();
-                System.out.println("\tUneta je statistika: " + statistika.id_predmeta + " (" + statistika.broj_polaganja + ")");
+                System.out.println("\tUneta je statistika: " + statistika.idPredmeta + " (" + statistika.brojPolaganja + ")");
             }
             else {
                 System.out.println("\tPonistili ste unos!");

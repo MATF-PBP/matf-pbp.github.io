@@ -510,19 +510,19 @@ za taj `ResultSet`. Na primer, naredni fragment koda ilustruje kako možemo ažu
 
 ```java
 String upit =
-    "SELECT SIFRA, " +
+    "SELECT OZNAKA, " +
     "       NAZIV, " + 
-    "       BODOVI " +
-    "FROM   PREDMET " +
-    "FOR    UPDATE OF BODOVI";
+    "       ESPB " +
+    "FROM   DA.PREDMET " +
+    "FOR    UPDATE OF ESPB";
 
 Statement stmt = con.createStatement();
 ResultSet rs = stmt.executeQuery(upit);
 
 String nazivKursora = rs.getCursorName();
 String azuriranje =
-    "UPDATE PREDMET " +
-    "SET    BODOVI = ? " +
+    "UPDATE DA.PREDMET " +
+    "SET    ESPB = ? " +
     "WHERE  CURRENT OF " + nazivKursora;
 PreparedStatement ps = con.prepareStatement(nazivKursora);
 
@@ -596,9 +596,9 @@ ResultSet kursor = stmt.executeQuery(sql);
 8. Nakon zatvaranja kursora, pozvati metod `stmt.close()` radi zatvaranja objekta naredbe
 
 {% include lab/exercise.html broj="8.8" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji:\n
-1. Kreira tabelu `UNETI_PREDMETI` \v cije su kolone: (1) identifikator predmeta i (2) broj polo\v zenih ispita za taj predmet. Postaviti odgovaraju\'ce primarne i strane klju\v ceve.\n
-2. Za svaki predmet koji nije prethodno obra\dj en (tj. koji se ne nalazi u tabeli `UNETI_PREDMETI`) pronalazi statistiku koja se sastoji od njegovog identifikator i broj polo\v zenih ispita.\n
-3. Za svaku prona\dj enu statistiku ispisuje podatke na standardni izlaz i pita korisnika da li \v zeli da unete statistiku u tabelu `UNETI_PREDMETI`. Ukoliko korisnik potvrdi, potrebno je uneti statistiku u datu tabelu i ispisati poruku o uspehu. U suprotnom, ispisati poruku da je korisnik poni\v stio unos." %}
+1. Kreira tabelu `UNETIPREDMETI` \v cije su kolone: (1) identifikator predmeta i (2) broj polo\v zenih ispita za taj predmet. Postaviti odgovaraju\'ce primarne i strane klju\v ceve.\n
+2. Za svaki predmet koji nije prethodno obra\dj en (tj. koji se ne nalazi u tabeli `UNETIPREDMETI`) pronalazi statistiku koja se sastoji od njegovog identifikator i broj polo\v zenih ispita.\n
+3. Za svaku prona\dj enu statistiku ispisuje podatke na standardni izlaz i pita korisnika da li \v zeli da unete statistiku u tabelu `UNETIPREDMETI`. Ukoliko korisnik potvrdi, potrebno je uneti statistiku u datu tabelu i ispisati poruku o uspehu. U suprotnom, ispisati poruku da je korisnik poni\v stio unos." %}
 
 Rešenje:
 
