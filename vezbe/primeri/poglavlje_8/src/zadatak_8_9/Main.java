@@ -17,7 +17,7 @@ public class Main {
 
         try (Connection con = DriverManager.getConnection(url, "student", "abcdef")) {
             
-            izbrisi_nepolozene_ispite(con);
+            izbrisiNepolozeneIspite(con);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -33,17 +33,17 @@ public class Main {
         }
     }
 
-    private static void izbrisi_nepolozene_ispite(Connection con) throws SQLException {
-        int godina = ucitaj_godinu();
+    private static void izbrisiNepolozeneIspite(Connection con) throws SQLException {
+        int godina = ucitajGodinu();
         
         String selectSql = 
             "SELECT INDEKS, " + 
-            "       OZNAKA_ROKA, " + 
-            "       ID_PREDMETA " +
-            "FROM   ISPIT " +
-            "WHERE  GODINA_ROKA= ? AND " +   
+            "       OZNAKAROKA, " + 
+            "       IDPREDMETA " +
+            "FROM   DA.ISPIT " +
+            "WHERE  SKGODINA = ? AND " +   
             "       OCENA = 5 AND " +  
-            "       STATUS_PRIJAVE = 'o'";    
+            "       STATUS = 'o'";    
         PreparedStatement stmt = con.prepareStatement(selectSql,
             ResultSet.TYPE_FORWARD_ONLY,
             // Podesavamo kursor da bude za menjanje,
@@ -54,20 +54,20 @@ public class Main {
         
         while(ispiti.next()) {
             int indeks = ispiti.getInt(1);
-            String oznaka_roka = ispiti.getString(2).trim();
-            int id_predmeta = ispiti.getInt(3);
+            String oznakaRoka = ispiti.getString(2).trim();
+            int idPredmeta = ispiti.getInt(3);
             
             ispiti.deleteRow();
             
             System.out.printf("Obrisan je ispit %-10d %-10s %-5d %-10d\n", 
-                indeks, oznaka_roka, godina, id_predmeta);
+                indeks, oznakaRoka, godina, idPredmeta);
         }
         
         ispiti.close();
         stmt.close();
     }
     
-    private static int ucitaj_godinu() {
+    private static int ucitajGodinu() {
         int godina;
         
         try (Scanner ulaz = new Scanner(System.in)) {

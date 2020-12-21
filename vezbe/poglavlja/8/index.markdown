@@ -616,17 +616,17 @@ baze podataka, na osnovu tekućeg reda kursora, tako što se na kursor referiše
 
 ```java
 String upit =
-    "SELECT SIFRA, " +
+    "SELECT OZNAKA, " +
     "       NAZIV, " + 
-    "       BODOVI " +
-    "FROM   PREDMET";
+    "       ESPB " +
+    "FROM   DA.PREDMET";
 
 Statement stmt = con.createStatement();
 ResultSet rs = stmt.executeQuery(upit);
 
 String nazivKursora = rs.getCursorName();
 String brisanje =
-    "DELETE FROM ISPIT " +
+    "DELETE FROM DA.PREDMET " +
     "WHERE  CURRENT OF " + nazivKursora;
 Statement ps = con.prepareStatement();
 
@@ -663,7 +663,7 @@ deletes the row from the database. There is no way to cancel the delete operatio
 by rolling back the transaction. If the auto-commit mode is enabled on the `Connection`,
 `deleteRow()` will permanently delete the row from the database.
 
-{% include lab/exercise.html broj="8.9" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji briše sve nepoložene ispite u godini koja se zadaje sa standarnog ulaza. Nakon svakog brisanja ispita, ispisati naredne informacije o njemu na standardni izlaz: indeks, oznaku roka, godinu roka i identifikator predmeta." %}
+{% include lab/exercise.html broj="8.9" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji briše sve nepoložene ispite u \v skolskoj godini koja se zadaje sa standarnog ulaza. Nakon svakog brisanja ispita, ispisati naredne informacije o njemu na standardni izlaz: indeks, oznaku roka, \v skolsku godinu i identifikator predmeta." %}
 
 Rešenje:
 
