@@ -31,17 +31,17 @@ public class Main {
             // SQL upit ili naredbu koju zelimo da izvrsimo
             // zapisujemo kao nisku <-> DINAMICKI SQL
             String queryStr = 
-                "SELECT SIFRA, " + 
+                "SELECT OZNAKA, " + 
                 "       NAZIV " + 
-                "FROM   PREDMET " + 
-                "WHERE  BODOVI > 20";
+                "FROM   DA.PREDMET " + 
+                "WHERE  ESPB > 20";
             // Za izvrsavanje upita koristimo Statement.executeQuery metod.
             // Ovaj metod vraca objekat klase ResultSet,
             // koji sadrzi rezultate upita (kursor).
             ResultSet rs = stmt.executeQuery(queryStr);
 
             // Ispisujemo zaglavlje
-            System.out.printf("%-15s %-50S\n\n", "SIFRA", "NAZIV");
+            System.out.printf("%-15s %-50S\n\n", "OZNAKA", "NAZIV");
 
             // Metodom ResultSet.next pozicioniramo kursor na naredni red.
             // Ako vise nema redova, metod ce vratiti vrednost false.
@@ -52,10 +52,10 @@ public class Main {
                 // gde je XXX neki tip podataka,
                 // a argument je broj kolone koja se dohvata iz projekcije
                 // upita.
-                String sifra = rs.getString(1);
+                String oznaka = rs.getString(1);
                 String naziv = rs.getString(2);
 
-                System.out.printf("%-15s %-50S\n", sifra.trim(), naziv.trim());
+                System.out.printf("%-15s %-50S\n", oznaka.trim(), naziv.trim());
             }
 
             // Zatvaramo kursor

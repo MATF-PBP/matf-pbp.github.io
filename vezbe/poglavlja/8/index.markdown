@@ -290,7 +290,7 @@ while (kursor.next()) {
 6. Nakon svih iteracija, pozvati metod `kursor.close()` radi zatvaranja kursora
 7. Nakon zatvaranja kursora, pozvati metod `stmt.close()` radi zatvaranja objekta naredbe
 
-{% include lab/exercise.html broj="8.1" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji izlistava šifre i nazive svih predmeta koji imaju više od 20 ESPB bodova." %}
+{% include lab/exercise.html broj="8.1" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji izlistava oznake i nazive svih predmeta koji imaju više od 20 ESPB bodova." %}
 
 Rešenje:
 
