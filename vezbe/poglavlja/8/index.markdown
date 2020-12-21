@@ -313,7 +313,7 @@ Statement stmt = con.createStatement();
 
 Method `Statement.executeUpdate` returns an integer which represents the number of updated rows.
 
-{% include lab/exercise.html broj="8.2" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji u tabelu `PREDMET` unosi podatak o predmetu čiji je identifikator 2001, šifra Pred1, naziv Predmet 1, koji se sluša u prvom semestru i nosi `5` ESPB bodova." %}
+{% include lab/exercise.html broj="8.2" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji u tabelu `PREDMET` unosi podatak o predmetu čiji je identifikator 2001, oznaka Pred1, naziv Predmet 1 i nosi `5` ESPB bodova." %}
 
 Rešenje:
 

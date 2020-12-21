@@ -20,8 +20,8 @@ public class Main {
             // To znaci da mozemo koristiti kombinaciju
             // interfejsa Statement i metoda executeUpdate().
             String sql = 
-                "INSERT INTO PREDMET " +
-                "VALUES (20001, 'Pred1', 'Predmet 1', 1, 6)";
+                "INSERT INTO DA.PREDMET " +
+                "VALUES (2001, 'Pred1', 'Predmet 1', 5)";
 
             Statement stmt = con.createStatement();
 
