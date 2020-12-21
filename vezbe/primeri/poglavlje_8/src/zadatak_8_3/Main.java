@@ -25,9 +25,9 @@ public class Main {
             // nepoznate do faze izvrsavanja,
             // potrebno je da koristimo parametarske oznake na tim mestima.
             String updateStr = 
-                "UPDATE PREDMET " + 
-                "SET    BODOVI = ? " + 
-                "WHERE  BODOVI = ?";
+                "UPDATE DA.PREDMET " + 
+                "SET    ESPB = ? " + 
+                "WHERE  ESPB = ?";
             // Zbog toga moramo da koristimo interfejs PreparedStatement,
             // jer interfejs Statement ne radi sa parametarskim oznakama.
             PreparedStatement pUpd = con.prepareStatement(updateStr);
@@ -35,7 +35,9 @@ public class Main {
             // Postavljamo odgovarajuce vrednosti za parametarske oznake
             // na osnovu procitanih vrednosti sa standardnog ulaza.
             int x, y;
+            System.out.println("Unesite X:");
             x = ulaz.nextInt();
+            System.out.println("Unesite Y:");
             y = ulaz.nextInt();
             
             // Prvu parametarsku oznaku menjamo celim brojem y.

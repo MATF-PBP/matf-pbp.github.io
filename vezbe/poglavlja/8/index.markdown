@@ -343,7 +343,7 @@ The following are the examples of setXXX methods:
 After setting the parameter values, the SQL statement can be executed using any of the
 `executeQuery`, `executeUpdate`, or `execute` method based on the SQL type.
 
-{% include lab/exercise.html broj="8.3" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji svim predmetima koji imaju X ESPB bodova, postavlja broj bodova na Y. Nakon toga ispisati broj ažuriranih redova. Brojevi X i Y se učitavaju sa standardnog ulaza." %}
+{% include lab/exercise.html broj="8.3" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji učitava dva cela broja, X i Y, a zatim svim predmetima koji imaju X ESPB bodova, postavlja broj bodova na Y. Nakon toga ispisati broj ažuriranih redova." %}
 
 Rešenje:
 
