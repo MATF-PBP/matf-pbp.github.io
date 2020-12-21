@@ -34,11 +34,11 @@ public class Main {
     }
 
     private static void ispisi_i_azuriraj_predmete(Connection con) throws SQLException {
-        int[] ucitaniBodovi = ucitaj_stare_i_nove_bodove();
+        int[] ucitaniESPB = ucitaj_stare_i_nove_espb();
         
         String sql = 
             "SELECT * " + 
-            "FROM   PREDMET";
+            "FROM   DA.PREDMET";
         Statement stmt = con.createStatement( 
                 // Dovoljan nam je kursor koji prolazi unapred kroz redove.
                 ResultSet.TYPE_FORWARD_ONLY,
@@ -50,12 +50,12 @@ public class Main {
         ResultSet rs = stmt.executeQuery(sql);
 
         while (rs.next()) {
-            System.out.println("Sifra: " + rs.getString(2).trim() + ", " + "Naziv:" + rs.getString(3).trim() + ", "
-                    + "Bodovi: " + rs.getInt(5));
+            System.out.println("Oznaka: " + rs.getString(2).trim() + ", " + "Naziv:" + rs.getString(3).trim() + ", "
+                    + "ESPB: " + rs.getInt(4));
 
-            if (rs.getInt(5) == ucitaniBodovi[0]) {
-                // Azuriramo vrednost u koloni broj 5 (bodovi) iz upita iznad.
-                rs.updateInt(5, ucitaniBodovi[1]);
+            if (rs.getInt(4) == ucitaniESPB[0]) {
+                // Azuriramo vrednost u koloni broj 5 (ESPB) iz upita iznad.
+                rs.updateInt(4, ucitaniESPB[1]);
                 // Kada zavrsimo sa azuriranjem svih kolona,
                 // pozivamo metod updateRow
                 // da bi se sve promene odmah oslikale.
@@ -66,9 +66,9 @@ public class Main {
                 // Sada kada zahtevamo vrednosti u kolonama,
                 // dobicemo azurirane vrednosti:
                 System.out.println("------> Izvrsena je naredna promena:");
-                System.out.println("        Sifra: " + rs.getString(2).trim() + ", " + "Naziv:" + rs.getString(3).trim()
-                        + ", " + "Bodovi: "
-                        + rs.getInt(5) /* azurirana vrednost */ + "\n");
+                System.out.println("        Oznaka: " + rs.getString(2).trim() + ", " + "Naziv:" + rs.getString(3).trim()
+                        + ", " + "ESPB: "
+                        + rs.getInt(4) /* azurirana vrednost */ + "\n");
             }
         }
 
@@ -76,13 +76,13 @@ public class Main {
         stmt.close();
     }
     
-    private static int[] ucitaj_stare_i_nove_bodove() {
+    private static int[] ucitaj_stare_i_nove_espb() {
         int[] rezultat = new int[2];
         
         try (Scanner ulaz = new Scanner(System.in)) {
-            System.out.println("Unesite stare bodove:");
+            System.out.println("Unesite stare ESPB:");
             rezultat[0] = ulaz.nextInt();
-            System.out.println("Unesite nove bodove:");
+            System.out.println("Unesite nove ESPB:");
             rezultat[1] = ulaz.nextInt();
         }
         
