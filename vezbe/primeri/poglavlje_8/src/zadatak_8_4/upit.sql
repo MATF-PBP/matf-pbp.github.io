@@ -1,8 +1,8 @@
 WITH BROJ_POLOZENIH_ISPITA AS (
     SELECT      INDEKS
-    FROM        ISPIT 
+    FROM        DA.ISPIT 
     WHERE       OCENA > 5 AND 
-                STATUS_PRIJAVE = 'o'
+                STATUS = 'o'
     GROUP BY    INDEKS
     HAVING      COUNT(*) = ?
 )
@@ -12,13 +12,13 @@ SELECT      D.INDEKS,
             S.NAZIV, 
             P.NAZIV, 
             I.OCENA
-FROM        DOSIJE D JOIN 
+FROM        DA.DOSIJE D JOIN 
             BROJ_POLOZENIH_ISPITA BPI ON D.INDEKS = BPI.INDEKS JOIN
-            SMER S ON D.ID_SMERA = S.ID_SMERA JOIN
-            ISPIT I ON D.INDEKS = I.INDEKS JOIN
-            PREDMET P ON I.ID_PREDMETA = P.ID_PREDMETA
+            DA.STUDIJSKIPROGRAM S ON D.IDPROGRAMA = S.ID JOIN
+            DA.ISPIT I ON D.INDEKS = I.INDEKS JOIN
+            DA.PREDMET P ON I.IDPREDMETA = P.ID
 WHERE       I.OCENA > 5 AND
-            I.STATUS_PRIJAVE = 'o'
+            I.STATUS = 'o'
 ORDER BY    D.INDEKS,
             IME,
             PREZIME,

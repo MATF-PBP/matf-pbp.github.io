@@ -349,9 +349,9 @@ Rešenje:
 
 include_source(vezbe/primeri/poglavlje_8/src/zadatak_8_3/Main.java, java)
 
-{% include lab/exercise.html broj="8.4" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji izdvaja indeks, ime,
-prezime i naziv smera svih studenata koji su položili tačno N predmeta, kao i spisak tih
-predmeta (naziv i ocena). Broj N se učitava sa standardnog ulaza." %}
+{% include lab/exercise.html broj="8.4" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji sa standardnog ulaza učitava ceo broj N i izdvaja indeks, ime,
+prezime i naziv studijskog programa svih studenata koji su položili tačno N predmeta, kao i spisak tih
+predmeta (naziv i ocena)." %}
 
 Rešenje: S obzirom da je SQL upit koji se koristi u ovom zadatku nešto složeniji, da ga ne bismo zapisivali u Java kodu kao nisku, taj upit ćemo začuvati u datoteci `upit.sql` u istom direktorijumu (paketu) kao i `Main.java` datoteku koja sadrži rešenje ovog zadatka. Dodatno, u Java kodu ćemo pronaći ovu datoteku na sistemu datoteka i učitati njen sadržaj kao nisku da bismo je zatim izvršili. Posebno treba obratiti pažnju na parametarsku oznaku u samom upitu, koja će biti zamenjena odgovarajućom vrednošću u fazi izvršavanja programa.
 
