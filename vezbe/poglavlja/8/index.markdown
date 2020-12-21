@@ -675,7 +675,7 @@ U JDBC aplikacijama se kursori jednostavno ugnežđuju: potrebno je celokupnu ob
 unutrašnjeg kursora smestiti u okviru obrade jednog reda iz spoljašnjeg kursora. Naredni
 primer ilustruje upotrebu ugnežđenih kursora.
 
-{% include lab/exercise.html broj="8.10" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji izdvaja indeks, ime, prezime i naziv smera svih studenata koji su položili tačno N predmeta, kao i spisak tih predmeta (naziv i ocena). Broj N se učitava sa standardnog ulaza. Za svakog studenta napraviti posebnu sekciju izveštaja." %}
+{% include lab/exercise.html broj="8.10" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji izdvaja indeks, ime, prezime i naziv studijskog programa svih studenata koji su položili tačno N predmeta, kao i spisak tih predmeta (naziv i ocena). Broj N se učitava sa standardnog ulaza. Za svakog studenta napraviti posebnu sekciju izveštaja." %}
 
 Rešenje:
 

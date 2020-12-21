@@ -19,7 +19,7 @@ public class Main {
 
         try (Connection con = DriverManager.getConnection(url, "student", "abcdef")) {
         	
-            prodji_kroz_spoljasnji_kursor(con);
+        	prodjiKrozSpoljasnjiKursor(con);
             
         } catch (SQLException e) {
             e.printStackTrace();
@@ -35,8 +35,8 @@ public class Main {
         }
     }
 
-    private static void prodji_kroz_spoljasnji_kursor(Connection con) throws SQLException, FileNotFoundException {
-        int ukupnoPredmeta = ucitaj_broj_predmeta();
+    private static void prodjiKrozSpoljasnjiKursor(Connection con) throws SQLException, FileNotFoundException {
+        int ukupnoPredmeta = ucitajBrojPredmeta();
 
         PreparedStatement pstmt;
 
@@ -51,14 +51,14 @@ public class Main {
                     ispiti.getString(2), ispiti.getString(3), ispiti.getString(4));
 
             int indeks = ispiti.getInt(1);
-            prodji_kroz_unutrasnji_kursor(con, indeks);
+            prodjiKrozUnutrasnjiKursor(con, indeks);
         }
 
         ispiti.close();
         pstmt.close();
     }
 
-    private static void prodji_kroz_unutrasnji_kursor(Connection con, int indeks) throws SQLException, FileNotFoundException {
+    private static void prodjiKrozUnutrasnjiKursor(Connection con, int indeks) throws SQLException, FileNotFoundException {
         PreparedStatement pstmt;
 
         String sql = ucitajSqlIzDatoteke("predmeti.sql");
@@ -80,7 +80,7 @@ public class Main {
         pstmt.close();
     }
 
-    private static int ucitaj_broj_predmeta() {
+    private static int ucitajBrojPredmeta() {
         int godina;
 
         try (Scanner ulaz = new Scanner(System.in)) {
