@@ -20,12 +20,13 @@ public class Main {
             String queryStr = 
                 "SELECT IME, " + 
                 "       PREZIME, " + 
-                "       DATUM_RODJENJA " + 
-                "FROM   DOSIJE " + 
-                "WHERE  POL = 'z'";
+                "       DATDIPLOMIRANJA " + 
+                "FROM   DA.DOSIJE " + 
+                "WHERE  POL = 'z' AND " + 
+                "       IDPROGRAMA=202";
             ResultSet rs = stmt.executeQuery(queryStr);
 
-            System.out.printf("%-25s %-25s %-15s \n\n", "IME", "PREZIME", "DATUM");
+            System.out.printf("%-25s %-25s %-15s \n\n", "IME", "PREZIME", "DATUM DIPLOMIRANJA");
 
             while (rs.next()) {
                 String ime = rs.getString(1).trim();
@@ -35,7 +36,7 @@ public class Main {
                 // onda ce rs.wasNull() biti true
                 boolean datumIsNull = rs.wasNull();
 
-                System.out.printf("%-25s %-25s %-15s \n", ime, prezime, (datumIsNull) ? "NEPOZNAT" : datum.trim());
+                System.out.printf("%-25s %-25s %-15s \n", ime, prezime, (datumIsNull) ? "Nije diplomirala" : datum.trim());
             }
 
             rs.close();

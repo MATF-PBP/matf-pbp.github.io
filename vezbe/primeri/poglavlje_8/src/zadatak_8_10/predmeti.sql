@@ -1,8 +1,8 @@
 SELECT      TRIM(NAZIV), 
             OCENA 
-FROM        ISPIT I JOIN 
-            PREDMET P ON I.ID_PREDMETA = P.ID_PREDMETA 
+FROM        DA.ISPIT I JOIN 
+            DA.PREDMET P ON I.IDPREDMETA = P.ID 
 WHERE       I.INDEKS = ? AND 
             OCENA > 5 AND 
-            STATUS_PRIJAVE = 'o'
+            STATUS = 'o'
 ORDER BY    NAZIV

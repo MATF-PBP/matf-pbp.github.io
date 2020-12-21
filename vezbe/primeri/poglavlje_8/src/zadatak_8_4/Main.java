@@ -56,7 +56,7 @@ public class Main {
                 }
 
                 System.out.println("Indeks: " + result.getInt(1) + "\n" + "Ime: " + result.getString(2).trim()
-                        + "\n" + "Prezime: " + result.getString(3).trim() + "\n" + "Smer: "
+                        + "\n" + "Prezime: " + result.getString(3).trim() + "\n" + "Studijski program: "
                         + result.getString(4).trim() + "\n");
 
                 brojRedova = 1;

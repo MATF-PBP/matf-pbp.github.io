@@ -290,7 +290,7 @@ while (kursor.next()) {
 6. Nakon svih iteracija, pozvati metod `kursor.close()` radi zatvaranja kursora
 7. Nakon zatvaranja kursora, pozvati metod `stmt.close()` radi zatvaranja objekta naredbe
 
-{% include lab/exercise.html broj="8.1" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji izlistava šifre i nazive svih predmeta koji imaju više od 20 ESPB bodova." %}
+{% include lab/exercise.html broj="8.1" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji izlistava oznake i nazive svih predmeta koji imaju više od 20 ESPB bodova." %}
 
 Rešenje:
 
@@ -313,7 +313,7 @@ Statement stmt = con.createStatement();
 
 Method `Statement.executeUpdate` returns an integer which represents the number of updated rows.
 
-{% include lab/exercise.html broj="8.2" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji u tabelu `PREDMET` unosi podatak o predmetu čiji je identifikator 2001, šifra Pred1, naziv Predmet 1, koji se sluša u prvom semestru i nosi `5` ESPB bodova." %}
+{% include lab/exercise.html broj="8.2" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji u tabelu `PREDMET` unosi podatak o predmetu čiji je identifikator 2001, oznaka Pred1, naziv Predmet 1 i nosi `5` ESPB bodova." %}
 
 Rešenje:
 
@@ -343,15 +343,15 @@ The following are the examples of setXXX methods:
 After setting the parameter values, the SQL statement can be executed using any of the
 `executeQuery`, `executeUpdate`, or `execute` method based on the SQL type.
 
-{% include lab/exercise.html broj="8.3" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji svim predmetima koji imaju X ESPB bodova, postavlja broj bodova na Y. Nakon toga ispisati broj ažuriranih redova. Brojevi X i Y se učitavaju sa standardnog ulaza." %}
+{% include lab/exercise.html broj="8.3" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji učitava dva cela broja, X i Y, a zatim svim predmetima koji imaju X ESPB bodova, postavlja broj bodova na Y. Nakon toga ispisati broj ažuriranih redova." %}
 
 Rešenje:
 
 include_source(vezbe/primeri/poglavlje_8/src/zadatak_8_3/Main.java, java)
 
-{% include lab/exercise.html broj="8.4" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji izdvaja indeks, ime,
-prezime i naziv smera svih studenata koji su položili tačno N predmeta, kao i spisak tih
-predmeta (naziv i ocena). Broj N se učitava sa standardnog ulaza." %}
+{% include lab/exercise.html broj="8.4" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji sa standardnog ulaza učitava ceo broj N i izdvaja indeks, ime,
+prezime i naziv studijskog programa svih studenata koji su položili tačno N predmeta, kao i spisak tih
+predmeta (naziv i ocena)." %}
 
 Rešenje: S obzirom da je SQL upit koji se koristi u ovom zadatku nešto složeniji, da ga ne bismo zapisivali u Java kodu kao nisku, taj upit ćemo začuvati u datoteci `upit.sql` u istom direktorijumu (paketu) kao i `Main.java` datoteku koja sadrži rešenje ovog zadatka. Dodatno, u Java kodu ćemo pronaći ovu datoteku na sistemu datoteka i učitati njen sadržaj kao nisku da bismo je zatim izvršili. Posebno treba obratiti pažnju na parametarsku oznaku u samom upitu, koja će biti zamenjena odgovarajućom vrednošću u fazi izvršavanja programa.
 
@@ -392,7 +392,7 @@ while (res.next()) {
 }
 ```
 
-{% include lab/exercise.html broj="8.5" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji izdvaja ime, prezime i datum rođenja za sve studentkinje (pol = 'z') iz tabele `DOSIJE`. Ukoliko datum rođenja nije poznat, ispisati `Nepoznat`." %}
+{% include lab/exercise.html broj="8.5" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji izdvaja ime, prezime i datum diplomiranja za sve studentkinje (pol = 'z') programa \v ciji je identifikator 202 iz tabele `DOSIJE`. Ukoliko datum diplomiranja nije poznat, ispisati `Nije diplomirala`." %}
 
 Rešenje:
 
@@ -510,19 +510,19 @@ za taj `ResultSet`. Na primer, naredni fragment koda ilustruje kako možemo ažu
 
 ```java
 String upit =
-    "SELECT SIFRA, " +
+    "SELECT OZNAKA, " +
     "       NAZIV, " + 
-    "       BODOVI " +
-    "FROM   PREDMET " +
-    "FOR    UPDATE OF BODOVI";
+    "       ESPB " +
+    "FROM   DA.PREDMET " +
+    "FOR    UPDATE OF ESPB";
 
 Statement stmt = con.createStatement();
 ResultSet rs = stmt.executeQuery(upit);
 
 String nazivKursora = rs.getCursorName();
 String azuriranje =
-    "UPDATE PREDMET " +
-    "SET    BODOVI = ? " +
+    "UPDATE DA.PREDMET " +
+    "SET    ESPB = ? " +
     "WHERE  CURRENT OF " + nazivKursora;
 PreparedStatement ps = con.prepareStatement(nazivKursora);
 
@@ -596,9 +596,9 @@ ResultSet kursor = stmt.executeQuery(sql);
 8. Nakon zatvaranja kursora, pozvati metod `stmt.close()` radi zatvaranja objekta naredbe
 
 {% include lab/exercise.html broj="8.8" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji:\n
-1. Kreira tabelu `UNETI_PREDMETI` \v cije su kolone: (1) identifikator predmeta i (2) broj polo\v zenih ispita za taj predmet. Postaviti odgovaraju\'ce primarne i strane klju\v ceve.\n
-2. Za svaki predmet koji nije prethodno obra\dj en (tj. koji se ne nalazi u tabeli `UNETI_PREDMETI`) pronalazi statistiku koja se sastoji od njegovog identifikator i broj polo\v zenih ispita.\n
-3. Za svaku prona\dj enu statistiku ispisuje podatke na standardni izlaz i pita korisnika da li \v zeli da unete statistiku u tabelu `UNETI_PREDMETI`. Ukoliko korisnik potvrdi, potrebno je uneti statistiku u datu tabelu i ispisati poruku o uspehu. U suprotnom, ispisati poruku da je korisnik poni\v stio unos." %}
+1. Kreira tabelu `UNETIPREDMETI` \v cije su kolone: (1) identifikator predmeta i (2) broj polo\v zenih ispita za taj predmet. Postaviti odgovaraju\'ce primarne i strane klju\v ceve.\n
+2. Za svaki predmet koji nije prethodno obra\dj en (tj. koji se ne nalazi u tabeli `UNETIPREDMETI`) pronalazi statistiku koja se sastoji od njegovog identifikator i broj polo\v zenih ispita.\n
+3. Za svaku prona\dj enu statistiku ispisuje podatke na standardni izlaz i pita korisnika da li \v zeli da unete statistiku u tabelu `UNETIPREDMETI`. Ukoliko korisnik potvrdi, potrebno je uneti statistiku u datu tabelu i ispisati poruku o uspehu. U suprotnom, ispisati poruku da je korisnik poni\v stio unos." %}
 
 Rešenje:
 
@@ -616,17 +616,17 @@ baze podataka, na osnovu tekućeg reda kursora, tako što se na kursor referiše
 
 ```java
 String upit =
-    "SELECT SIFRA, " +
+    "SELECT OZNAKA, " +
     "       NAZIV, " + 
-    "       BODOVI " +
-    "FROM   PREDMET";
+    "       ESPB " +
+    "FROM   DA.PREDMET";
 
 Statement stmt = con.createStatement();
 ResultSet rs = stmt.executeQuery(upit);
 
 String nazivKursora = rs.getCursorName();
 String brisanje =
-    "DELETE FROM ISPIT " +
+    "DELETE FROM DA.PREDMET " +
     "WHERE  CURRENT OF " + nazivKursora;
 Statement ps = con.prepareStatement();
 
@@ -663,7 +663,7 @@ deletes the row from the database. There is no way to cancel the delete operatio
 by rolling back the transaction. If the auto-commit mode is enabled on the `Connection`,
 `deleteRow()` will permanently delete the row from the database.
 
-{% include lab/exercise.html broj="8.9" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji briše sve nepoložene ispite u godini koja se zadaje sa standarnog ulaza. Nakon svakog brisanja ispita, ispisati naredne informacije o njemu na standardni izlaz: indeks, oznaku roka, godinu roka i identifikator predmeta." %}
+{% include lab/exercise.html broj="8.9" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji briše sve nepoložene ispite u \v skolskoj godini koja se zadaje sa standarnog ulaza. Nakon svakog brisanja ispita, ispisati naredne informacije o njemu na standardni izlaz: indeks, oznaku roka, \v skolsku godinu i identifikator predmeta." %}
 
 Rešenje:
 
@@ -675,7 +675,7 @@ U JDBC aplikacijama se kursori jednostavno ugnežđuju: potrebno je celokupnu ob
 unutrašnjeg kursora smestiti u okviru obrade jednog reda iz spoljašnjeg kursora. Naredni
 primer ilustruje upotrebu ugnežđenih kursora.
 
-{% include lab/exercise.html broj="8.10" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji izdvaja indeks, ime, prezime i naziv smera svih studenata koji su položili tačno N predmeta, kao i spisak tih predmeta (naziv i ocena). Broj N se učitava sa standardnog ulaza. Za svakog studenta napraviti posebnu sekciju izveštaja." %}
+{% include lab/exercise.html broj="8.10" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji izdvaja indeks, ime, prezime i naziv studijskog programa svih studenata koji su položili tačno N predmeta, kao i spisak tih predmeta (naziv i ocena). Broj N se učitava sa standardnog ulaza. Za svakog studenta napraviti posebnu sekciju izveštaja." %}
 
 Rešenje:
 
