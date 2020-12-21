@@ -392,7 +392,7 @@ while (res.next()) {
 }
 ```
 
-{% include lab/exercise.html broj="8.5" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji izdvaja ime, prezime i datum rođenja za sve studentkinje (pol = 'z') iz tabele `DOSIJE`. Ukoliko datum rođenja nije poznat, ispisati `Nepoznat`." %}
+{% include lab/exercise.html broj="8.5" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji izdvaja ime, prezime i datum diplomiranja za sve studentkinje (pol = 'z') programa \v ciji je identifikator 202 iz tabele `DOSIJE`. Ukoliko datum diplomiranja nije poznat, ispisati `Nije diplomirala`." %}
 
 Rešenje:
 
