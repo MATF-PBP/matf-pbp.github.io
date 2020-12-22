@@ -647,15 +647,15 @@ Napomenimo jo\v s i da, ukoliko tabela ima vi\v se stranih klju\v ceva, onda je 
 
 Ova anotacija se još koristi i kada se zbog bidirekcione veze duplicira strani ključ. U tom slučaju se navode sve četiri opcije.
 
-{% include lab/exercise.html broj="11.2" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate za sve studente, koji su rođeni u mestu koje se unosi sa standardnog ulaza i upisali su smer koji ima broj bodova koji se unosi sa standardnog ulaza, ispisuje ime, prezime i naziv smera." %}
+{% include lab/exercise.html broj="11.2" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate za sve studente, koji su rođeni u mestu koje se unosi sa standardnog ulaza i upisali su studijski program obima epsb koji se unosi sa standardnog ulaza, ispisuje ime, prezime i naziv studijskog programa." %}
 
-Re\v senje: Tabelu `DOSIJE` do sad nismo koristili pa je potrebno da kreiramo odgovarajuću klasu i definišemo preslikavanje u tabelu `DOSIJE`, a onda i vezu sa klasom `Smer`. Vezu definišemo koa više-ka-jedan u klasi `Student` jer više studenata mogu upisati isti smer. Pošto tabela dosije sadrži polje `id_smera`, a dodavanjem ove veze dupliciramo podatke (polje `Smer smer`  takođe sadrži informaciju o identifikatoru) potrebno je dodati i anotaciju `@JoinColumn` za polje `smer`:
+Re\v senje: Tabelu `DOSIJE` do sad nismo koristili pa je potrebno da kreiramo odgovarajuću klasu i definišemo preslikavanje u tabelu `DOSIJE`, a onda i vezu sa klasom `StudijskiProgram`. Vezu definišemo koa više-ka-jedan u klasi `Student` jer više studenata mogu upisati isti smer. Pošto tabela dosije sadrži polje `idprograma`, a dodavanjem ove veze dupliciramo podatke (polje `StudijskiProgram studijskiProgram`  takođe sadrži informaciju o identifikatoru) potrebno je dodati i anotaciju `@JoinColumn` za polje `studijskiProgram`:
 
 include_source(vezbe/primeri/poglavlje_11/src/zadatak_11_2/Student.java, java)
 
-Ova veza je definisana u klasi `Smer` kao jedan-ka-više, s obzirom da jedan smer može sadržati više studenata:
+Ova veza je definisana u klasi `StudijskiProgram` kao jedan-ka-više, s obzirom da jedan smer može sadržati više studenata:
 
-include_source(vezbe/primeri/poglavlje_11/src/zadatak_11_2/Smer.java, java)
+include_source(vezbe/primeri/poglavlje_11/src/zadatak_11_2/StudijskiProgram.java, java)
 
 
 Zahtev je implementiran u metodu `readStudenti()` klase `Main.java`:
@@ -804,7 +804,7 @@ public class Artikal {
 }
 ```
 
-{% include lab/exercise.html broj="11.3" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate ispisuje nazive svih smerova. Nakon svakog naziva smera, ispisuju se indeks, ime, prezime i prosek svih studenata na tom smeru." %}
+{% include lab/exercise.html broj="11.3" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate ispisuje nazive svih studijskih programa. Nakon svakog naziva studijskog programa, ispisuju se indeks, ime, prezime i prosek svih studenata na tom studijskom programu." %}
 
 Ovaj zahtev je do sada najsloženiji jer uvodi dosta novih klasa i preslikavanja. Za početak, s obzirom da su nam potrebni podaci iz tabele `ISPIT` koju do sada nismo koristili, potrebno je da kreiramo klasu `Ispit`, i definišemo preslikavanja između njih i odgovarajućih tabela, kao i između samih klasa. Za početak, dajmo njenu celu definiciju, pa ćemo obratiti pažnju na neke detalje:
 
@@ -814,15 +814,15 @@ Prvo što vidimo jeste da klasa Ispit sadrži složeni ključ `IspitId`. Dajmo i
 
 include_source(vezbe/primeri/poglavlje_11/src/zadatak_11_3/IspitId.java, java)
 
-Ono što primećujemo jeste da u okviru ovog primarnog ključa se nalazi drugi primarni ključ i to za klasu `IspitniRok`, odnosno, klasa `IspitniRokId`. Ovde vidimo da možemo klase koje predstavljaju primarne ključeve nekih klasa (kao što je `IspitniRokId`) koristiti u klasama koje predstavljaju primarne ključeve drugih klasa (kao što je `IspitId`), ali samo ako su oni kreirane prvim pristupom kreiranja stranih ključeva — pomoću anotacija `@Id` i `@Embeddable`. Sad nam je jasno zašto smo upravo taj pristup koristili za `IspitniRokId`. \v Stavi\v se, preslikavanje na ovaj na\v cin je obavezno ukoliko \v zelimo da sa\v cuvamo sva ograni\v cenja u poslovnom domenu. Alternativni pristup, u kojem bi se kolone `GODINA_ROKA` i `OZNAKA_ROKA` iz tabele `ISPIT` preslikavala pomo\'cu dva polja u klasi `IspitId`, ne bi o\v cuvao organi\v cenje da obe kolone predstavljaju slo\v zeni strani klju\v c ka tabeli `ISPITNI_ROK`. Zbog toga, klasa `IspitId` mora imati polje tipa `IspitniRokId` kao u kodu iznad.
+Ono što primećujemo jeste da u okviru ovog primarnog ključa se nalazi drugi primarni ključ i to za klasu `IspitniRok`, odnosno, klasa `IspitniRokId`. Ovde vidimo da možemo klase koje predstavljaju primarne ključeve nekih klasa (kao što je `IspitniRokId`) koristiti u klasama koje predstavljaju primarne ključeve drugih klasa (kao što je `IspitId`), ali samo ako su oni kreirane prvim pristupom kreiranja stranih ključeva — pomoću anotacija `@Id` i `@Embeddable`. Sad nam je jasno zašto smo upravo taj pristup koristili za `IspitniRokId`. \v Stavi\v se, preslikavanje na ovaj na\v cin je obavezno ukoliko \v zelimo da sa\v cuvamo sva ograni\v cenja u poslovnom domenu. Alternativni pristup, u kojem bi se kolone `SKGODINA` i `OZNAKAROKA` iz tabele `ISPIT` preslikavala pomo\'cu dva polja u klasi `IspitId`, ne bi o\v cuvao organi\v cenje da obe kolone predstavljaju slo\v zeni strani klju\v c ka tabeli `ISPITNIROK`. Zbog toga, klasa `IspitId` mora imati polje tipa `IspitniRokId` kao u kodu iznad.
 
 Vratimo se nazad na klasu `Ispit`. Nakon deklarisanja polja `ocena` i `status`, potrebno je rešiti asocijativne veze ka klasama `Student` i `IspitniRok`. 
 
 Veza ka klasi `Student` je dovoljno jednostavna — jedan ispit pripada tačno jednom studentu, dok jedan student može imati više ispita, dakle, veza je više-ka-jedan, odnosno, koristimo anotaciju `@ManyToOne` (ovaj zaključak je donesen iz ugla klase `Ispit`). Dodatno, potrebno je da postavimo anotaciju `@MapsId` kako bismo ignorisali vrednost iz primarnog klju\v ca `IspitId` pri \v cuvanju ovog podatka — umesto njega, bi\'ce kori\v s\'cena vrednost polja `indeks` iz klase `Student`. Tako\dj e, s obzirom da ova tabela ima vi\v se stranih klju\v ceva, potrebno je da koristimo anotaciju `@JoinColumn` da specifikujemo precizno koje kolone u\v cestvuju u ograni\v cenju ovog stranog klju\v ca. Alternativno, mo\v zemo ga postaviti samo za \v citanje, kao \v sto smo diskutovali u podsekciji [11.2.4](#1124-strani-ključevi-u-složenim-primarnim-ključevima).
 
-Druga veza je prema klasi `IspitniRok`. Ukoliko pogledamo kako je sve do sada postavljeno, videćemo da je ovo instanca problema prikazana u podsekciji [11.2.6](#1126-složeni-strani-ključevi-kao-delovi-složenih-primarnih-ključeva). Da se podsetimo, problem je u tome što se u tabeli `ISPIT` nalazi složeni strani ključ ka tabeli `ISPITNI_ROK`, pri čemu kolone složenog stranog ključa učestvuju kao deo primarnog ključa. Rešenje je u kreiranju polja klase `IspitniRok` i odgovarajućim anotiranjem:
+Druga veza je prema klasi `IspitniRok`. Ukoliko pogledamo kako je sve do sada postavljeno, videćemo da je ovo instanca problema prikazana u podsekciji [11.2.6](#1126-složeni-strani-ključevi-kao-delovi-složenih-primarnih-ključeva). Da se podsetimo, problem je u tome što se u tabeli `ISPIT` nalazi složeni strani ključ ka tabeli `ISPITNIROK`, pri čemu kolone složenog stranog ključa učestvuju kao deo primarnog ključa. Rešenje je u kreiranju polja klase `IspitniRok` i odgovarajućim anotiranjem:
 
-- Koristimo anotaciju `@MapsId` da ignorišemo kolone zadate poljem `id_roka` iz primarnog ključa klase `IspitId`. Umesto toga, koristićemo polja iz objekta klase `IspitniRok` koji anotiramo.
+- Koristimo anotaciju `@MapsId` da ignorišemo kolone zadate poljem `idRoka` iz primarnog ključa klase `IspitId`. Umesto toga, koristićemo polja iz objekta klase `IspitniRok` koji anotiramo.
 
 - Koristimo anotaciju `@JoinColumns` da definišemo po kojim kolonama se vrši odgovarajuće preslikavanje za složeni strani ključ. Vrednost ove anotacije je lista `@JoinColumn` anotacija, za svaku kolonu u složenom stranom ključu.
 
@@ -846,8 +846,8 @@ include_source(vezbe/primeri/poglavlje_11/src/zadatak_11_3/Main.java, java)
 
 ## 11.3 Zadaci za vežbu
 
-{% include lab/exercise.html broj="11.4" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate za svaki smer na osnovnim akademskim studijama izdvaja listu obaveznih predmeta. Prvo ispisati sve podatke o smeru, a zatim šifru, naziv i broj bodova svih obaveznih predmeta za taj smer." %}
+{% include lab/exercise.html broj="11.4" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate za svaki studijski program na osnovnim akademskim studijama izdvaja listu obaveznih predmeta. Prvo ispisati sve podatke o studijskom programu, a zatim oznaku, naziv i broj ESPB bodova svih obaveznih predmeta za taj studijski program." %}
 
-{% include lab/exercise.html broj="11.5" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate za svaki predmet ispisuje šifru  i naziv, a zatim i spisak studenata koji su upisali taj predmet u godini koja se unosi sa standardnog ulaza. Rezultat urediti prema prezimenu i imenu studenta rastuće." %}
+{% include lab/exercise.html broj="11.5" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate za svaki predmet ispisuje oznaku  i naziv, a zatim i spisak studenata koji su upisali taj predmet u \v skolskoj godini koja se unosi sa standardnog ulaza. Rezultat urediti prema prezimenu i imenu studenta rastuće." %}
 
-{% include lab/exercise.html broj="11.6" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate za svaki smer koji je u poslednjih 10 godina upisalo više od 30 studenata izdvajaju podaci o najmlađem studentu koji je upisao taj smer. Za najmlađeg studenta po smeru izdvojiti naziv smera koji studira, indeks, ime i prezime studenta, datum upisa na fakultet, broj položenih predmeta i prosečnu ocenu zaokruženu na 2 decimale. Rezultat urediti prema nazivu smera." %}
+{% include lab/exercise.html broj="11.6" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate za svaki studijski program koji je u poslednjih 10 godina upisalo više od 30 studenata izdvajaju podaci o najmlađem studentu koji je upisao taj studijski program. Za najmlađeg studenta po studijskom programu izdvojiti naziv studijskog programa koji studira, indeks, ime i prezime studenta, datum upisa na fakultet, broj položenih predmeta i prosečnu ocenu zaokruženu na 2 decimale. Rezultat urediti prema nazivu studijskog programa." %}
