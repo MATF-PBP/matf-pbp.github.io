@@ -15,32 +15,32 @@ public class IspitId implements Serializable {
     // Slozeni kljuc tabele "ispit" sadrzi primarni kljuc tabele "ispitni_rok",
     // kao i kolone "indeks" i "id_predmeta"
 
-    private IspitniRokId id_roka;
+    private IspitniRokId idRoka;
 
     @Column(name = "INDEKS")
     private Integer indeks;
 
-    @Column(name = "ID_PREDMETA")
-    private Integer id_predmeta;
+    @Column(name = "IDPREDMETA")
+    private Integer idPredmeta;
 
     // Podrazumevani konstruktor za Serializable
     public IspitId() {
     }
 
-    public IspitId(IspitniRokId id_roka, Integer indeks, Integer id_predmeta) {
-        this.id_roka = id_roka;
+    public IspitId(IspitniRokId idRoka, Integer indeks, Integer idPredmeta) {
+        this.idRoka = idRoka;
         this.indeks = indeks;
-        this.id_predmeta = id_predmeta;
+        this.idPredmeta = idPredmeta;
     }
 
     // Get/set metodi
 
-    public IspitniRokId getId_roka() {
-        return id_roka;
+    public IspitniRokId getIdRoka() {
+        return idRoka;
     }
 
-    public void setId_roka(IspitniRokId id_roka) {
-        this.id_roka = id_roka;
+    public void setId_roka(IspitniRokId idRoka) {
+        this.idRoka = idRoka;
     }
 
     public Integer getIndeks() {
@@ -51,12 +51,12 @@ public class IspitId implements Serializable {
         this.indeks = indeks;
     }
 
-    public Integer getId_predmeta() {
-        return id_predmeta;
+    public Integer getIdPredmeta() {
+        return idPredmeta;
     }
 
-    public void setId_predmeta(Integer id_predmeta) {
-        this.id_predmeta = id_predmeta;
+    public void setId_predmeta(Integer idPredmeta) {
+        this.idPredmeta = idPredmeta;
     }
 
     // Prevazilazenje metoda za odredjivanje jednakosti kljuceva
@@ -73,13 +73,13 @@ public class IspitId implements Serializable {
 
         IspitId other = (IspitId) o;
 
-        return Objects.equals(this.getId_roka(), other.getId_roka())
+        return Objects.equals(this.getIdRoka(), other.getIdRoka())
                 && Objects.equals(this.getIndeks(), other.getIndeks())
-                && Objects.equals(this.getId_predmeta(), other.getId_predmeta());
+                && Objects.equals(this.getIdPredmeta(), other.getIdPredmeta());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.getId_roka(), this.getIndeks(), this.getId_predmeta());
+        return Objects.hash(this.getIdRoka(), this.getIndeks(), this.getIdPredmeta());
     }
 }

@@ -10,21 +10,21 @@ import javax.persistence.MapsId;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "ISPIT")
+@Table(name = "DA.ISPIT")
 public class Ispit {
     // Primarni kljuc
     // U ovom slucaju cemo koristiti drugi pristup kreiranju primarnog kljuca,
     // tj. koriscenjem @EmbeddedId anotacije.
     // Pogledati skriptu za vise detalja.
     @EmbeddedId
-    private IspitId id_ispita;
+    private IspitId idIspita;
 
     // Ostale kolone
 
     @Column
     private Integer ocena;
 
-    @Column(name = "STATUS_PRIJAVE")
+    @Column
     private String status;
 
     // Resavanje asocijativnih veza izmedju klasa
@@ -49,25 +49,25 @@ public class Ispit {
     // koji je u IspitId stavljen kao polje "id_roka"
     // Zato koristimo @MapsId anotaciju, koja prihvata naziv polja
     // u @EmbeddedId klasi IspitniRokId
-    @MapsId("id_roka")
+    @MapsId("idRoka")
     // Sada specifikujemo kako se tacno vrsi "spajanje",
     // tj. kako se formira ogranicenje stranog kljuca.
     // Za to koristimo JoinColums, posto se spajanje vrsi po dve kolone,
     // odnosno koriscenjem dva polja iz klase
-    @JoinColumns({ @JoinColumn(name = "godina_roka", referencedColumnName = "godina"),
-            @JoinColumn(name = "oznaka_roka", referencedColumnName = "oznaka") })
+    @JoinColumns({ @JoinColumn(name = "skgodina", referencedColumnName = "skgodina"),
+            @JoinColumn(name = "oznakaroka", referencedColumnName = "oznakaroka") })
     // Na kraju, specifikujemo tip veze
     @ManyToOne
     private IspitniRok ispitniRok;
 
     // Get/set metodi
 
-    public IspitId getId_ispita() {
-        return id_ispita;
+    public IspitId getIdIspita() {
+        return idIspita;
     }
 
-    public void setId_ispita(IspitId id_ispita) {
-        this.id_ispita = id_ispita;
+    public void setId_ispita(IspitId idIspita) {
+        this.idIspita = idIspita;
     }
 
     public Integer getOcena() {

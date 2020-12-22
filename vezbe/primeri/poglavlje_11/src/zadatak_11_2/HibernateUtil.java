@@ -11,7 +11,7 @@ class HibernateUtil {
     static {
         try {
             StandardServiceRegistry registry = new StandardServiceRegistryBuilder().configure().build();
-            sessionFactory = new MetadataSources(registry).addAnnotatedClass(Smer.class)
+            sessionFactory = new MetadataSources(registry).addAnnotatedClass(StudijskiProgram.class)
                     .addAnnotatedClass(IspitniRok.class)
                     .addAnnotatedClass(Student.class).buildMetadata().buildSessionFactory();
         } catch (Throwable e) {

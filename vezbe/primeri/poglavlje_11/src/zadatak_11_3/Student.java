@@ -12,10 +12,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "DOSIJE")
+@Table(name = "DA.DOSIJE")
 public class Student {
-    // Primarni kljuc
-
+	// Primarni kljuc
     @Id
     private Integer indeks;
 
@@ -27,18 +26,12 @@ public class Student {
     @Column(name = "PREZIME", nullable = false)
     private String prezime;
 
-    @Column(name = "MESTO_RODJENJA")
+    @Column(name = "MESTORODJENJA")
     private String mesto;
 
-
-    // Kreiramo dvosmernu asocijativnu vezu izmedju klasa Smer i Student.
-    // Posto tabela Dosije sadrzi strani kljuc id_smera koji referise na Smer
-    // potrebno je da se u klasi Smer definise vrednost za opciju mappedBy.
-    // Dodatno, zbog stranog kljuca moramo dodati anotaciju @JoinColumn kako
-    // bismo ogranicili koriscenje ove reference na citanje.
     @ManyToOne
-    @JoinColumn(name="ID_SMERA", referencedColumnName="ID_SMERA", insertable=false, updatable=false)
-    private Smer smer;
+    @JoinColumn(name="IDPROGRAMA", referencedColumnName="ID", insertable=false, updatable=false)
+    private StudijskiProgram studijskiProgram;
 
     // Da bismo izracunali prosek polozenih predmeta za studenta,
     // potrebno nam je da dohvatimo informacije o njegovim ispitima.
@@ -50,7 +43,7 @@ public class Student {
     @OneToMany(mappedBy = "student")
     private List<Ispit> ispiti = new ArrayList<>();
 
-    // Get/set metodi
+ // Get/set metodi
 
     public Integer getIndeks() {
         return indeks;
@@ -76,12 +69,12 @@ public class Student {
         this.prezime = prezime;
     }
 
-    public Smer getSmer() {
-		return smer;
+    public StudijskiProgram getStudijskiProgram() {
+		return studijskiProgram;
 	}
 
-	public void setSmer(Smer smer) {
-		this.smer = smer;
+	public void setStudijskiProgram(StudijskiProgram studijskiProgram) {
+		this.studijskiProgram = studijskiProgram;
 	}
 
 	public List<Ispit> getIspiti() {

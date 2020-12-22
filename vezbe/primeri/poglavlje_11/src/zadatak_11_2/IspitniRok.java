@@ -6,10 +6,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "ISPITNI_ROK")
+@Table(name = "DA.ISPITNIROK")
 class IspitniRok {
     // Primarni kljuc
-
     @Id
     private IspitniRokId id = null;
 
@@ -18,15 +17,13 @@ class IspitniRok {
     @Column(name = "NAZIV", nullable = false)
     private String Naziv;
 
-    @Column(name = "POCETAK_PRIJAVLJIVANJA", nullable = false)
+    @Column(name = "DATPOCETKA", nullable = false)
     private String Pocetak;
 
-    @Column(name = "KRAJ_PRIJAVLJIVANJA", nullable = false)
+    @Column(name = "DATKRAJA", nullable = false)
     private String Kraj;
 
-    @Column(name = "TIP", nullable = false)
-    private String Tip = "B";
-
+    
     // Autogenerisani Get/Set metodi
 
     public IspitniRokId getId() {
@@ -60,22 +57,9 @@ class IspitniRok {
     public void setKraj(String kraj) {
         Kraj = kraj;
     }
-
-    public String getTip() {
-        return Tip;
-    }
-
-    public void setTip(String tip) {
-        if (tip == null) {
-            Tip = "B";
-            return;
-        }
-        Tip = tip;
-    }
-
+    
 	@Override
 	public String toString() {
-		return "IspitniRok [id=" + id + ", Naziv=" + Naziv + ", Pocetak=" + Pocetak + ", Kraj=" + Kraj + ", Tip=" + Tip
-				+ "]";
+		return "IspitniRok [" + id + ", Naziv=" + Naziv + ", Pocetak=" + Pocetak + ", Kraj=" + Kraj + "]";
 	}
 }

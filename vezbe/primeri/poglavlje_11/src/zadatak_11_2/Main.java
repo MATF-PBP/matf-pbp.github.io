@@ -28,24 +28,24 @@ class Main {
 
 			System.out.println("Unesite mesto rodjenja:");
 			String mesto = ulaz.next();
-			System.out.println("Unesite broj bodova:");
-			Integer bodovi = ulaz.nextInt();
+			System.out.println("Unesite broj ESPB bodova:");
+			Integer espb = ulaz.nextInt();
 
 			// HQL upit za izdvajanje podataka o studentima
 			// sa odredjenim mestom rodjenja i brojem bodova.
 			// Kao sto se u FROM klauzi navodi naziv KLASE, a ne TABELE,
 			// tako se u WHERE klauzi navode ATRIBUTI, a ne KOLONE.
-			String hql = "SELECT s.ime, s.prezime, sm.Naziv " + 
-						"FROM Student s INNER JOIN s.smer AS sm " +
+			String hql = "SELECT s.ime, s.prezime, sp.Naziv " + 
+						"FROM Student s INNER JOIN s.studijskiProgram AS sp " +
 						"WHERE s.mesto = :mesto AND " + 
-						"sm.Bodovi = :bodovi";
+						"sp.Espb = :espb";
 			// Pripremanje upita
 			// Zbog projekcije rezultat ce biti tipa Object[]
 			Query<Object[]> upit = session.createQuery(hql, Object[].class);
 			
 			// Postavljanje vrednosti za imenovane parametarske oznake
 			upit.setParameter("mesto", mesto);
-			upit.setParameter("bodovi", bodovi);
+			upit.setParameter("espb", espb);
 
 			// Izvrsavanje upita i listanje podataka
 			List<Object[]> studenti = upit.list();
