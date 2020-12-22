@@ -4,15 +4,13 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-sqlint32 id_predmeta;
-short espb;
-char naziv[201];
+sqlint32 hCourseId;
+short hCourseESPB;
+char hCourseName[201];
 EXEC SQL END DECLARE SECTION;
 
-void is_error(const char *str)
-{
-    if(SQLCODE < 0)
-    {
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
         fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
 
         EXEC SQL ROLLBACK;
@@ -22,13 +20,12 @@ void is_error(const char *str)
     }
 }
 
-int main()
-{
+int main() {
     EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
-    is_error("Connect");
+    checkSQL("Connect");
 
     EXEC SQL 
-        DECLARE neobradjeni_predmeti CURSOR WITH HOLD FOR 
+        DECLARE cUnprocessedCourses CURSOR WITH HOLD FOR 
         SELECT  ID,
                 RTRIM(NAZIV),
                 ESPB
@@ -38,42 +35,38 @@ int main()
                     FROM    DA.OBRADJENIPREDMETI
                 )
         FOR     UPDATE OF ESPB;
-    is_error("Declare");
+    checkSQL("Declare");
 
-    EXEC SQL OPEN neobradjeni_predmeti;
-    is_error("Open");
+    EXEC SQL OPEN cUnprocessedCourses;
+    checkSQL("Open");
 
     unsigned broj_obradjenih = 0;
     
-    for(;;)
-    {
+    for(;;) {
         EXEC SQL 
-            FETCH   neobradjeni_predmeti 
-            INTO    :id_predmeta,
-                    :naziv,
-                    :espb;
-        is_error("Fetch");
+            FETCH   cUnprocessedCourses 
+            INTO    :hCourseId,
+                    :hCourseName,
+                    :hCourseESPB;
+        checkSQL("Fetch");
 
-        if(SQLCODE == 100)
-        {
+        if(SQLCODE == 100) {
             break;
         }
 
         printf("\nPredmet %s ima broj bodova: %hd.\n"
-            "Da li zelite da povecate broj bodova za 1? [d/n] ", naziv, espb);
+            "Da li zelite da povecate broj bodova za 1? [d/n] ", hCourseName, hCourseESPB);
             
-        char odgovor_od_korisnika;
-        scanf("%c", &odgovor_od_korisnika);
-        
+        char userResponse;
+        scanf("%c", &userResponse);
         getchar(); // Za citanje novog reda
 
-        if (odgovor_od_korisnika == 'd')
-        {
+        if (userResponse == 'd') {
             EXEC SQL 
                 UPDATE  DA.PREDMET
                 SET     ESPB = ESPB + 1
-                WHERE   CURRENT OF neobradjeni_predmeti;
-            is_error("Update");            
+                WHERE   CURRENT OF cUnprocessedCourses;
+            checkSQL("Update");            
             
             printf("Podaci su uspesno azurirani\n");
         }
@@ -81,27 +74,25 @@ int main()
         // Ubelezavamo u BP da smo obradili tekuci predmet
         EXEC SQL
             INSERT  INTO DA.OBRADJENIPREDMETI
-            VALUES  (:id_predmeta);
-        is_error("Insert into");
+            VALUES  (:hCourseId);
+        checkSQL("Insert into");
         
         // Uvecavamo broj obradjenih predmeta        
         ++broj_obradjenih;
         
         // Proveravamo da li je kraj jedne transakcije
-        if (broj_obradjenih == 5)
-        {
+        if (broj_obradjenih == 5) {
             EXEC SQL COMMIT;
-            is_error("Commit");
+            checkSQL("Commit");
             
             printf("\nTRANSAKCIJA JE IZVRSENA\n"
                 "Da li zelite da nastavite obradu? [d/n] ");
-            char odgovor_od_korisnika;
-            scanf("%c", &odgovor_od_korisnika);
+            char userResponse;
+            scanf("%c", &userResponse);
             
             getchar(); // Za citanje novog reda
 
-            if (odgovor_od_korisnika == 'n')
-            {
+            if (userResponse == 'n') {
                 break;
             }
 
@@ -109,14 +100,14 @@ int main()
         }
     }
 
-    EXEC SQL CLOSE neobradjeni_predmeti;
-    is_error("Close");
+    EXEC SQL CLOSE cUnprocessedCourses;
+    checkSQL("Close");
 
     EXEC SQL COMMIT;
-    is_error("Potvrdjivanje izmena");
+    checkSQL("Potvrdjivanje izmena");
     
     EXEC SQL CONNECT RESET;
-    is_error("Connect reset");
+    checkSQL("Connect reset");
 
     return 0;
 }

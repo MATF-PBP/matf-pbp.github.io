@@ -5,16 +5,14 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-short sk_godina;
-char oznaka_roka[21];
-sqlint32 id_predmeta;
-double uspesnost;
+short hSchoolYear;
+char hFinalsLabel[21];
+sqlint32 hCourseId;
+double hSuccessPercentage;
 EXEC SQL END DECLARE SECTION;
 
-void is_error(const char *str)
-{
-    if(SQLCODE < 0)
-    {
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
         fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
 
         EXEC SQL ROLLBACK;
@@ -24,13 +22,12 @@ void is_error(const char *str)
     }
 }
 
-int main() 
-{
+int main()  {
     EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
-    is_error("Connect");
+    checkSQL("Connect");
 
     EXEC SQL 
-        DECLARE c_statistike CURSOR WITH HOLD FOR
+        DECLARE cExamStatistics CURSOR WITH HOLD FOR
         SELECT      SKGODINA,
                     OZNAKAROKA,
                     IDPREDMETA,
@@ -54,68 +51,65 @@ int main()
         ORDER BY    IDPREDMETA ASC,
                     SKGODINA ASC,
                     OZNAKAROKA DESC;
-    is_error("Declare c_statistike");
+    checkSQL("Declare cExamStatistics");
     
-    EXEC SQL OPEN c_statistike;
-    is_error("Open c_statistike");
+    EXEC SQL OPEN cExamStatistics;
+    checkSQL("Open cExamStatistics");
     
-    for (;;) 
-    {
+    for (;;) {
         EXEC SQL 
-            FETCH   c_statistike
-            INTO    :sk_godina,
-                    :oznaka_roka,
-                    :id_predmeta,
-                    :uspesnost;
-        is_error("Fetch c_statistike");
+            FETCH   cExamStatistics
+            INTO    :hSchoolYear,
+                    :hFinalsLabel,
+                    :hCourseId,
+                    :hSuccessPercentage;
+        checkSQL("Fetch cExamStatistics");
         
-        if (SQLCODE == 100)
-        {
+        if (SQLCODE == 100) {
             break;
         }
         
         EXEC SQL
             INSERT  INTO DA.STATISTIKAPOLAGANJA
-            VALUES  (:sk_godina, :oznaka_roka, :id_predmeta, NULL);
-        is_error("Insert");
+            VALUES  (:hSchoolYear, :hFinalsLabel, :hCourseId, NULL);
+        checkSQL("Insert");
         
         EXEC SQL SAVEPOINT tacka_cuvanja ON ROLLBACK RETAIN CURSORS;
-        is_error("Savepoint");
+        checkSQL("Savepoint");
         
         EXEC SQL 
             UPDATE  DA.STATISTIKAPOLAGANJA
-            SET     USPESNOST = :uspesnost
-            WHERE   SKGODINA = :sk_godina AND
-                    OZNAKAROKA = :oznaka_roka AND
-                    IDPREDMETA = :id_predmeta;
-        is_error("Update");
+            SET     USPESNOST = :hSuccessPercentage
+            WHERE   SKGODINA = :hSchoolYear AND
+                    OZNAKAROKA = :hFinalsLabel AND
+                    IDPREDMETA = :hCourseId;
+        checkSQL("Update");
         
-        printf("\nUneta je statistika: %5.2lf%% uspesnosti za predmet %d u roku %s %hd.\n"
-            "Da li zelite da ponistite unos statistike? [d/n] ", uspesnost, id_predmeta, oznaka_roka, sk_godina);
-        char odgovor = getchar();
+        printf("\nUneta je statistika: %5.2lf%% hSuccessPercentagei za predmet %d u roku %s %hd.\n"
+            "Da li zelite da ponistite unos statistike? [d/n] ", hSuccessPercentage, hCourseId, hFinalsLabel, hSchoolYear);
+        char userResponse = getchar();
         getchar(); // novi red
         
-        if (odgovor == 'd' || odgovor == 'D')
-        {
+        if (userResponse == 'd' || userResponse == 'D') {
             EXEC SQL
                 ROLLBACK TO SAVEPOINT tacka_cuvanja;
-            is_error("Rollback to savepoint");
+            checkSQL("Rollback to savepoint");
             
             printf("Statistika o polaganju nije sacuvana, ali je zabelezeno da je izracunata!\n");
         }
         
         EXEC SQL COMMIT;
-        is_error("Commit");
+        checkSQL("Commit");
     }
     
-    EXEC SQL CLOSE c_statistike;
-    is_error("Close c_statistike");
+    EXEC SQL CLOSE cExamStatistics;
+    checkSQL("Close cExamStatistics");
     
     EXEC SQL COMMIT;
-    is_error("Commit");
+    checkSQL("Commit");
     
     EXEC SQL CONNECT RESET;
-    is_error("Connect reset");
+    checkSQL("Connect reset");
     
     return 0;
 }

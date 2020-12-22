@@ -5,30 +5,28 @@
 EXEC SQL INCLUDE SQLCA;
 
 typedef struct {
-    sqlint32 sk_godina;
-    char oznaka_roka[21];
-    char naziv[31];
-    char datum_pocetka[11];
-    char datum_kraja[11];
-} ispitnirok_struct;
+    sqlint32 schoolYear;
+    char finalsLabel[21];
+    char finalsName[31];
+    char finalsStartDate[11];
+    char finalsEndDate[11];
+} FinalStruct;
 
 EXEC SQL BEGIN DECLARE SECTION;
 // Definisemo strukturu za ispitne rokove.
 // Naredna promenljiva ce se koristiti za dohvatanje jednog ispitnog roka.
-// Nazalost, nije moguce koristiti typedef iznad, vec moramo eksplicitno zadati strukturu.
+// Nazalost, nije moguce koristiti typedef iznad (zasto?), vec moramo eksplicitno zadati strukturu.
 struct {
-    sqlint32 sk_godina;
-    char oznaka_roka[21];
-    char naziv[31];
-    char datum_pocetka[11];
-    char datum_kraja[11];
-} rok;
+    sqlint32 schoolYear;
+    char finalsLabel[21];
+    char finalsName[31];
+    char finalsStartDate[11];
+    char finalsEndDate[11];
+} hFinal;
 EXEC SQL END DECLARE SECTION;
 
-void is_error(const char *str)
-{
-    if(SQLCODE < 0)
-    {
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
         fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
 
         EXEC SQL ROLLBACK;
@@ -38,141 +36,132 @@ void is_error(const char *str)
     }
 }
 
-int main()
-{
+int main() {
     EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
-    is_error("Connect");
+    checkSQL("Connect");
 
     // Pripremamo niz ispitnih rokova
     // Naredni niz ce cuvati generisane ispitne rokove za tekucu godinu
-    ispitnirok_struct rokovi[12];
-    const int n = sizeof(rokovi)/sizeof(ispitnirok_struct);
-    const char *meseci[] = {"Januar", "Februar", "Mart", "April", "Maj", "Jun", "Jul", "Avgust", "Septembar", "Oktobar", "Novembar", "Decembar"};
+    FinalStruct finalsArr[12];
+    const int n = sizeof(finalsArr)/sizeof(FinalStruct);
+    const char *monthNames[] = {"Januar", "Februar", "Mart", "April", "Maj", "Jun", "Jul", "Avgust", "Septembar", "Oktobar", "Novembar", "Decembar"};
     int i;
-    for (i = 0; i < n; ++i)
-    {
-        rokovi[i].sk_godina = 2021;
-        sprintf(rokovi[i].oznaka_roka, "%.3s 21", meseci[i]);
-        sprintf(rokovi[i].naziv, "%s 2021", meseci[i]);
-        sprintf(rokovi[i].datum_pocetka, "%2.2d/01/2021", i+1);
-        sprintf(rokovi[i].datum_kraja, "%2.2d/10/2021", i+1);
+    for (i = 0; i < n; ++i) {
+        finalsArr[i].schoolYear = 2021;
+        sprintf(finalsArr[i].finalsLabel, "%.3s 21", monthNames[i]);
+        sprintf(finalsArr[i].finalsName, "%s 2021", monthNames[i]);
+        sprintf(finalsArr[i].finalsStartDate, "%2.2d/01/2021", i+1);
+        sprintf(finalsArr[i].finalsEndDate, "%2.2d/10/2021", i+1);
     }
     
     EXEC SQL 
-        DECLARE ispitni_rokovi CURSOR WITH HOLD FOR
+        DECLARE cFinals CURSOR WITH HOLD FOR
         SELECT  *
         FROM    DA.ISPITNIROK;
-    is_error("Declare");
+    checkSQL("Declare");
     
     printf("Unesite obavezan broj ispitnih rokova: ");
-    short broj_rokova;
-    scanf("%hd", &broj_rokova);
+    short numOfFinals;
+    scanf("%hd", &numOfFinals);
     getchar(); // novi red
 
-    for (i = 0; i < broj_rokova; ++i)
-    {
-        rok.sk_godina = rokovi[i].sk_godina;
-        strcpy(rok.oznaka_roka, rokovi[i].oznaka_roka);
-        strcpy(rok.naziv, rokovi[i].naziv);
-        strcpy(rok.datum_pocetka, rokovi[i].datum_pocetka);
-        strcpy(rok.datum_kraja, rokovi[i].datum_kraja);
+    for (i = 0; i < numOfFinals; ++i) {
+        // Pripremamo maticnu promenljivu tako sto kopiramo vrednosti iz jedne-po-jedne strukture u nizu
+        hFinal.schoolYear = finalsArr[i].schoolYear;
+        strcpy(hFinal.finalsLabel, finalsArr[i].finalsLabel);
+        strcpy(hFinal.finalsName, finalsArr[i].finalsName);
+        strcpy(hFinal.finalsStartDate, finalsArr[i].finalsStartDate);
+        strcpy(hFinal.finalsEndDate, finalsArr[i].finalsEndDate);
             
         EXEC SQL 
             INSERT  INTO DA.ISPITNIROK
-            VALUES  (:rok);
-        is_error("Unosenje obaveznih ispitnih rokova");
+            VALUES  (:hFinal);
+        checkSQL("Unosenje obaveznih ispitnih rokova");
     }
 
     // Kreiranje tacke cuvanja
     EXEC SQL SAVEPOINT tacka_cuvanja ON ROLLBACK RETAIN CURSORS;
-    is_error("Savepoint");
+    checkSQL("Savepoint");
     
-    for (; i < n; ++i)
-    {
-        rok.sk_godina = rokovi[i].sk_godina;
-        strcpy(rok.oznaka_roka, rokovi[i].oznaka_roka);
-        strcpy(rok.naziv, rokovi[i].naziv);
-        strcpy(rok.datum_pocetka, rokovi[i].datum_pocetka);
-        strcpy(rok.datum_kraja, rokovi[i].datum_kraja);
+    for (; i < n; ++i) {
+        hFinal.schoolYear = finalsArr[i].schoolYear;
+        strcpy(hFinal.finalsLabel, finalsArr[i].finalsLabel);
+        strcpy(hFinal.finalsName, finalsArr[i].finalsName);
+        strcpy(hFinal.finalsStartDate, finalsArr[i].finalsStartDate);
+        strcpy(hFinal.finalsEndDate, finalsArr[i].finalsEndDate);
         
         EXEC SQL 
             INSERT  INTO DA.ISPITNIROK
-            VALUES  (:rok);
-        is_error("Unosenje ostalih ispitnih rokova");
+            VALUES  (:hFinal);
+        checkSQL("Unosenje ostalih ispitnih rokova");
     }
 
     printf("----------------------------------------\n");
     
-    EXEC SQL OPEN ispitni_rokovi;
-    is_error("Open");
+    EXEC SQL OPEN cFinals;
+    checkSQL("Open");
 
-    for(;;)
-    {
+    for(;;) {
         EXEC SQL 
-            FETCH   ispitni_rokovi 
-            INTO    :rok;
-        is_error("Fetch");
+            FETCH   cFinals 
+            INTO    :hFinal;
+        checkSQL("Fetch");
 
-        if(SQLCODE == 100)
-        {
+        if(SQLCODE == 100) {
             break;
         }
 
         printf("%5.5d  %7.7s  %18.18s  %10.10s  %10.10s\n", 
-               rok.sk_godina, rok.oznaka_roka, rok.naziv, rok.datum_pocetka, rok.datum_kraja);
+               hFinal.schoolYear, hFinal.finalsLabel, hFinal.finalsName, hFinal.finalsStartDate, hFinal.finalsEndDate);
     }
 
-    EXEC SQL CLOSE ispitni_rokovi;    
-    is_error("Close");
+    EXEC SQL CLOSE cFinals;    
+    checkSQL("Close");
     
     printf("----------------------------------------\n");
 
     printf("Da li zelite da ponistite unos neobaveznih ispitnih rokova? \n");
 
-    char odgovor_od_korisnika = getchar();
-    if (odgovor_od_korisnika == 'd' || odgovor_od_korisnika == 'D')
-    {
+    char userResponse = getchar();
+    if (userResponse == 'd' || userResponse == 'D') {
         // Ponistavanje izmena samo do prethodno kreirane tacke cuvanja
         EXEC SQL ROLLBACK TO SAVEPOINT tacka_cuvanja;
-        is_error("Rollback");
+        checkSQL("Rollback");
     }
-    else 
-    {
+    else {
         EXEC SQL COMMIT;
-        is_error("Commit");
+        checkSQL("Commit");
     }
 
     printf("----------------------------------------\n");
     
-    EXEC SQL OPEN ispitni_rokovi;
-    is_error("Open");
+    EXEC SQL OPEN cFinals;
+    checkSQL("Open");
 
-    for(;;)
-    {
+    for(;;) {
         EXEC SQL 
-            FETCH   ispitni_rokovi 
-            INTO    :rok;
-        is_error("Fetch");
+            FETCH   cFinals 
+            INTO    :hFinal;
+        checkSQL("Fetch");
 
-        if(SQLCODE == 100)
-        {
+        if(SQLCODE == 100) {
             break;
         }
 
         printf("%5.5d  %7.7s  %18.18s  %10.10s  %10.10s\n", 
-               rok.sk_godina, rok.oznaka_roka, rok.naziv, rok.datum_pocetka, rok.datum_kraja);
+               hFinal.schoolYear, hFinal.finalsLabel, hFinal.finalsName, hFinal.finalsStartDate, hFinal.finalsEndDate);
     }
 
-    EXEC SQL CLOSE ispitni_rokovi;    
-    is_error("Close");
+    EXEC SQL CLOSE cFinals;    
+    checkSQL("Close");
     
     printf("----------------------------------------\n");
 
     EXEC SQL COMMIT;
-    is_error("Potvrdjivanje izmena");
+    checkSQL("Potvrdjivanje izmena");
     
     EXEC SQL CONNECT RESET;
-    is_error("Connect reset");
+    checkSQL("Connect reset");
 
     return 0;
 }

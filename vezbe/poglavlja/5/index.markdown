@@ -82,7 +82,7 @@ Vrlo je bitno primetiti naredne dve stvari u kodu:
 
 - U slučaju uspešnog izvršavanja programa, pre nego što zatvorimo konekciju sa bazom podataka, izvršavamo SQL naredbu `COMMIT` kako bismo potvrdili sve izmene koje je naša aplikacija eventualno izvršila nad bazom podataka.
 
-- U slučaju da dođe do greške prilikom izvršavanja programa, pre nego što izađemo iz programa i prijavimo neuspeh, u funkciji `is_error` izvršavamo naredbu `ROLLBACK` kako bismo poništili sve izmene koje je naša aplikacija eventualno izvršila nad bazom podataka.
+- U slučaju da dođe do greške prilikom izvršavanja programa, pre nego što izađemo iz programa i prijavimo neuspeh, u funkciji `checkSQL` izvršavamo naredbu `ROLLBACK` kako bismo poništili sve izmene koje je naša aplikacija eventualno izvršila nad bazom podataka.
 
 Ovo je dobra praksa i mi ćemo usvojiti ovaj način rada u našim C/SQL programima nadalje.
 
@@ -178,7 +178,7 @@ Neka dodatne napomene koje treba imati u vidu prilikom rada sa složenih SQL nar
 
    - Ako je sistem signalizirao upozorenje da "nije pronađen podatak" (`SQLSTATE 02000`, odnosno, `SQLCODE +100`), onda se tom upozorenju daje prednost u odnosu na ostala upozorenja da bi se naredbom `WHENEVER NOT FOUND` moglo dejstvovati. U ovoj situaciji se polja iz `SQLCA` strukture koja se eventualno vraćaju aplikaciji postavljaju na osnovu podnaredbe koja je okinula upozorenje da "nije pronađen podatak". Ukoliko u okviru složene SQL naredbe postoji više podnaredbi koje okidaju ovo upozorenje, onda se polja iz SQLCA strukture postavljaju na osnovu poslednje od tih podnaredbi.
 
-Sada slede primeri korišćenja složenih SQL naredbi. Primetimo da smo, kao i u prethodnom zadatku, koristili naredbu `ROLLBACK` u definiciji funkcije `is_error` da poništimo izmene u bazi podataka u slučaju da dođe do greške, odnosno, naredbu `COMMIT` za potvrđivanje izmena pre raskidanja konekcije.
+Sada slede primeri korišćenja složenih SQL naredbi. Primetimo da smo, kao i u prethodnom zadatku, koristili naredbu `ROLLBACK` u definiciji funkcije `checkSQL` da poništimo izmene u bazi podataka u slučaju da dođe do greške, odnosno, naredbu `COMMIT` za potvrđivanje izmena pre raskidanja konekcije.
 
 {% include lab/exercise.html broj="5.2" tekst="Napisati C/SQL program koji redom:
 

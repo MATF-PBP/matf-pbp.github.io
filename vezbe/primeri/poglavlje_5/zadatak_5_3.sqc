@@ -4,15 +4,13 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-short sk_godina;
-char naziv[31],
-     oznaka[21];
+short hSchoolYear;
+char hFinalsName[31],
+     hFinalsLabel[21];
 EXEC SQL END DECLARE SECTION;
 
-void is_error(const char *str)
-{
-    if(SQLCODE < 0)
-    {
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
         fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
 
         EXEC SQL ROLLBACK;
@@ -22,15 +20,14 @@ void is_error(const char *str)
     }
 }
 
-int main()
-{
+int main() {
     EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
-    is_error("Connect");
+    checkSQL("Connect");
 
     // Primetimo da smo morali da navedemo klauzu WITH HOLD ovde
     // zato sto vrsimo potvrdjivanje izmena tokom obrade kursora.
     EXEC SQL 
-        DECLARE ispitni_rokovi CURSOR WITH HOLD FOR 
+        DECLARE cFinals CURSOR WITH HOLD FOR 
         SELECT  NAZIV,
                 SKGODINA,
                 OZNAKAROKA
@@ -41,34 +38,31 @@ int main()
                     WHERE   I.SKGODINA = IR.SKGODINA AND
                             I.OZNAKAROKA = IR.OZNAKAROKA
                 );
-    is_error("Declare");
+    checkSQL("Declare");
 
-    EXEC SQL OPEN ispitni_rokovi;
-    is_error("Open");
+    EXEC SQL OPEN cFinals;
+    checkSQL("Open");
 
-    for(;;)
-    {
+    for(;;) {
         EXEC SQL 
-            FETCH   ispitni_rokovi 
-            INTO    :naziv,
-                    :sk_godina,
-                    :oznaka;
-        is_error("Fetch");
+            FETCH   cFinals 
+            INTO    :hFinalsName,
+                    :hSchoolYear,
+                    :hFinalsLabel;
+        checkSQL("Fetch");
 
-        if(SQLCODE == 100)
-        {
+        if(SQLCODE == 100) {
             break;
         }
 
         printf("Obradjujem ispitni rok %s u %hd. godini\n"
-            "Da li zelite da obrisete polaganja u ovom ispitnom roku? [d/n] ", naziv, sk_godina);
+            "Da li zelite da obrisete polaganja u ovom ispitnom roku? [d/n] ", hFinalsName, hSchoolYear);
             
-        char odgovor_od_korisnika;
-        scanf("%c", &odgovor_od_korisnika);
+        char userResponse;
+        scanf("%c", &userResponse);
         getchar(); // Za citanje novog reda
 
-        if (odgovor_od_korisnika == 'n')
-        {
+        if (userResponse == 'n') {
             printf("Preskacem obradu za ovaj ispitni rok\n\n");
             
             continue;
@@ -76,28 +70,28 @@ int main()
         
         EXEC SQL
             DELETE  FROM DA.ISPIT
-            WHERE   SKGODINA = :sk_godina AND
-                    OZNAKAROKA = :oznaka;
-        is_error("Delete");
+            WHERE   SKGODINA = :hSchoolYear AND
+                    OZNAKAROKA = :hFinalsLabel;
+        checkSQL("Delete");
         
         // Da nismo naveli klauzu WITH HOLD pri deklaraciji kursora, 
         // onda bi naredni poziv naredbe COMMIT zatvorio kursor,
         // pa bi poziv FETCH naredbe u narednoj iteraciji petlje prijavio gresku 
         // (jer dohvatamo podatak nad zatvorenim kursorom).
         EXEC SQL COMMIT;
-        is_error("Commit");
+        checkSQL("Commit");
         
         printf("Podaci su uspesno obrisani\n\n");
     }
 
-    EXEC SQL CLOSE ispitni_rokovi;    
-    is_error("Close");
+    EXEC SQL CLOSE cFinals;    
+    checkSQL("Close");
 
     EXEC SQL COMMIT;
-    is_error("Potvrdjivanje izmena");
+    checkSQL("Potvrdjivanje izmena");
     
     EXEC SQL CONNECT RESET;
-    is_error("Connect reset");
+    checkSQL("Connect reset");
 
     return 0;
 }
