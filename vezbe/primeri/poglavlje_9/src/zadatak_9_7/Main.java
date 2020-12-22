@@ -16,25 +16,22 @@ public class Main {
     }
     
     private static class Predmet {
-        public int id_predmeta;
+        public int idPredmeta;
         public String naziv;
         
-        public Predmet(int id_predmeta, String naziv) {
-            this.id_predmeta = id_predmeta;
+        public Predmet(int idPredmeta, String naziv) {
+            this.idPredmeta = idPredmeta;
             this.naziv = naziv;
         }
     }
 
     public static void main(String argv[]) {
-        String urlVstud = "jdbc:db2://localhost:50000/stud2020";
-        String urlMstud = "jdbc:db2://localhost:50001/mstud";
+        String url = "jdbc:db2://localhost:50000/stud2020";
 
         try (
-            Connection conVstud = DriverManager.getConnection(urlVstud, "student", "abcdef");
-            Connection conMstud = DriverManager.getConnection(urlMstud, "student", "abcdef");
+            Connection con = DriverManager.getConnection(url, "student", "abcdef");
         ) {
-            conVstud.setAutoCommit(false);
-            conMstud.setAutoCommit(false);
+            con.setAutoCommit(false);
 
             try (Scanner ulaz = new Scanner(System.in)) {
                 while(true) {
@@ -52,22 +49,22 @@ public class Main {
                         System.out.println("Unesite naziv predmeta: ");
                         String naziv = ulaz.nextLine();
                         
-                        ArrayList<Predmet> predmeti = a_pronadji_sve_predmete(conVstud, naziv);
+                        ArrayList<Predmet> predmeti = aPronadjiSvePredmete(con, naziv);
                         System.out.println("Pronadjeni predmeti su: ");
-                        ArrayList<Predmet> odabraniPredmeti = b_izdvoji_predmete_koji_ispunjavaju_uslov(conVstud, predmeti);
-                        c_obradi_predmete(conVstud, odabraniPredmeti);
+                        ArrayList<Predmet> odabraniPredmeti = bIzdvojiPredmeteKojiIspunjavajuUslov(con, predmeti);
+                        cObradiPredmete(con, odabraniPredmeti);
                     }
                     else if (odgovor.equalsIgnoreCase("ponistavanje")) {
                         System.out.println("Unesite godinu studija: ");
                         short godina = ulaz.nextShort();
                         ulaz.nextLine(); // '\n'
-                        e_ponisti_statistike(conVstud, godina, ulaz);
+                        ePonistiStatistike(con, godina, ulaz);
                     }
                     else if (odgovor.equalsIgnoreCase("brisanje")) {                        
-                        f_obrisi_statistike(conVstud);
+                        fObrisiStatistike(con);
                     }
                     else if (odgovor.equalsIgnoreCase("prikazivanje")) {                        
-                        g_prikazi_statistike(conVstud);
+                        gPrikaziStatistike(con);
                     }
                     else if (odgovor.equalsIgnoreCase("dalje")) {
                         break;
@@ -76,15 +73,9 @@ public class Main {
                     }
                 }
                 
-                System.out.println("Unesite ocenu: ");
-                short ocena = ulaz.nextShort();
-                h_prikazi_statistike(conMstud, ocena);
-                
-                conVstud.commit();
-                conMstud.commit();
+                con.commit();
             } catch (Exception e) {
-                conVstud.rollback();
-                conMstud.rollback();
+                con.rollback();
                 throw e;
             } 
         } catch (SQLException e) {
@@ -101,9 +92,9 @@ public class Main {
         }
     }
 
-    private static ArrayList<Predmet> a_pronadji_sve_predmete(Connection con, String upitZaNaziv) throws SQLException {
+    private static ArrayList<Predmet> aPronadjiSvePredmete(Connection con, String upitZaNaziv) throws SQLException {
         ArrayList<Predmet> predmeti = new ArrayList<>();
-        String sql = "SELECT ID_PREDMETA, TRIM(NAZIV) FROM PREDMET WHERE NAZIV LIKE ?";
+        String sql = "SELECT ID, TRIM(NAZIV) FROM DA.PREDMET WHERE NAZIV LIKE ?";
         
         PreparedStatement pStmt = con.prepareStatement(sql);
         upitZaNaziv += "%";
@@ -111,9 +102,9 @@ public class Main {
         ResultSet kursor = pStmt.executeQuery();
         
         while (kursor.next()) {
-            int id_predmeta = kursor.getInt(1);
+            int idPredmeta = kursor.getInt(1);
             String naziv = kursor.getString(2);
-            predmeti.add(new Predmet(id_predmeta, naziv));
+            predmeti.add(new Predmet(idPredmeta, naziv));
         }
         
         kursor.close();
@@ -122,7 +113,7 @@ public class Main {
         return predmeti;
     }
 
-    private static ArrayList<Predmet> b_izdvoji_predmete_koji_ispunjavaju_uslov(Connection con,
+    private static ArrayList<Predmet> bIzdvojiPredmeteKojiIspunjavajuUslov(Connection con,
             ArrayList<Predmet> predmeti) throws SQLException, IOException {
         ArrayList<Predmet> izdvojeniPredmeti = new ArrayList<>();
         
@@ -130,17 +121,17 @@ public class Main {
         PreparedStatement pStmt = con.prepareStatement(sql);
         
         for (Predmet predmet : predmeti) {
-            pStmt.setInt(1, predmet.id_predmeta);
+            pStmt.setInt(1, predmet.idPredmeta);
             ResultSet kursor = pStmt.executeQuery();
             
             boolean imaRedova = kursor.next();
             if (!imaRedova || kursor.getInt(1) == 0) {
-                System.out.println("  Za predmet " + predmet.naziv + " sa identifikatorom " + predmet.id_predmeta + " nema studenata koji su ga upisali");
+                System.out.println("  Za predmet " + predmet.naziv + " sa identifikatorom " + predmet.idPredmeta + " nema studenata koji su ga upisali");
                 continue;
             }
             
-            int broj_upisanih = kursor.getInt(1);
-            System.out.println("  Predmet " + predmet.naziv + " sa identifikatorom " + predmet.id_predmeta + " je upisalo " + broj_upisanih + " student/studenata");
+            int brojUpisanih = kursor.getInt(1);
+            System.out.println("  Predmet " + predmet.naziv + " sa identifikatorom " + predmet.idPredmeta + " je upisalo " + brojUpisanih + " student/studenata");
             izdvojeniPredmeti.add(predmet);
             
             kursor.close();
@@ -151,7 +142,7 @@ public class Main {
         return izdvojeniPredmeti;
     }
 
-    private static void c_obradi_predmete(Connection con, ArrayList<Predmet> predmeti) throws SQLException, IOException {
+    private static void cObradiPredmete(Connection con, ArrayList<Predmet> predmeti) throws SQLException, IOException {
         String sql = ucitajSqlIzDatoteke("statistika.sql");
         PreparedStatement pStmt = con.prepareStatement(sql);
         
@@ -159,7 +150,7 @@ public class Main {
         stmt.execute("SET CURRENT LOCK TIMEOUT 5");
         
         for (Predmet predmet : predmeti) {
-            pStmt.setInt(1, predmet.id_predmeta);
+            pStmt.setInt(1, predmet.idPredmeta);
             ResultSet kursor = pStmt.executeQuery();
             
             while (true) {
@@ -170,15 +161,15 @@ public class Main {
                         break;
                     }
                     
-                    int id_predmeta = kursor.getInt(1);
+                    int idPredmeta = kursor.getInt(1);
                     short godina = kursor.getShort(2); 
-                    int broj_studenata = kursor.getInt(3);
-                    boolean broj_st_null = kursor.wasNull();
-                    int broj_polaganja = kursor.getInt(4);
-                    boolean broj_pol_null = kursor.wasNull();
-                    System.out.println("  Unosim informacije: " + id_predmeta + ", " + godina + ", " + broj_studenata + ", " + broj_polaganja);
+                    int brojStudenata = kursor.getInt(3);
+                    boolean brojStNull = kursor.wasNull();
+                    int brojPolaganja = kursor.getInt(4);
+                    boolean brojPolNull = kursor.wasNull();
+                    System.out.println("  Unosim informacije: " + idPredmeta + ", " + godina + ", " + brojStudenata + ", " + brojPolaganja);
                     
-                    d_unesi_novu_statistiku(con, id_predmeta, godina, broj_st_null ? null : broj_studenata, broj_pol_null ? null : broj_polaganja);
+                    dUnesiNovuStatistiku(con, idPredmeta, godina, brojStNull ? null : brojStudenata, brojPolNull ? null : brojPolaganja);
                     
                     con.commit();
                     // END visekorisnicko
@@ -209,29 +200,29 @@ public class Main {
         pStmt.close();
     }
     
-    private static void d_unesi_novu_statistiku(Connection con, int id_predmeta, short godina, Integer broj_studenata, Integer broj_polaganja) throws SQLException {
-        String sql = "INSERT INTO STATISTIKA_UPISANIH_KURSEVA VALUES (?, ?, ?, ?, 0)";
+    private static void dUnesiNovuStatistiku(Connection con, int idPredmeta, short godina, Integer brojStudenata, Integer brojPolaganja) throws SQLException {
+        String sql = "INSERT INTO DA.STATISTIKAUPISANIHKURSEVA VALUES (?, ?, ?, ?, 0)";
         PreparedStatement pStmt = con.prepareStatement(sql);
         
-        pStmt.setInt(1, id_predmeta);
+        pStmt.setInt(1, idPredmeta);
         pStmt.setShort(2, godina);
-        if (null == broj_studenata) {
+        if (null == brojStudenata) {
             pStmt.setNull(3, java.sql.Types.INTEGER);
         } else {
-            pStmt.setInt(3, broj_studenata);
+            pStmt.setInt(3, brojStudenata);
         }
-        if (null == broj_polaganja) {
+        if (null == brojPolaganja) {
             pStmt.setNull(4, java.sql.Types.INTEGER);
         } else {
-            pStmt.setInt(4, broj_polaganja);
+            pStmt.setInt(4, brojPolaganja);
         }
         
         pStmt.executeUpdate();
         pStmt.close();
     }
     
-    private static void e_ponisti_statistike(Connection con, short godina, Scanner ulaz) throws Exception {
-        String sql = "SELECT * FROM STATISTIKA_UPISANIH_KURSEVA WHERE GODINA = ?";
+    private static void ePonistiStatistike(Connection con, short godina, Scanner ulaz) throws Exception {
+        String sql = "SELECT * FROM DA.STATISTIKAUPISANIHKURSEVA WHERE SKGODINA = ?";
         PreparedStatement pStmt = con.prepareStatement(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
         pStmt.setShort(1, godina);
         ResultSet kursor = pStmt.executeQuery();
@@ -239,11 +230,11 @@ public class Main {
         while (kursor.next()) {
             Savepoint s = con.setSavepoint();
             
-            int id_predmeta = kursor.getInt(1);
+            int idPredmeta = kursor.getInt(1);
             kursor.updateShort(5, (short)1);
             kursor.updateRow();
             
-            System.out.println("  Da li ste sigurni da zelite da ponistite podatke o predmetu sa identifikatorom " + id_predmeta + " u odabranoj godini " + godina + "? [da/ne]");
+            System.out.println("  Da li ste sigurni da zelite da ponistite podatke o predmetu sa identifikatorom " + idPredmeta + " u odabranoj godini " + godina + "? [da/ne]");
             String odgovor = ulaz.nextLine();
             if (odgovor.equalsIgnoreCase("ne")) {
                 con.rollback(s);
@@ -260,14 +251,14 @@ public class Main {
         con.commit();
     }
 
-    private static void f_obrisi_statistike(Connection con) throws SQLException {
-        String sql = "SELECT * FROM STATISTIKA_UPISANIH_KURSEVA WHERE PONISTENI = 0";
+    private static void fObrisiStatistike(Connection con) throws SQLException {
+        String sql = "SELECT * FROM DA.STATISTIKAUPISANIHKURSEVA WHERE PONISTENI = 0";
         Statement stmt = con.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE);
         ResultSet kursor = stmt.executeQuery(sql);
         
         while (kursor.next()) {
-            int id_predmeta = kursor.getInt(1);
-            System.out.println("  Brisem podatke o predmetu sa identifikatorom " + id_predmeta + " u odabranoj godini");
+            int idPredmeta = kursor.getInt(1);
+            System.out.println("  Brisem podatke o predmetu sa identifikatorom " + idPredmeta + " u odabranoj godini");
             kursor.deleteRow();
         }
         
@@ -277,34 +268,34 @@ public class Main {
         con.commit();
     }
     
-    private static void g_prikazi_statistike(Connection con) throws SQLException {
-        String sql = "SELECT * FROM STATISTIKA_UPISANIH_KURSEVA ORDER BY ID_PREDMETA";
+    private static void gPrikaziStatistike(Connection con) throws SQLException {
+        String sql = "SELECT * FROM DA.STATISTIKAUPISANIHKURSEVA ORDER BY IDPREDMETA";
         Statement stmt = con.createStatement();
         ResultSet kursor = stmt.executeQuery(sql);
         
         System.out.println("+--------------------------------------------------------------------+");
-        System.out.println("| ID_PREDMETA | GODINA | BROJ STUDENATA | BROJ POLAGANJA | PONISTENO |");
+        System.out.println("| ID PREDMETA | GODINA | BROJ STUDENATA | BROJ POLAGANJA | PONISTENO |");
         System.out.println("|-------------+--------+----------------+----------------+-----------|");
         
         while (kursor.next()) {
-            String id_predmeta = Integer.toString(kursor.getInt(1));
+            String idPredmeta = Integer.toString(kursor.getInt(1));
             String godina = Short.toString(kursor.getShort(2)); 
-            String broj_studenata = Integer.toString(kursor.getInt(3));
+            String brojStudenata = Integer.toString(kursor.getInt(3));
             if(kursor.wasNull()) {
-                broj_studenata = "NULL          ";
+                brojStudenata = "NULL          ";
             }
-            String broj_polaganja = Integer.toString(kursor.getInt(4));
+            String brojPolaganja = Integer.toString(kursor.getInt(4));
             if (kursor.wasNull()) {
-                broj_polaganja = "NULL          ";
+                brojPolaganja = "NULL          ";
             }
             String ponisteni = "FALSE    ";
             if (kursor.getShort(5) == 1) {
                 ponisteni = "TRUE     ";
             }
             System.out.printf("| %s%s | %s   | %s%s | %s%s | %s |\n",
-                    id_predmeta, new String(new char[11 - id_predmeta.length()]).replace("\0", " "), 
-                    godina, broj_studenata, new String(new char[14 - broj_studenata.length()]).replace("\0", " "),
-                    broj_polaganja, new String(new char[14 - broj_polaganja.length()]).replace("\0", " "),
+                    idPredmeta, new String(new char[11 - idPredmeta.length()]).replace("\0", " "), 
+                    godina, brojStudenata, new String(new char[14 - brojStudenata.length()]).replace("\0", " "),
+                    brojPolaganja, new String(new char[14 - brojPolaganja.length()]).replace("\0", " "),
                     ponisteni);
         }
         
@@ -313,25 +304,6 @@ public class Main {
         
         kursor.close();
         stmt.close();
-    }
-
-    private static void h_prikazi_statistike(Connection con, short ocena) throws SQLException, IOException {
-        String sql = ucitajSqlIzDatoteke("statistikaMSTUD.sql");
-        PreparedStatement pStmt = con.prepareStatement(sql);
-        pStmt.setShort(1, ocena);
-        ResultSet kursor = pStmt.executeQuery();
-        
-        while (kursor.next()) {
-            int indeks = kursor.getInt(1);
-            String ime = kursor.getString(2).trim();
-            String prezime = kursor.getString(3).trim();
-            double prosek = kursor.getDouble(4);
-            
-            System.out.println("  Student " + ime + " " + prezime + " (" + indeks + ") ima prosek" + prosek);
-        }
-        
-        kursor.close();
-        pStmt.close();
     }
     
     private static String ucitajSqlIzDatoteke(String nazivDatoteke) throws IOException {

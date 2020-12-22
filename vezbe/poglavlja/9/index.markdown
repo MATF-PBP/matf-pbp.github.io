@@ -343,24 +343,22 @@ include_source(vezbe/primeri/poglavlje_9/src/zadatak_9_6/studentiStudijskogProgr
 
 {% include lab/exercise.html broj="9.7" tekst="Napisati Java program u kojem se SQL naredbe izvr\v savaju dinami\v cki koji ima mogu\'cnost da upravlja podacima o statistikama upisanih kurseva. Kreirati klasu `Main.java`. U toj klasi implementirati naredne metode nad datim bazama podataka. Nije dozvoljeno menjati potpise metoda; jedino je mogu\'ce dodavati izuzetke koje oni ispaljuju. Nije dozvoljeno implementirati opisane operacije van tela metoda (ali je mogu\'ce koristiti pomo\'cne metode):\n
 \n
-(a) [VSTUD] Napisati metod `private static ArrayList<Predmet> a_pronadji_sve_predmete(Connection con, String upitZaNaziv) throws SQLException` koji pronalazi identifikatore i nazive svih predmeta \v ciji naziv predmeta po\v cinje niskom `upitZaNaziv`. Implementirati klasu `Predmet` koja ima dva polja koja predstavljaju identifikator i naziv predmeta. Metod vra\'ca listu instanci ove klase.\n
+(a) Napisati metod `private static ArrayList<Predmet> aPronadjiSvePredmete(Connection con, String upitZaNaziv) throws SQLException` koji pronalazi identifikatore i nazive svih predmeta \v ciji naziv predmeta po\v cinje niskom `upitZaNaziv`. Implementirati klasu `Predmet` koja ima dva polja koja predstavljaju identifikator i naziv predmeta. Metod vra\'ca listu instanci ove klase.\n
 \n
-(b) [VSTUD] Napisati metod `private static ArrayList<Predmet> b_izdvoji_predmete_koji_ispunjavaju_uslov(Connection con, ArrayList<Predmet> predmeti) throws SQLException` koji od date liste predmeta `predmeti` izdvaja samo one predmete koji zadovoljavaju naredna dva uslova:\n
+(b) Napisati metod `private static ArrayList<Predmet> bIzdvojiPredmeteKojiIspunjavajuUslov(Connection con, ArrayList<Predmet> predmeti) throws SQLException` koji od date liste predmeta `predmeti` izdvaja samo one predmete koji zadovoljavaju naredna dva uslova:\n
 - Predmet mora da ima studente koji su ga upisali.\n
-- Predmet mora da se ne nalazi u tabeli `STATISTIKA_UPISANIH_KURSEVA`.\n
+- Predmet mora da se ne nalazi u tabeli `STATISTIKAUPISANIHKURSEVA`.\n
 Dopustiti da aplikacija mo\v ze da vidi nepotvr\dj ene izmene drugih aplikacija prilikom provere datih uslova.\n
 \n
-(c) [VSTUD] Napisati metod `private static void c_obradi_predmete(Connection con, ArrayList<Predmet> predmeti) throws SQLException` koji izdvaja naredne informacije: (1) identifikator predmeta, (2) godinu studija, (3) broj studenata koji su upisali taj predmet u toj godini, (4) broj polaganja tog predmeta u toj godini, ali samo za one predmete koji zadovoljavaju uslove iz metoda pod (b). Ove informacije je potrebno ispisati na standardni izlaz, a zatim uneti u tabelu `STATISTIKA_UPISANIH_KURSEVA` metodom pod (d). Samo u ovom metodu proveravati gre\v ske koje se javljaju prilikom izvr\v savanja aplikacije u vi\v sekorisni\v ckom okru\v zenju. Postaviti istek vremena na 5 sekundi. Obrada jednog predmeta (ispis + unos) mora da predstavlja jednu transakciju. Omogu\'citi da nijedna druga aplikacija ne sme \v citati ili menjati podatke tokom obrade predmeta u ovom metodu.\n
+(c) Napisati metod `private static void cObradiPredmete(Connection con, ArrayList<Predmet> predmeti) throws SQLException` koji izdvaja naredne informacije: (1) identifikator predmeta, (2) \v skolsku godinu, (3) broj studenata koji su upisali taj predmet u toj godini, (4) broj polaganja tog predmeta u toj godini, ali samo za one predmete koji zadovoljavaju uslove iz metoda pod (b). Ove informacije je potrebno ispisati na standardni izlaz, a zatim uneti u tabelu `STATISTIKAUPISANIHKURSEVA` metodom pod (d). Samo u ovom metodu proveravati gre\v ske koje se javljaju prilikom izvr\v savanja aplikacije u vi\v sekorisni\v ckom okru\v zenju. Postaviti istek vremena na 5 sekundi. Obrada jednog predmeta (ispis + unos) mora da predstavlja jednu transakciju. Omogu\'citi da nijedna druga aplikacija ne sme \v citati ili menjati podatke tokom obrade predmeta u ovom metodu.\n
 \n
-(d) [VSTUD] Napisati metod `private static void d_unesi_novu_statistiku(Connection con, int id_predmeta, short godina, Integer broj_studenata, Integer broj_polaganja) throws SQLException` koji unosi novi slog u tabelu `STATISTIKA_UPISANIH_KURSEVA` na osnovu argumenata koji mu se prosle\dj uju. Za kolonu `PONISTENI` postaviti vrednost `0`.\n
+(d) Napisati metod `private static void dUnesiNovuStatistiku(Connection con, int idPredmeta, short godina, Integer brojStudenata, Integer brojPolaganja) throws SQLException` koji unosi novi slog u tabelu `STATISTIKAUPISANIHKURSEVA` na osnovu argumenata koji mu se prosle\dj uju. Za kolonu `PONISTENI` postaviti vrednost `0`.\n
 \n
-(e) [VSTUD] Napisati metod `private static void e_ponisti_statistike(Connection con, short godina, Scanner ulaz) throws SQLException` koji ponistava sve statistike (tj. postavlja kolonu `PONISTENI` na vrednost `1`) iz tabele `STATISTIKA_UPISANIH_KURSEVA` za one statistike iz godine koja se prosle\dj uje kao argument metoda. Poni\v stavanje svih statistika za datu godinu predstavlja jednu transakciju. Me\dj utim, potrebno je omogu\'citi da se nakon izmene jednog sloga korisnik pita da potvrdi izmene. Ukoliko ipak \v zeli da odustane od izmene teku\'ce statistike, omogu\'citi poni\v stavanje samo poslednje izmenjene statistike.\n
+(e) Napisati metod `private static void ePonistiStatistike(Connection con, short godina, Scanner ulaz) throws SQLException` koji ponistava sve statistike (tj. postavlja kolonu `PONISTENI` na vrednost `1`) iz tabele `STATISTIKAUPISANIHKURSEVA` za one statistike iz godine koja se prosle\dj uje kao argument metoda. Poni\v stavanje svih statistika za datu godinu predstavlja jednu transakciju. Me\dj utim, potrebno je omogu\'citi da se nakon izmene jednog sloga korisnik pita da potvrdi izmene. Ukoliko ipak \v zeli da odustane od izmene teku\'ce statistike, omogu\'citi poni\v stavanje samo poslednje izmenjene statistike.\n
 \n
-(f) [VSTUD] Napisati metod `private static void f_obrisi_statistike(Connection con) throws SQLException` koji bri\v se sve poni\v stene statistike iz tabele `STATISTIKA_UPISANIH_KURSEVA`. Za svaki slog je neophodno ispisati na standardni izlaz identifikator predmeta za slog koji se bri\v se, a zatim se izvr\v sava brisanje tog sloga. Brisanje svih poni\v stenih statistika predstavlja jednu transakciju.\n
+(f) Napisati metod `private static void fObrisiStatistike(Connection con) throws SQLException` koji bri\v se sve poni\v stene statistike iz tabele `STATISTIKAUPISANIHKURSEVA`. Za svaki slog je neophodno ispisati na standardni izlaz identifikator predmeta za slog koji se bri\v se, a zatim se izvr\v sava brisanje tog sloga. Brisanje svih poni\v stenih statistika predstavlja jednu transakciju.\n
 \n
-(g) [VSTUD] Napisati metod `private static void g_prikazi_statistike(Connection con) throws SQLException` koji ispisuje informacije iz tabele `STATISTIKA_UPISANIH_KURSEVA`. Sortirati ispis po identifikatoru predmeta rastu\'ce.\n
-\n
-(h) [MSTUD] Napisati metod `private static void h_prikazi_statistike(Connection con, short ocena) throws SQLException` koji izlistava ime i prezime studenata i njihov prosek ocena ukoliko imaju makar jedan polo\v zen ispit sa ocenom koja se prosle\dj uje kao argument metoda.\n
+(g) Napisati metod `private static void gPrikaziStatistike(Connection con) throws SQLException` koji ispisuje informacije iz tabele `STATISTIKAUPISANIHKURSEVA`. Sortirati ispis po identifikatoru predmeta rastu\'ce.\n
 \n
 Aplikacija omogu\'cava korisniku da odabere jednu od narednih 5 opcija. Svaki put kada se opcija zavr\v si (osim u slu\v caju opcije 5), aplikacija ponovo zahteva od korisnika da unese jednu od narednih opcija:\n
 1. `unos`: Aplikacija zahteva od korisnika da unese upit za naziv predmeta. Nakon unosa, aplikacija metodom pod (a) pronalazi sve kandidate. Zatim ispisuje sve predmete metodom pod (b). Nakon toga, vr\v si se obrada metodom pod (c).\n
@@ -369,7 +367,7 @@ Aplikacija omogu\'cava korisniku da odabere jednu od narednih 5 opcija. Svaki pu
 4. `prikazivanje`: Aplikacija izvr\v sava metod pod (g).\n
 5. `dalje`: Aplikacija zahteva od korisnika da unese ocenu i poziva metod pod (h). Nakon toga, aplikacija se zavr\v sava." %}
 
-Re\v senje: Pre pokretanja programa, potrebno je pripremiti bazu `VSTUD` izvr\v savanjem narednog skripta nad tom BP:
+Re\v senje: Pre pokretanja programa, potrebno je pripremiti bazu `STUD2020` izvr\v savanjem narednog skripta nad tom BP:
 
 include_source(vezbe/primeri/poglavlje_9/src/zadatak_9_7/pripremaBaze.sql, sql)
 
@@ -378,10 +376,8 @@ Implementacija re\v senja se nalazi u narednim datotekama:
 include_source(vezbe/primeri/poglavlje_9/src/zadatak_9_7/Main.java, java)
 include_source(vezbe/primeri/poglavlje_9/src/zadatak_9_7/izdvajanjePredmetaSaUslovom.sql, sql)
 include_source(vezbe/primeri/poglavlje_9/src/zadatak_9_7/statistika.sql, sql)
-include_source(vezbe/primeri/poglavlje_9/src/zadatak_9_7/statistikaMSTUD.sql, sql)
 
-{% include lab/exercise.html broj="9.8" tekst="Napisati Java program u kojem se SQL naredbe izvr\v savaju dinami\v cki koji za sve ispitne rokove pronalazi
-informacije o polaganjima za svaki položeni predmet u tom ispitnom roku i te podatke unosi u tabelu `ISPITNIROKOVIPOLAGANJA`. Kreirati datu tabelu na osnovu SQL koda ispod.\n
+{% include lab/exercise.html broj="9.8" tekst="Napisati Java program u kojem se SQL naredbe izvr\v savaju dinami\v cki koji za sve ispitne rokove pronalazi položene predmet u tom ispitnom roku Za svaki predmet program pronalazi koliko je kojih ocena postignuto i te podatke unosi u tabelu `ISPITNIROKOVIPOLAGANJA`. Kreirati datu tabelu na osnovu SQL koda ispod.\n
 \n
 Pre jednog unosa podataka ispisati podatke koji ce biti uneti. Takođe, omogućiti da se podaci unose tako što korisnik mora da odobri unos podataka na svakih 20 redova (tzv. *batch* unos podataka). Napisati program tako da može da radi u višekorisničkom okruženju. Unos podataka za jedno polaganje predstavlja jednu transakciju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi. Obraditi sve moguće greške.\n
 \n
@@ -396,7 +392,13 @@ CREATE TABLE DA.ISPITNIROKOVIPOLAGANJA (
     BROJ INTEGER NOT NULL,
     NAZIVROKA VARCHAR(50),
     NAZIVPREDMETA VARCHAR(200),
-    PRIMARY KEY(GODINA, OZNAKA, IDPREDMETA, OCENA, BROJ)
+    PRIMARY KEY(GODINA, OZNAKA, IDPREDMETA, OCENA),
+	CONSTRAINT FK_PREDMET FOREIGN KEY (IDPREDMETA)
+		REFERENCES DA.PREDMET (ID)
+		ON DELETE CASCADE,
+	CONSTRAINT FK_IR FOREIGN KEY (GODINA, OZNAKA)
+		REFERENCES DA.ISPITNIROK (SKGODINA, OZNAKAROKA)
+		ON DELETE CASCADE
 )
 ```
 
@@ -408,9 +410,10 @@ CREATE TABLE OBRADJENAPOLAGANJA (
     OZNAKA VARCHAR(20) NOT NULL,
     IDPREDMETA INTEGER NOT NULL,
     OCENA SMALLINT NOT NULL,
-    BROJ INTEGER NOT NULL,
-    PRIMARY KEY(GODINA, OZNAKA, IDPREDMETA, OCENA, BROJ),
-    FOREIGN KEY(GODINA, OZNAKA, IDPREDMETA, OCENA, BROJ) REFERENCES DA.ISPITNIROKOVIPOLAGANJA
+    PRIMARY KEY(GODINA, OZNAKA, IDPREDMETA, OCENA),
+    CONSTRAINT FK_POLAGANJA FOREIGN KEY(GODINA, OZNAKA, IDPREDMETA, OCENA) 
+        REFERENCES DA.ISPITNIROKOVIPOLAGANJA
+		ON DELETE CASCADE
 )
 ```
 
@@ -434,10 +437,3 @@ CREATE TABLE STIPENDIJA (
     PRIMARY KEY (ID)
 )
 ```
-
-{% include lab/exercise.html broj="9.10" tekst="Napisati Java program u kojem se SQL naredbe izvr\v savaju dinami\v cki koji omogućava konekciju na 2 baze (vstud i mstud). Program redom:\n
-\n
-1. Iz baze mstud ispisuje naziv predmeta, za svaki predmet koji postoji u toj bazi.\n
-2. Iz baze vstud, za svaki predmet iz prethodnog koraka, ispisuje ime i prezime studenta koji su položili taj predmet, kao i ocenu koju su dobili.\n
-\n
-Napraviti izveštaj tako što se za svaki predmet prvo ispiše njegov naziv, a zatim se ispisuju informacije o studentima koji su ga položili. Predmete iz različitih baza podataka spajati po nazivu predmeta." %}
