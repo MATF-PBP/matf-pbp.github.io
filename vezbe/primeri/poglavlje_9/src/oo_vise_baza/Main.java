@@ -1,4 +1,4 @@
-package zadatak_9_6;
+package oo_vise_baza;
 
 import java.sql.SQLException;
 import java.util.Scanner;

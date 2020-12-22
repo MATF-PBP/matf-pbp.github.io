@@ -1,4 +1,4 @@
-package zadatak_9_6;
+package oo_vise_baza;
 
 import java.io.IOException;
 import java.nio.file.Files;
