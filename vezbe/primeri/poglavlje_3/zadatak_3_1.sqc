@@ -4,23 +4,21 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-sqlint32 id_stud_programa;
-char oznaka[11];
-char naziv[201];
-short id_nivoa;
-short bodovi;
-char zvanje[101];
+sqlint32 hStudyProgramId;
+char hStudyProgramLabel[11];
+char hStudyProgramName[201];
+short hDegreeLevelId;
+short hESPB;
+char hStudyProgramTitle[101];
 struct {
-   short int duzina;
-   char tekst[32700];
-} opis;
-short ind_opis;
+   short int length;
+   char data[32700];
+} hStudyProgramDesc;
+short hIndStudyProgramDesc;
 EXEC SQL END DECLARE SECTION;
 
-void is_error(const char *str)
-{
-    if(SQLCODE < 0)
-    {
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
         fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
 
         EXEC SQL CONNECT RESET;
@@ -28,16 +26,15 @@ void is_error(const char *str)
     }
 }
 
-int main()
-{
+int main() {
     // Konektujemo se na bazu podataka
     EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
-    is_error("Connect");
+    checkSQL("Connect");
     
     // Deklarisemo kursor koji prolazi tabelom STUDIJSKIPROGRAM.
     // Ovde navodimo upit kroz koji ce kursor prolaziti, ali koji se jos uvek ne izvrsava.
     EXEC SQL 
-        DECLARE c_studijskiprogram CURSOR FOR 
+        DECLARE cStudyPrograms CURSOR FOR 
         SELECT  ID, 
                 OZNAKA, 
                 NAZIV, 
@@ -46,12 +43,12 @@ int main()
                 ZVANJE,
                 OPIS
         FROM    DA.STUDIJSKIPROGRAM;
-    is_error("Declare cursor c_studijskiprogram");
+    checkSQL("Declare cursor cStudyPrograms");
     
     // Otvaramo kursor, cime se izvrsava upit naveden u deklaraciji.
     // Sada se kursor nalazi na redu "pre prvog reda" u rezultatu.
-    EXEC SQL OPEN c_studijskiprogram;
-    is_error("Open cursor c_studijskiprogram");
+    EXEC SQL OPEN cStudyPrograms;
+    checkSQL("Open cursor cStudyPrograms");
     
     printf("+---------------------------------------------------------------------------------------------------------------------------------------+\n");
     printf("|                                                           STUDIJSKI PROGRAM                                                           |\n");
@@ -60,39 +57,39 @@ int main()
     printf("|-----+------+------------------------------+----+----+------------------------------+--------------------------------------------------+\n");
 
     // Sve dok ima redova u rezultujucoj tabeli
-    for(;;)
-    {
+    for(;;) {
         // Citamo red po red
         EXEC SQL 
-            FETCH   c_studijskiprogram
-            INTO    :id_stud_programa, 
-                    :oznaka, 
-                    :naziv, 
-                    :id_nivoa, 
-                    :bodovi,
-                    :zvanje,
-                    :opis :ind_opis;
-        is_error("Fetch from cursor c_studijskiprogram");
+            FETCH   cStudyPrograms
+            INTO    :hStudyProgramId, 
+                    :hStudyProgramLabel, 
+                    :hStudyProgramName, 
+                    :hDegreeLevelId, 
+                    :hESPB,
+                    :hStudyProgramTitle,
+                    :hStudyProgramDesc :hIndStudyProgramDesc;
+        checkSQL("Fetch from cursor cStudyPrograms");
 
         // Ako smo stigli do kraja rezultujuce tabele, 
         // izlazimo iz petlje
-        if (SQLCODE == 100) 
-        {
+        if (SQLCODE == 100) {
             break;
         }
 
         // Inace, stampamo red iz rezultata
-        printf("|%-5d|%-6s|%-30.30s|%-4hd|%-4hd|%-30.30s|%-50.50s|\n", id_stud_programa, oznaka, naziv, id_nivoa, bodovi, zvanje, (ind_opis < 0) ? "NULL" : opis.tekst);
+        printf("|%-5d|%-6s|%-30.30s|%-4hd|%-4hd|%-30.30s|%-50.50s|\n", 
+               hStudyProgramId, hStudyProgramLabel, hStudyProgramName, hDegreeLevelId, hESPB, 
+               hStudyProgramTitle, (hIndStudyProgramDesc < 0) ? "NULL" : hStudyProgramDesc.data);
         printf("|-----+------+------------------------------+----+----+------------------------------+--------------------------------------------------+\n");
     }
 
     // Zatvaramo kursor
-    EXEC SQL CLOSE c_studijskiprogram;
-    is_error("Close cursor c_studijskiprogram");
+    EXEC SQL CLOSE cStudyPrograms;
+    checkSQL("Close cursor cStudyPrograms");
 
     // Raskidamo konekciju sa bazom podataka
     EXEC SQL CONNECT RESET;
-    is_error("Connect reset");
+    checkSQL("Connect reset");
     
     return 0;
 }

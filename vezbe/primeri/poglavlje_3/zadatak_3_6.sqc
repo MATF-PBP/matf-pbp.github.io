@@ -4,16 +4,15 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-short suma; 
-sqlint32 id_stud_programa;
-sqlint32 indeks;
-char datum[11];
+short hSumESPB; 
+sqlint32 hStudyProgramId;
+sqlint32 hIndex;
+
+char hLastExamDate[11];
 EXEC SQL END DECLARE SECTION;
 
-void is_error(const char *str)
-{
-    if(SQLCODE < 0)
-    {
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
         fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
 
         EXEC SQL CONNECT RESET;
@@ -21,29 +20,29 @@ void is_error(const char *str)
     }
 }
 
-void deklarisi_najvise_polozenih();
-void deklarisi_poslednje_ispite();
-void obradi_smerove();
-void azuriraj_napomene_za_ispite();
+void declareMaxSumESPBCursor();
+void declareLastExamsCursor();
+void iterOverMaxSumESPBCursor();
+void iterOverLastExamsCursor();
 
 int main() {
     EXEC SQL CONNECT TO stud2020 USER student USING abcdef;  
-    is_error("Konekcija na bazu");
+    checkSQL("Konekcija na bazu");
     
-    deklarisi_najvise_polozenih();
-    deklarisi_poslednje_ispite();    
+    declareMaxSumESPBCursor();
+    declareLastExamsCursor();    
     
-    obradi_smerove();
+    iterOverMaxSumESPBCursor();
 
     EXEC SQL CONNECT RESET;
-    is_error("Diskonekcija sa baze");
+    checkSQL("Diskonekcija sa baze");
     
     return 0;
 }
 
-void deklarisi_najvise_polozenih() {
+void declareMaxSumESPBCursor() {
     EXEC SQL 
-        DECLARE najvisePolozenih CURSOR FOR 
+        DECLARE cMaxSumESPB CURSOR FOR 
         WITH POMOCNA AS (
             SELECT      D.IDPROGRAMA, 
                         D.INDEKS, 
@@ -67,15 +66,15 @@ void deklarisi_najvise_polozenih() {
                         WHERE   POM1.IDPROGRAMA = POM.IDPROGRAMA
                     )
         ORDER BY    IDPROGRAMA;
-    is_error("Deklaracija kursora - najvisePolozenih");
+    checkSQL("Deklaracija kursora - cMaxSumESPB");
 }
 
-void deklarisi_poslednje_ispite() {
+void declareLastExamsCursor() {
     EXEC SQL 
-        DECLARE poslednji_ispit CURSOR FOR 
+        DECLARE cLastExams CURSOR FOR 
         WITH POMOCNA AS (
             SELECT      I.INDEKS, 
-                        MAX(DATPOLAGANJA) DATUM_PRVOG
+                        MAX(DATPOLAGANJA) DATUMPOSLEDNJEG
             FROM        DA.ISPIT I JOIN
                         DA.DOSIJE D ON D.INDEKS = I.INDEKS
             WHERE       OCENA > 5 AND
@@ -85,54 +84,54 @@ void deklarisi_poslednje_ispite() {
         )
         SELECT  I.INDEKS
         FROM    DA.ISPIT I
-        WHERE   I.INDEKS = :indeks AND
+        WHERE   I.INDEKS = :hIndex AND
                 EXISTS (
                     SELECT  * 
                     FROM    POMOCNA PO 
                     WHERE   PO.INDEKS = I.INDEKS AND
-                            PO.DATUM_PRVOG = DATPOLAGANJA
+                            PO.DATUMPOSLEDNJEG = DATPOLAGANJA
                 )
         FOR     UPDATE OF NAPOMENA;
-    is_error("Deklaracija kursora - poslednji_ispit");
+    checkSQL("Deklaracija kursora - cLastExams");
 }
 
-void obradi_smerove() {
-    EXEC SQL OPEN najvisePolozenih;
-    is_error("Otvaranje kursora - najvisePolozenih");
+void iterOverMaxSumESPBCursor() {
+    EXEC SQL OPEN cMaxSumESPB;
+    checkSQL("Otvaranje kursora - cMaxSumESPB");
 
     for(;;) {
         EXEC SQL 
-            FETCH   najvisePolozenih                
-            INTO    :suma, 
-                    :indeks, 
-                    :id_stud_programa;
-        is_error("Dohvatanje podataka iz kursora - najvisePolozenih");
+            FETCH   cMaxSumESPB                
+            INTO    :hSumESPB, 
+                    :hIndex, 
+                    :hStudyProgramId;
+        checkSQL("Dohvatanje podataka iz kursora - cMaxSumESPB");
 
         if(SQLCODE == 100) {
             break;
         }
         
         // Stampamo informaciju o studentu koji ima najvise kredita na smeru
-        printf("Student sa brojem indeksa %d na smeru %d ima polozeno %d bodova!\n", 
-            indeks, id_stud_programa, suma);
+        printf("Student sa brojem hIndexa %d na smeru %d ima polozeno %d bodova!\n", 
+               hIndex, hStudyProgramId, hSumESPB);
         
-        azuriraj_napomene_za_ispite();
+        iterOverLastExamsCursor();
     }
 
-    EXEC SQL CLOSE najvisePolozenih;
-    is_error("Zatvaranje kursora - najvisePolozenih");
+    EXEC SQL CLOSE cMaxSumESPB;
+    checkSQL("Zatvaranje kursora - cMaxSumESPB");
 }
 
-void azuriraj_napomene_za_ispite() {
-    EXEC SQL OPEN poslednji_ispit;
-    is_error("Otvaranje kursora - poslednji_ispit");
+void iterOverLastExamsCursor() {
+    EXEC SQL OPEN cLastExams;
+    checkSQL("Otvaranje kursora - cLastExams");
     
     for(;;) {
         EXEC SQL 
-            FETCH   poslednji_ispit
-            INTO    :indeks, 
-                    :datum;
-        is_error("Dohvatanje podataka iz kursora - poslednji_ispit");
+            FETCH   cLastExams
+            INTO    :hIndex, 
+                    :hLastExamDate;
+        checkSQL("Dohvatanje podataka iz kursora - cLastExams");
 
         if(SQLCODE == 100) {
             break;
@@ -142,10 +141,10 @@ void azuriraj_napomene_za_ispite() {
         EXEC SQL 
             UPDATE  DA.ISPIT
             SET     NAPOMENA = 'Ovo je student koji ima najvise polozenih kredita na svom smeru'
-            WHERE   CURRENT OF poslednji_ispit;
-        is_error("Update ISPIT");
+            WHERE   CURRENT OF cLastExams;
+        checkSQL("Update ISPIT");
     }
     
-    EXEC SQL CLOSE poslednji_ispit;
-    is_error("Zatvaranje kursora - poslednji_ispit");
+    EXEC SQL CLOSE cLastExams;
+    checkSQL("Zatvaranje kursora - cLastExams");
 }
