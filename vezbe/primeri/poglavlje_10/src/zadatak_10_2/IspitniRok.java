@@ -7,7 +7,7 @@ import javax.persistence.Table;
 
 @Entity
 // Anotacija @Table je neophodna jer se ime klase i ime tabele razlikuju.
-@Table(name = "ISPITNI_ROK")
+@Table(name = "DA.ISPITNIROK")
 class IspitniRok {
     // Za primarni kljuc koristimo instancu klase IspitniRokId,
     // s obzirom da ova tabela ima slozeni kljuc.
@@ -21,14 +21,11 @@ class IspitniRok {
     @Column(name = "NAZIV", nullable = false)
     private String Naziv;
 
-    @Column(name = "POCETAK_PRIJAVLJIVANJA", nullable = false)
+    @Column(name = "DATPOCETKA", nullable = false)
     private String Pocetak;
 
-    @Column(name = "KRAJ_PRIJAVLJIVANJA", nullable = false)
+    @Column(name = "DATKRAJA", nullable = false)
     private String Kraj;
-
-    @Column(name = "TIP", nullable = false)
-    private String Tip = "B";
 
     // Autogenerisani Get/Set metodi
 
@@ -62,20 +59,6 @@ class IspitniRok {
 
     public void setKraj(String kraj) {
         Kraj = kraj;
-    }
-
-    public String getTip() {
-        return Tip;
-    }
-
-    // Zelimo da podrzimo automatsko biranje tipa
-    // ukoliko korisnik prosledi null.
-    public void setTip(String tip) {
-        if (tip == null) {
-            Tip = "B";
-            return;
-        }
-        Tip = tip;
     }
 
 }

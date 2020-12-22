@@ -8,14 +8,14 @@ import javax.persistence.Table;
 // Svaki trajni objekat mora biti dekorisan anotacijom @Entity. 
 // Anotacija @Table nije neophodna jer se ime klase i ime tabele ne razlikuju.
 @Entity
-@Table(name = "SMER")
-class Smer {
+@Table(name = "DA.STUDIJSKIPROGRAM")
+class StudijskiProgram {
     // Anotacija @Id znaci da svojstvo koje ono dekorise
     // predstavlja jedinstveni identifikator instance objekta (tj. primarni
     // kljuc).
     // Ime polja i ime kolone u bazi je isto u ovom slucaju.
     @Id
-    private int id_smera;
+    private int id;
 
     // Za svojstvo Oznaka, ime kolone u bazi podataka je "oznaka",
     // pa je dodatno ime kolone naglaseno kroz svojstvo name anotacije @Column.
@@ -27,13 +27,10 @@ class Smer {
     @Column(name = "NAZIV", nullable = false)
     private String Naziv;
 
-    @Column(name = "SEMESTARA", nullable = false)
-    private Integer Semestara;
+    @Column(name = "OBIMESPB", nullable = false)
+    private Integer Espb;
 
-    @Column(name = "BODOVI", nullable = false)
-    private Integer Bodovi;
-
-    @Column(name = "ID_NIVOA", nullable = false)
+    @Column(name = "IDNIVOA", nullable = false)
     private Integer Nivo;
 
     @Column(name = "ZVANJE", nullable = false)
@@ -43,16 +40,15 @@ class Smer {
     private String Opis;
 
 
-    public Smer() {
+    public StudijskiProgram() {
 	}
     
-    public Smer(int id_smera, String oznaka, String naziv, Integer semestara, Integer bodovi, Integer nivo,
+    public StudijskiProgram(int id, String oznaka, String naziv, Integer espb, Integer nivo,
 			String zvanje, String opis) {
-		this.id_smera = id_smera;
+		this.id = id;
 		Oznaka = oznaka;
 		Naziv = naziv;
-		Semestara = semestara;
-		Bodovi = bodovi;
+		Espb = espb;
 		Nivo = nivo;
 		Zvanje = zvanje;
 		Opis = opis;
@@ -65,12 +61,12 @@ class Smer {
     // 3. Select All
     // 4. OK
 
-    public int getId_smera() {
-        return id_smera;
+    public int getId() {
+        return id;
     }
 
-	public void setId_smera(int id_smera) {
-        this.id_smera = id_smera;
+	public void setId(int id) {
+        this.id = id;
     }
 
     public String getOznaka() {
@@ -89,20 +85,12 @@ class Smer {
         Naziv = naziv;
     }
 
-    public Integer getSemestara() {
-        return Semestara;
+    public Integer getEspb() {
+        return Espb;
     }
 
-    public void setSemestara(Integer semestara) {
-        Semestara = semestara;
-    }
-
-    public Integer getBodovi() {
-        return Bodovi;
-    }
-
-    public void setBodovi(Integer bodovi) {
-        Bodovi = bodovi;
+    public void setEspb(Integer espb) {
+        Espb = espb;
     }
 
     public Integer getNivo() {
@@ -131,8 +119,8 @@ class Smer {
 
 	@Override
 	public String toString() {
-		return "Smer [id_smera=" + id_smera + ", Oznaka=" + Oznaka + ", Naziv=" + Naziv + ", Semestara=" + Semestara
-				+ ", Bodovi=" + Bodovi + ", Nivo=" + Nivo + ", Zvanje=" + Zvanje + ", Opis=" + Opis + "]";
+		return "Studijski program [id=" + id + ", Oznaka=" + Oznaka + ", Naziv=" + Naziv
+				+ ", Espb=" + Espb + ", Nivo=" + Nivo + ", Zvanje=" + Zvanje + ", Opis=" + Opis + "]";
 	}
 
     

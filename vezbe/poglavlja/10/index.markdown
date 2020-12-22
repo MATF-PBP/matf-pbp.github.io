@@ -45,36 +45,35 @@ klasa sa (gotovo) svakim zahtevom, i same klase će biti proširivane kako bi za
 zahteve.
 
 Cilj ovog poglavlja jeste razvoj aplikacije koja ispunjava naredne zahteve (svi zahtevi se
-implementiraju nad poznatom bazom podataka `VSTUD`):
+implementiraju nad poznatom bazom podataka `STUD2020`):
 
-1. Unos podataka o novom smeru u tabelu `SMER` sa narednim podacima:
+1. Unos podataka o novom studijskom programu u tabelu `STUDIJSKIPROGRAM` sa narednim podacima:
 
 | Kolona | Vrednost |
 | --- | --- |
-| Identifikator | 300 |
-| Oznaka | MATF_2019 |
-| Naziv | Novi MATF smer u 2019. godini |
-| Broj semestara | 8 | 
-| Broj bodova  | 240 | 
+| Identifikator | 102 |
+| Oznaka | MATF_2020 |
+| Naziv | Novi MATF studijski program u 2020. godini |
+| ESPB  | 240 | 
 | Zvanje |  Diplomirani informaticar | 
-| Opis  | Novi smer na Matematickom fakultetu | 
+| Opis  | Novi studijski program na Matematickom fakultetu | 
 
 {:start="2"}
-2. Čitanje podataka o prethodno unetom smeru iz tabele `SMER`.
-3. Ažuriranje podataka o prethodno unetom smeru iz tabele `SMER`. 
-4. Brisanje podataka o prethodno unetom smeru iz tabele `SMER`.
-5. Unos podataka o novom ispitnom roku (jun 2019. godine) u tabelu `ISPITNI_ROK`.
-6. Brisanje podataka o prethodno unetom ispitnom roku iz tabele `ISPITNI_ROK`.
-7. Ispisivanje podataka o svim ispitnim rokovima.
-8. Ispisivanje podataka o ispitnom roku čija se oznaka roka i godina roka unose sa standarnog ulaza.
-9. Ispisivanje naziva svih smerova. Nakon svakog naziva smera, ispisuju se indeks, ime i prezime svih studenata na tom smeru. Dopuniti ispis o studentu tako da se za svakog studenta ispisuje i prosek.
-10. Za zadati indeks studenta ispisati nazive svih položenih predmeta i dobijene ocene. Implementirati dva metoda — jedan koji ne koristi Hibernate JPA Criteria API i drugi koji ga koristi.
+1. Čitanje podataka o prethodno unetom studijskom programu iz tabele `STUDIJSKIPROGRAM`.
+2. Ažuriranje podataka o prethodno unetom studijskom programu iz tabele `STUDIJSKIPROGRAM`. 
+3. Brisanje podataka o prethodno unetom studijskom programu iz tabele `STUDIJSKIPROGRAM`.
+4. Unos podataka o novom ispitnom roku (jun 2020. godine) u tabelu `ISPITNIROK`.
+5. Brisanje podataka o prethodno unetom ispitnom roku iz tabele `ISPITNIROK`.
+6. Ispisivanje podataka o svim ispitnim rokovima.
+7. Ispisivanje podataka o ispitnom roku čija se oznaka roka i godina roka unose sa standarnog ulaza.
+8. Ispisivanje naziva svih studijskih programa. Nakon svakog naziva studijskog programa, ispisuju se indeks, ime i prezime svih studenata na tom studijskom programu. Dopuniti ispis o studentu tako da se za svakog studenta ispisuje i prosek.
+9.  Za zadati indeks studenta ispisati nazive svih položenih predmeta i dobijene ocene. Implementirati dva metoda — jedan koji ne koristi Hibernate JPA Criteria API i drugi koji ga koristi.
 
 Takođe, omogućiti da obrada svakog zahteva predstavlja zasebnu transakciju.
 
 ## 10.1 Podešavanje Hibernate projekta
 
-Hibernate biblioteka se veoma jednostavno instalira. Sa veze [https://hibernate.org/orm/](https://hibernate.org/orm/) potrebno je preuzeti odgovaraju\'cu verziju biblioteke. Mi \'cemo raditi sa poslednjom stabilnom verzijom, a to je verzija 5.4 koja se mo\v ze preuzeti klikom na dugme _Download Zip archive_ sa [ove veze](https://hibernate.org/orm/releases/5.4/). Preuzetu arhivu je potrebno otpakovati na neku lokaciju. Na virtualnoj ma\v sini "Baze podataka 2019", ta lokacija je `/opt/hibernate-5.4.10/`. Dodatno, Java projekat koji budemo kreirali mora da sadr\v zi informaciju i o implementaciji JDBC drajvera za DB2. Pode\v savanje Java projekta sa podr\v skom za razvoj Hibernate aplikacija se vr\v si narednim koracima:
+Hibernate biblioteka se veoma jednostavno instalira. Sa veze [https://hibernate.org/orm/](https://hibernate.org/orm/) potrebno je preuzeti odgovaraju\'cu verziju biblioteke. Mi \'cemo raditi sa poslednjom stabilnom verzijom, a to je verzija 5.4 koja se mo\v ze preuzeti klikom na dugme _Download Zip archive_ sa [ove veze](https://hibernate.org/orm/releases/5.4/). Preuzetu arhivu je potrebno otpakovati na neku lokaciju. Na virtualnoj ma\v sini "BazePodataka2020", ta lokacija je `/opt/hibernate-5.4.22/`. Dodatno, Java projekat koji budemo kreirali mora da sadr\v zi informaciju i o implementaciji JDBC drajvera za DB2. Pode\v savanje Java projekta sa podr\v skom za razvoj Hibernate aplikacija se vr\v si narednim koracima:
 
 1. Otvoriti IBM Data Studio.
 2. Iz glavnog menija odabrati _Window_ -> _Perspective_ -> _Open Perspective_ -> _Other_ -> _Java_ -> _OK_
@@ -144,7 +143,7 @@ the same information represented as name/value pairs in a text file titled `hibe
 ```
 hibernate.connection.driver_class = com.ibm.db2.jcc.DB2Driver
 hibernate.dialect = org.hibernate.dialect.DB2Dialect
-hibernate.connection.url = jdbc:db2://localhost:50001/VSTUD
+hibernate.connection.url = jdbc:db2://localhost:50000/STUD2020
 hibernate.connection.username = student
 hibernate.connection.password = abcdef
 ```
@@ -186,7 +185,7 @@ Configure the metadata sources as follows:
 
 ```java
 MetadataSources metadataSources = new MetadataSources(serviceRegistry);
-metadataSources.addAnnotatedClass(Smer.class);
+metadataSources.addAnnotatedClass(StudijskiProgram.class);
 MetadataBuilder metadataBuilder = metadataSources.getMetadataBuilder();
 ```
 
@@ -215,43 +214,41 @@ name, make sure you pass that as an argument — like `configure("my-hib-cfg.xml
 
 {% include lab/exercise.html broj="10.1" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate redom: \n
 \n
-1. unosi podatak o novom smeru u tabeli `SMER` sa podacima iz naredne tabele,\n
-2. čita podatke o smeru sa identifikatorom `300` iz tabele `SMER`,\n
-3. ažurira podatke o smeru sa identifikatorom `300` iz tabele `SMER`,\n
-4. čita podatke o smeru sa identifikatorom `300` iz tabele `SMER`, \n
-5. briše podatke o smeru sa identifikatorom `300` iz tabele `SMER`,\n
-6. čita podatke o smeru sa identifikatorom `300` iz tabele `SMER`." %}
+1. unosi podatak o novom studijskom programu u tabeli `STUDIJSKIPROGRAM` sa podacima iz naredne tabele,\n
+2. čita podatke o studijskom programu sa identifikatorom `102` iz tabele `STUDIJSKIPROGRAM`,\n
+3. ažurira podatke o studijskom programu sa identifikatorom `102` iz tabele `STUDIJSKIPROGRAM`,\n
+4. čita podatke o studijskom programu sa identifikatorom `102` iz tabele `STUDIJSKIPROGRAM`, \n
+5. briše podatke o studijskom programu sa identifikatorom `102` iz tabele `STUDIJSKIPROGRAM`,\n
+6. čita podatke o studijskom programu sa identifikatorom `102` iz tabele `STUDIJSKIPROGRAM`." %}
 
 | Kolona | Vrednost |
 | --- | --- |
-| Identifikator | 300 |
-| Oznaka | MATF_2019 |
-| Naziv | Novi MATF smer u 2019. godini |
-| Broj semestara | 8 | 
-| Broj bodova  | 240 | 
+| Identifikator | 102 |
+| Oznaka | MATF_2020 |
+| Naziv | Novi MATF studijski program u 2020. godini |
+| ESPB  | 240 | 
 | Zvanje |  Diplomirani informaticar | 
-| Opis  | Novi smer na Matematickom fakultetu | 
+| Opis  | Novi studijski program na Matematickom fakultetu | 
 
-Re\v senje: Da bismo rešili ovaj zadatak, potrebno je da kreiramo klasu `Smer` i da joj dodamo svojstva koja odgovaraju kolonama u tabeli `SMER`:
+Re\v senje: Da bismo rešili ovaj zadatak, potrebno je da kreiramo klasu `StudijskiProgram` i da joj dodamo svojstva koja odgovaraju kolonama u tabeli `STUDIJSKIPROGRAM`:
 
 ```java
 package zadatak_10_1;
 
-class Smer {
-    private int id_smera;
+class StudijskiProgram {
+    private int id;
     private String Oznaka;
     private String Naziv;
-    private int Semestara;
-    private int Bodovi;
+    private int ESPB;
     private Integer Nivo;
     private String Zvanje;
     private String Opis;
 }
 ```
 
-Primetimo da je klasa `Smer` definisana na nivou vidljivosti paketa. Za ovo smo se opredelili zbog toga \v sto \'ce implementacija svakog novog zahteva zahtevati novi paket u projektu `poglavlje_10`. Trenutne klase koje smo napisali - `HibernateUtil` i `Smer` - \v cuvaju se u paketu `zadatak_10_1` i va\v ze samo za njega, tako da nema potrebe da budu javne vidljivosti.
+Primetimo da je klasa `StudijskiProgram` definisana na nivou vidljivosti paketa. Za ovo smo se opredelili zbog toga \v sto \'ce implementacija svakog novog zahteva zahtevati novi paket u projektu `poglavlje_10`. Trenutne klase koje smo napisali - `HibernateUtil` i `StudijskiProgram` - \v cuvaju se u paketu `zadatak_10_1` i va\v ze samo za njega, tako da nema potrebe da budu javne vidljivosti.
 
-Sada je potrebno da definišemo objektno-relaciono preslikavanje između klase `Smer` i tabele `SMER` u bazi podataka.
+Sada je potrebno da definišemo objektno-relaciono preslikavanje između klase `StudijskiProgram` i tabele `STUDIJSKIPROGRAM` u bazi podataka.
 
 U Hibernate radnom okviru je moguće korišćenje dva pristupa za definisanje preslikavanja:
 
@@ -263,23 +260,23 @@ Mi ćemo u daljem tekstu koristiti pristup zasnovan na Java anotacijama.
 
 Hibernate uses the Java Persistence API (JPA) annotations. JPA is the standard specification dictating the persistence of Java objects. So the preceding annotations are imported from the `javax.persistence` package.
 
-Each persistent object is tagged (at a class level) with an `@Entity` annotation. The `@Table` annotation declares our database table where these entities will be stored. Ideally, we should not have to provide the `@Table` annotation if the name of the class and the table name are the same (in our example, the class is `Smer`, whereas the table name is `SMER`, which is fine):
+Each persistent object is tagged (at a class level) with an `@Entity` annotation. The `@Table` annotation declares our database table where these entities will be stored. Ideally, we should not have to provide the `@Table` annotation if the name of the class and the table name are the same (in our example, the class is `StudijskiProgram`, whereas the table name is `STUDIJSKIPROGRAM`, which is fine):
 
 ```java
 @Entity
-@Table(name = "SMER")
-class Smer {
+@Table(name = "STUDIJSKIPROGRAM")
+class StudijskiProgram {
     ...
 ```
 
-Sada je potrebno da definišemo preslikavanje kolona. All persistent entities must have their identifiers defined. The `@Id` annotation indicates that the variable is the unique identifier of the object instance (in other words, a primary key). When we annotate the id_smera variable with the `@Id` annotation, as in the preceding example, Hibernate maps a field called `id_smera` from our table `Smer` to the `id_smera` variable on the `Smer` class:
+Sada je potrebno da definišemo preslikavanje kolona. All persistent entities must have their identifiers defined. The `@Id` annotation indicates that the variable is the unique identifier of the object instance (in other words, a primary key). When we annotate the id variable with the `@Id` annotation, as in the preceding example, Hibernate maps a field called `id` from our table `StudijskiProgram` to the `id` variable on the `StudijskiProgram` class:
 
 ```java
 @Entity
-@Table(name = "SMER")
-class Smer {
+@Table(name = "STUDIJSKIPROGRAM")
+class StudijskiProgram {
     @Id
-    private int id_smera;
+    private int id;
     ...
 ```
 
@@ -287,10 +284,10 @@ If your variable doesn’t match the column name, you must specify the column na
 
 ```java
 @Entity
-@Table(name = "SMER")
-class Smer {
+@Table(name = "STUDIJSKIPROGRAM")
+class StudijskiProgram {
     @Id
-    private int id_smera;
+    private int id;
 
     @Column(name = "oznaka", nullable = false)
     private String Oznaka;
@@ -298,13 +295,10 @@ class Smer {
     @Column(name = "naziv", nullable = false)
     private String Naziv;
 
-    @Column(name = "semestara", nullable = false)
-    private Integer Semestara;
+    @Column(name = "obimespb", nullable = false)
+    private Integer ESPB;
 
-    @Column(name = "bodovi", nullable = false)
-    private Integer Bodovi;
-
-    @Column(name = "id_nivoa", nullable = false)
+    @Column(name = "idnivoa", nullable = false)
     private Integer Nivo;
 
     @Column(name = "zvanje", nullable = false)
@@ -321,13 +315,13 @@ Takođe, s obzirom da su ova svojstva deklarisana modifikatorom `private`, potre
 
 Ovim će nam biti generisane odgovarajuće metode. Možete istražiti sve mogućnosti ove opcije, kao što su generisanje samo postavljačkih ili dohvatačkih metoda, generisanje metoda samo za neka svojstva i drugo.
 
-Cela implementacija klase `Smer` data je u nastavku.
+Cela implementacija klase `StudijskiProgram` data je u nastavku.
 
-include_source(vezbe/primeri/poglavlje_10/src/zadatak_10_1/Smer.java, java)
+include_source(vezbe/primeri/poglavlje_10/src/zadatak_10_1/StudijskiProgram.java, java)
 
 ## 10.5 Unos jednog sloga
 
-Napišimo sada i klasu `Main` koja će sadržati statički metod `main` u kojem ćemo testirati rad naše aplikacije. Trenutno, metod `main` će uraditi dve stvari: prva je pozivanje statičke funkcije za unos novog smera, a druga je zatvaranje fabrike sesija:
+Napišimo sada i klasu `Main` koja će sadržati statički metod `main` u kojem ćemo testirati rad naše aplikacije. Trenutno, metod `main` će uraditi dve stvari: prva je pozivanje statičke funkcije za unos novog studijskog programa, a druga je zatvaranje fabrike sesija:
 
 ```java
 package zadatak_10_1;
@@ -340,7 +334,7 @@ class Main {
     public static void main(String[] args) {
         System.out.println("Pocetak rada...\n");
         
-        insertSmer();
+        insertStudijskiProgram();
         
         System.out.println("Zavrsetak rada.\n");
         
@@ -351,28 +345,27 @@ class Main {
     ...
 ```
 
-Sada prelazimo na implementaciju metoda `insertSmer` koji treba da unese novi red u tabelu `Smer`. 
+Sada prelazimo na implementaciju metoda `insertStudijskiProgram` koji treba da unese novi red u tabelu `StudijskiProgram`. 
 
 Sve akcije nad bazom podataka se izvršavaju u okviru tzv. _sesija_ (engl. _session_). Da bismo mogli da radimo sa bazom podataka, potrebno je da otvorimo novu sesiju, što nam je omogućeno metodom `openSession` iz klase `SessionFactory`.
 
-Sledeći korak jeste kreiranje objekta klase `Smer` i postavljanje odgovarajućih vrednosti. Na ovaj način smo podatke smestili u memoriju računara. Ono što je potrebno uraditi da bi se oni trajno skladi\v stili u bazu podataka jeste pozvati metod `save` nad objektom sesije (tj. instancom klase `Session` koju smo dobili pozivom `openSession`). Na kraju, potrebno je da zatvorimo sesiju. Kod bi mogao da izgleda kao u nastavku:
+Sledeći korak jeste kreiranje objekta klase `StudijskiProgram` i postavljanje odgovarajućih vrednosti. Na ovaj način smo podatke smestili u memoriju računara. Ono što je potrebno uraditi da bi se oni trajno skladi\v stili u bazu podataka jeste pozvati metod `save` nad objektom sesije (tj. instancom klase `Session` koju smo dobili pozivom `openSession`). Na kraju, potrebno je da zatvorimo sesiju. Kod bi mogao da izgleda kao u nastavku:
 
 ```java
-private static void insertSmer() {
+private static void insertStudijskiProgram() {
     Session session = HibernateUtil.getSessionFactory().openSession();
-    Smer smer = new Smer();
+    StudijskiProgram studijskiProgram = new StudijskiProgram();
     
-    smer.setId_smera(300);
-    smer.setOznaka("MATF_2019");
-    smer.setNaziv("Novi MATF smer u 2019. godini");
-    smer.setSemestara(8);
-    smer.setBodovi(240);
-    smer.setNivo(110);
-    smer.setZvanje("Diplomirani informaticar");
-    smer.setOpis("Novi smer na Matematickom fakultetu");
+    studijskiProgram.setId(102);
+    studijskiProgram.setOznaka("MATF_2020");
+    studijskiProgram.setNaziv("Novi MATF studijski program u 2020. godini");
+    studijskiProgram.setESPB(240);
+    studijskiProgram.setNivo(110);
+    studijskiProgram.setZvanje("Diplomirani informaticar");
+    studijskiProgram.setOpis("Novi studijski program na Matematickom fakultetu");
     
-    session.save(smer);
-    System.out.println("Smer je sacuvan");
+    session.save(studijskiProgram);
+    System.out.println("Studijski program je sacuvan");
     
     session.close();
 }
@@ -386,20 +379,20 @@ Napomenuli smo na početku poglavlja da aplikacija koju budemo kreirali mora da 
 
 ```java
 Session session = HibernateUtil.getSessionFactory().openSession();
-Smer smer = new Smer();
+StudijskiProgram studijskiProgram = new StudijskiProgram();
 
-// Postavljanje odgovarajucih vrednosti za smer ide ovde ...
+// Postavljanje odgovarajucih vrednosti za studijskiProgram ide ovde ...
 
 Transaction TR = null;
 try {
     TR = session.beginTransaction();
     
-    session.save(smer);
+    session.save(studijskiProgram);
     
     TR.commit();
-    System.out.println("Smer je sacuvan");
+    System.out.println("Studijski program je sacuvan");
 } catch (Exception e) {
-    System.out.println("Cuvanje smera nije uspelo! Transakcija se ponistava!");
+    System.out.println("Cuvanje studijskog programa nije uspelo! Transakcija se ponistava!");
     
     if (TR != null) {
         TR.rollback();
@@ -488,7 +481,7 @@ include_source(vezbe/primeri/poglavlje_10/src/zadatak_10_1/Main.java, java)
 
 ## 10.9 Složeni ključ
 
-Upravljanje tabelama koje imaju jednostavne primarne ključeve, kao što je to tabela `SMER`,
+Upravljanje tabelama koje imaju jednostavne primarne ključeve, kao što je to tabela `STUDIJSKIPROGRAM`,
 vrlo je jednostavno. Nešto složenije je rukovati tabelom čiji se primarni ključ sastoji od
 nekoliko kolona. Takvi primarni ključevi se nazivaju _složeni ključevi_ (engl. _compound primary key_).
 
@@ -662,7 +655,7 @@ public class IdClassBook {
 }
 ```
 
-{% include lab/exercise.html broj="10.3" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate implementira unos podataka o novom ispitnom roku (jun 2019. godine) u tabelu `ISPITNI_ROK`, a zatim briše podatke o unetom ispitnom roku iz tabele `ISPITNI_ROK`." %}
+{% include lab/exercise.html broj="10.3" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate implementira unos podataka o novom ispitnom roku (jun 2020. godine) u tabelu `ISPITNIROK`, a zatim briše podatke o unetom ispitnom roku iz tabele `ISPITNIROK`." %}
 
 Re\v senje: Potrebno je da prvo napravimo klasu
 koja će predstavljati složeni ključ. Nazovimo je `IspitniRokId`. U nastavku je data njena
@@ -700,25 +693,24 @@ include_source(vezbe/primeri/poglavlje_10/src/zadatak_10_2/Main.java, java)
 ## 10.10 Zadaci za vežbu
 
 {% include lab/exercise.html broj="10.4" tekst="Napisati Java aplikaciju koja kori\v s'cenjem biblioteke Hibernate redom:\n
-  1. Unosi podatak o novom novou kvalifikacije u tabelu `NIVO_KVALIFIKACIJE` sa podacima iz naredne tabele. \n
-  2. Ispisuje podatake o novou kvalifikacije sa identifikatorom `42` iz tabele `NIVO_KVALIFIKACIJE`.\n
-  3. Ažurira stepen za nivo kvalifikacije sa identifikatorom `42` iz tabele `NIVO_KVALIFIKACIJE`. Stepen postaviti na vrednost `III`. \n
-  4. Ispisuje podatake o novou kvalifikacije sa identifikatorom `42` iz tabele `NIVO_KVALIFIKACIJE`.\n
-  5. Briše podatake o novou kvalifikacije sa identifikatorom `42` iz tabele `NIVO_KVALIFIKACIJE`.\n
-  6. Ispisuje podatake o novou kvalifikacije sa identifikatorom `42` iz tabele `NIVO_KVALIFIKACIJE`.\n
+  1. Unosi podatak o novom novou kvalifikacije u tabelu `NIVOKVALIFIKACIJE` sa podacima iz naredne tabele. \n
+  2. Ispisuje podatake o novou kvalifikacije sa identifikatorom `42` iz tabele `NIVOKVALIFIKACIJE`.\n
+  3. Ažurira stepen za nivo kvalifikacije sa identifikatorom `42` iz tabele `NIVOKVALIFIKACIJE`. Naziv postaviti na vrednost `Novi nivo kvalifikacije`. \n
+  4. Ispisuje podatake o novou kvalifikacije sa identifikatorom `42` iz tabele `NIVOKVALIFIKACIJE`.\n
+  5. Briše podatake o novou kvalifikacije sa identifikatorom `42` iz tabele `NIVOKVALIFIKACIJE`.\n
+  6. Ispisuje podatake o novou kvalifikacije sa identifikatorom `42` iz tabele `NIVOKVALIFIKACIJE`.\n
 \n
 Svaki zahtev implementirati kao posebnu transakciju." %}
 
 | Kolona | Vrednost |
 | --- | --- |
 | Identifikator | 42 |
-| Naziv | Novi nivo kvalifikacije |
-| Stepen | II |
+| Naziv | Novi nivo |
 
 {% include lab/exercise.html broj="10.5" tekst="Napisati Java aplikaciju koja kori\v s'cenjem biblioteke Hibernate redom:\n
   1. Unosi podatak o novom predmetu u tabelu `PREDMET` sa identifikatorom predmeta `id` i ostalim podacima koji se unose sa standardnog ulaza.\n
   2. Ispisuje podatake o predmetu sa identifikatorom `id` iz tabele `PREDMET`.\n
-  3. Proverava da li korisnik želi da ažurira broj bodova za predmet sa identifikatorom `id` u tabeli `PREDMET`. Ukoliko korisnik odgovori potvrdno, izvršava odgovarajuće ažuriranje. Novi broj bodova unosi se sa standardnog ulaza.\n
+  3. Proverava da li korisnik želi da ažurira broj ESPB bodova za predmet sa identifikatorom `id` u tabeli `PREDMET`. Ukoliko korisnik odgovori potvrdno, izvršava odgovarajuće ažuriranje. Novi broj bodova unosi se sa standardnog ulaza.\n
   4. Ispisuje podatake o predmetu sa identifikatorom `id` iz tabele `PREDMET`.\n
   5. Briše podatake o predmetu sa identifikatorom `id` iz tabele `PREDMET`.\n
   6. Ispisuje podatake o predmetu sa identifikatorom `id` iz tabele `PREDMET`.
