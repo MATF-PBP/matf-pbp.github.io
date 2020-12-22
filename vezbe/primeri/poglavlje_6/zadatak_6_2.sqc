@@ -4,59 +4,59 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-sqlint32 id_predmeta;
-char oznaka[21], 
-     naziv[151];
-short espb;
+sqlint32 hCourseId;
+char hCourseLabel[21], 
+     hCourseName[151];
+short hCourseESPB;
 EXEC SQL END DECLARE SECTION;
 
 // Niz identifikatora predmeta obradjenih od strane ovog programa.
 // Ovde koristimo staticki niz radi ilustracije, ali broj predmeta nije poznat unapred, naravno,
 // pa bi korektnije resenje koristilo dinamicki inicijalizovan niz.
-sqlint32 obradjeni_predmeti[1000];
-size_t broj_obradjenih_predmeta = 0u;
+sqlint32 processedCoursesArr[1000];
+size_t processedCoursesArrSize = 0u;
 
 // Pomocne funkcije sa rad sa nizom identifikatora predmeta
-int predmet_je_obradjen(sqlint32 id);
-void oznaci_kao_obradjen(sqlint32 id);
+int isCourseProcessed(sqlint32 id);
+void setCourseAsProcessed(sqlint32 id);
 
 // Pomocne funkcije za obradu gresaka i cekanja na katance
-void is_error(const char *str);
-int wait_for_lock();
+void checkSQL(const char *str);
+int waitForLock();
 
 int main() {
     EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
-    is_error("Connect");
+    checkSQL("Connect");
     
     EXEC SQL SET CURRENT LOCK TIMEOUT 5;
-    is_error("Set current lock timeout 5");
+    checkSQL("Set current lock timeout 5");
     
     EXEC SQL 
-        DECLARE predmeti CURSOR WITH HOLD FOR 
+        DECLARE cCourses CURSOR WITH HOLD FOR 
         SELECT  ID, 
                 TRIM(OZNAKA), 
                 TRIM(NAZIV), 
                 ESPB
         FROM    DA.PREDMET
         FOR     UPDATE OF ESPB;
-    is_error("Declare predmeti");
+    checkSQL("Declare cCourses");
     
-    EXEC SQL OPEN predmeti;
-    is_error("Open predmeti");
+    EXEC SQL OPEN cCourses;
+    checkSQL("Open cCourses");
     
     printf("PREDMETI\n");
 
     for(;;) {
         EXEC SQL 
-            FETCH   predmeti 
-            INTO    :id_predmeta, 
-                    :oznaka, 
-                    :naziv, 
-                    :espb;
-        if (wait_for_lock()) {
+            FETCH   cCourses 
+            INTO    :hCourseId, 
+                    :hCourseLabel, 
+                    :hCourseName, 
+                    :hCourseESPB;
+        if (waitForLock()) {
             continue;
         }
-        is_error("Fetch predmeti");
+        checkSQL("Fetch cCourses");
 
         if (SQLCODE == 100) {
             printf("Nema vise predmeta za obradjivanje!\n");
@@ -65,68 +65,68 @@ int main() {
 
         // Provera da li je predmet vec obradjen 
         // od strane ove instance aplikacije
-        if (predmet_je_obradjen(id_predmeta)) {
+        if (isCourseProcessed(hCourseId)) {
             continue;
         }
         
         printf("\n---------------------------------------------------------------\n");
-        printf("%5.5d %-10.10s %-40.40s %5.5d", id_predmeta, oznaka, naziv, espb);
+        printf("%5.5d %-10.10s %-40.40s %5.5d", hCourseId, hCourseLabel, hCourseName, hCourseESPB);
         printf("\n---------------------------------------------------------------\n");
 
         printf("\nDa li zelite da uvecate broj ESPB za ovaj predmet za 1? [d/n] ");
-        char odgovor_od_korisnika = getchar();
+        char userResponse = getchar();
         getchar();  // novi red
 
-        if (odgovor_od_korisnika == 'd') {
+        if (userResponse == 'd') {
             // Azuriranje podataka zahteva katanac za menjanje podataka
             EXEC SQL 
                 UPDATE  DA.PREDMET
                 SET     ESPB = ESPB + 1
-                WHERE   CURRENT OF predmeti;
-            if (wait_for_lock()) {
+                WHERE   CURRENT OF cCourses;
+            if (waitForLock()) {
                 continue;
             }
-            is_error("Update");
+            checkSQL("Update");
 
             // Slicno kao i FETCH, naredba SELECT INTO zahteva katanac za citanje
             EXEC SQL 
                 SELECT  ESPB
-                INTO    :espb
+                INTO    :hCourseESPB
                 FROM    DA.PREDMET
-                WHERE   ID = :id_predmeta;
-            if (wait_for_lock()) {
+                WHERE   ID = :hCourseId;
+            if (waitForLock()) {
                 continue;
             }
-            is_error("Select into");
+            checkSQL("Select into");
 
-            printf("Broj ESPB je sada %hd\n", espb);
+            printf("Broj ESPB je sada %hd\n", hCourseESPB);
         }
 
         // Evidentiramo izmene u nizu namenjenim za to.
-        oznaci_kao_obradjen(id_predmeta);
+        setCourseAsProcessed(hCourseId);
         
         // Potvrdjivanje izmena u tekucoj transakciji
         EXEC SQL COMMIT;
-        is_error("Commit");
+        checkSQL("Commit");
     }
 
-    EXEC SQL CLOSE predmeti;
-    is_error("Close predmeti");
+    EXEC SQL CLOSE cCourses;
+    checkSQL("Close cCourses");
 
     // Vracamo istek vremena na podrazumevanu vrednost
     EXEC SQL SET CURRENT LOCK TIMEOUT NULL;
-    is_error("Set current lock timeout null");
+    checkSQL("Set current lock timeout null");
 
     EXEC SQL COMMIT;
-    is_error("Potvrdjivanje izmena");
+    checkSQL("Potvrdjivanje izmena");
 
     EXEC SQL CONNECT RESET;
-    is_error("Connect reset");
+    checkSQL("Connect reset");
 
     return 0;
 }
 
-void is_error(const char *str) {
+void checkSQL(const char *str) {
     if(SQLCODE < 0) {
         fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
 
@@ -137,31 +137,31 @@ void is_error(const char *str) {
     }
 }
 
-int wait_for_lock() {
+int waitForLock() {
     if (SQLCODE == -911 || SQLCODE == -913) {
         printf("Objekat je zakljucan od strane druge transakcije. "
             "Sacekati neko vreme...\n");
 
         EXEC SQL ROLLBACK;
-        is_error("Rollback");
+        checkSQL("Rollback");
 
-        EXEC SQL OPEN predmeti;    
-        is_error("Open predmeti - obrada cekanja");
+        EXEC SQL OPEN cCourses;    
+        checkSQL("Open cCourses - obrada cekanja");
 
         return 1;
     }
     return 0;
 }
 
-int predmet_je_obradjen(sqlint32 id) {
-    for (unsigned i = 0; i < broj_obradjenih_predmeta; ++i) {
-        if (obradjeni_predmeti[i] == id) {
+int isCourseProcessed(sqlint32 id) {
+    for (unsigned i = 0; i < processedCoursesArrSize; ++i) {
+        if (processedCoursesArr[i] == id) {
             return 1;
         }
     }
     return 0;
 }
 
-void oznaci_kao_obradjen(sqlint32 id) {
-    obradjeni_predmeti[broj_obradjenih_predmeta++] = id;
+void setCourseAsProcessed(sqlint32 id) {
+    processedCoursesArr[processedCoursesArrSize++] = id;
 }

@@ -4,13 +4,13 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-sqlint32 id_predmeta;
-char oznaka[11];
-char naziv[201];
-short espb;
+sqlint32 hCourseId;
+char hCourseLabel[11];
+char hCourseName[201];
+short hCourseESPB;
 EXEC SQL END DECLARE SECTION;
 
-void is_error(const char *str) {
+void checkSQL(const char *str) {
     if(SQLCODE < 0) {
         fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
 
@@ -23,52 +23,52 @@ void is_error(const char *str) {
 
 int main() {
     EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
-    is_error("Connect");
+    checkSQL("Connect");
     
     // Zakljucavamo tabelu PREDMET u privatnom rezimu
     EXEC SQL LOCK TABLE DA.PREDMET IN EXCLUSIVE MODE;
-    is_error("Lock table");
+    checkSQL("Lock table");
     
     EXEC SQL 
-        DECLARE c_predmeti CURSOR FOR 
+        DECLARE cCourses CURSOR FOR 
         SELECT  ID, 
                 OZNAKA, 
                 NAZIV, 
                 ESPB
         FROM    DA.PREDMET;
-    is_error("Declare cursor");
+    checkSQL("Declare cursor");
     
-    EXEC SQL OPEN c_predmeti;
-    is_error("Open cursor");
+    EXEC SQL OPEN cCourses;
+    checkSQL("Open cursor");
     
     for(;;) {
         EXEC SQL 
-            FETCH   c_predmeti
-            INTO    :id_predmeta, 
-                    :oznaka, 
-                    :naziv, 
-                    :espb;
-        is_error("Fetch cursor");
+            FETCH   cCourses
+            INTO    :hCourseId, 
+                    :hCourseLabel, 
+                    :hCourseName, 
+                    :hCourseESPB;
+        checkSQL("Fetch cursor");
     
         if (SQLCODE == 100)
         {
             break;
         }
 
-        printf("%4.4d %-10.10s %-30.30s %d\n", id_predmeta, oznaka, naziv, espb);
+        printf("%4.4d %-10.10s %-30.30s %d\n", hCourseId, hCourseLabel, hCourseName, hCourseESPB);
 
         printf("Pritisnite ENTER za dalje citanje\n");
         getchar();
     }
 
-    EXEC SQL CLOSE c_predmeti;
-    is_error("Close cursor");
+    EXEC SQL CLOSE cCourses;
+    checkSQL("Close cursor");
     
     EXEC SQL COMMIT;
-    is_error("Potvrdjivanje izmena");
+    checkSQL("Potvrdjivanje izmena");
 
     EXEC SQL CONNECT RESET;
-    is_error("Connect reset");
+    checkSQL("Connect reset");
     
     return 0;
 }

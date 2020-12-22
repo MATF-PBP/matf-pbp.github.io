@@ -4,17 +4,16 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-sqlint32 id_stud_programa;
-char naziv[201];
-sqlint32 indeks;
-char ime[21];
-char prezime[21];
+sqlint32 hStudyProgramId;
+char hStudyProgramName[201];
+
+sqlint32 hIndex;
+char hName[21];
+char hSurname[21];
 EXEC SQL END DECLARE SECTION;
 
-void is_error(const char *str)
-{
-    if(SQLCODE < 0)
-    {
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
         fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
 
         EXEC SQL CONNECT RESET;
@@ -22,26 +21,25 @@ void is_error(const char *str)
     }
 }
 
-int main()
-{
+int main() {
     EXEC SQL CONNECT TO stud2020 USER student USING abcdef;  
-    is_error("Konekcija na bazu");
+    checkSQL("Konekcija na bazu");
     
     EXEC SQL 
-        DECLARE studijskiprogrami CURSOR FOR 
+        DECLARE cStudyPrograms CURSOR FOR 
         SELECT      ID, 
                     NAZIV
         FROM        DA.STUDIJSKIPROGRAM
         ORDER BY    NAZIV;
-    is_error("Deklaracija kursora - studijskiprogrami");
+    checkSQL("Deklaracija kursora - cStudyPrograms");
     
     EXEC SQL 
-        DECLARE padaliIspit CURSOR FOR 
+        DECLARE cFailedExams CURSOR FOR 
         SELECT      INDEKS, 
                     IME, 
                     PREZIME
         FROM        DA.DOSIJE D 
-        WHERE       D.IDPROGRAMA = :id_stud_programa AND
+        WHERE       D.IDPROGRAMA = :hStudyProgramId AND
                     EXISTS (
                         SELECT  * 
                         FROM    DA.ISPIT
@@ -50,24 +48,22 @@ int main()
                                 STATUS = 'o'
                     )
         ORDER BY    INDEKS;
-    is_error("Deklaracija kursora - padaliIspit");
+    checkSQL("Deklaracija kursora - cFailedExams");
     
     /////////////////////////////////////
     // Pocetak obrade spoljasnjeg kursora
 
-    EXEC SQL OPEN studijskiprogrami;
-    is_error("Otvaranje kursora - studijskiprogrami");
+    EXEC SQL OPEN cStudyPrograms;
+    checkSQL("Otvaranje kursora - cStudyPrograms");
 
-    for(;;)
-    {
+    for(;;) {
         EXEC SQL 
-            FETCH   studijskiprogrami
-            INTO    :id_stud_programa, 
-                    :naziv;
-        is_error("Dohvatanje podataka iz kursora - studijskiprogrami");
+            FETCH   cStudyPrograms
+            INTO    :hStudyProgramId, 
+                    :hStudyProgramName;
+        checkSQL("Dohvatanje podataka iz kursora - cStudyPrograms");
 
-        if(SQLCODE == 100)
-        {
+        if(SQLCODE == 100) {
             break;
         }
         
@@ -75,47 +71,45 @@ int main()
         printf("\n********************************************************************************\n"
                "*Studenti sa studijskog programa %-4.4d: %-40.40s*\n"
                "********************************************************************************\n",
-               id_stud_programa, naziv);
+               hStudyProgramId, hStudyProgramName);
         
         /////////////////////////////////////
         // Pocetak obrade unutrasnjeg kursora
 
-        EXEC SQL OPEN padaliIspit;
-        is_error("Otvaranje kursora - padaliIspit");
+        EXEC SQL OPEN cFailedExams;
+        checkSQL("Otvaranje kursora - cFailedExams");
         
-        for(;;)
-        {
+        for(;;) {
             EXEC SQL 
-                FETCH   padaliIspit
-                INTO    :indeks, 
-                        :ime, 
-                        :prezime;
-            is_error("Dohvatanje podataka iz kursora - padaliIspit");
+                FETCH   cFailedExams
+                INTO    :hIndex, 
+                        :hName, 
+                        :hSurname;
+            checkSQL("Dohvatanje podataka iz kursora - cFailedExams");
 
-            if(SQLCODE == 100)
-            {
+            if(SQLCODE == 100) {
                 break;
             }
             
             // Stampamo informacije o studentu
-            printf("Student %s %s sa brojem indeksa %d\n", ime, prezime, indeks);    
+            printf("Student %s %s sa brojem hIndexa %d\n", hName, hSurname, hIndex);    
         }
         
-        EXEC SQL CLOSE padaliIspit;
-        is_error("Zatvaranje kursora - padaliIspit");
+        EXEC SQL CLOSE cFailedExams;
+        checkSQL("Zatvaranje kursora - cFailedExams");
         
         // Kraj obrade unutrasnjeg kursora
         //////////////////////////////////
     }
 
-    EXEC SQL CLOSE studijskiprogrami;
-    is_error("Zatvaranje kursora - studijskiprogrami");
+    EXEC SQL CLOSE cStudyPrograms;
+    checkSQL("Zatvaranje kursora - cStudyPrograms");
 
     // Kraj obrade spoljasnjeg kursora
     //////////////////////////////////
 
     EXEC SQL CONNECT RESET;
-    is_error("Connect reset");
+    checkSQL("Connect reset");
     
     return 0;
 }

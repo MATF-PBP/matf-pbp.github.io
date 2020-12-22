@@ -3,7 +3,7 @@
 
 EXEC SQL INCLUDE SQLCA;
 
-void is_error(const char *str) {
+void checkSQL(const char *str) {
     if(SQLCODE < 0) {
         fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
 
@@ -14,13 +14,13 @@ void is_error(const char *str) {
     }
 }
 
-int wait_for_lock(const char *code_hint) {
+int waitForLock(const char *code_hint) {
     if (SQLCODE == -911 || SQLCODE == -913) {
         printf("[%s] Objekat je zakljucan od strane druge transakcije. "
             "Sacekati neko vreme...\n", code_hint);
 
         EXEC SQL ROLLBACK;
-        is_error("Rollback");
+        checkSQL("Rollback");
 
         return 1;
     }
@@ -29,21 +29,21 @@ int wait_for_lock(const char *code_hint) {
 
 int main() {
     EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
-    is_error("Connect");
+    checkSQL("Connect");
     
     EXEC SQL SET CURRENT LOCK TIMEOUT 5;
-    is_error("Set timeout");
+    checkSQL("Set timeout");
     
     for (;;) {
         EXEC SQL 
             INSERT  INTO DA.ISPITNIROK
             VALUES  (2021, 'Mar21', 'Mart 2021', '03/01/2022', '03/11/2022');
             
-        if (wait_for_lock("INSERT")) {
+        if (waitForLock("INSERT")) {
             continue;
         }
         
-        is_error("Insert");
+        checkSQL("Insert");
         
         if (SQLCODE == 0) {
             break;
@@ -51,13 +51,13 @@ int main() {
     };
 
     EXEC SQL SET CURRENT LOCK TIMEOUT NULL;
-    is_error("Set timeout");
+    checkSQL("Set timeout");
     
     EXEC SQL COMMIT;
-    is_error("Potvrdjivanje izmena");
+    checkSQL("Potvrdjivanje izmena");
 
     EXEC SQL CONNECT RESET;
-    is_error("Connect reset");
+    checkSQL("Connect reset");
     
     return 0;
 }

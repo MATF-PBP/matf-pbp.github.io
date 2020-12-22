@@ -4,19 +4,17 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-sqlint32 indeks;
-char ime[51];
-char prezime[51];
-char mesto_rodjenja[51];
-short ind_mesto_rodjenja;
-char datum_diplomiranja[11];
-short ind_datum_diplomiranja;
+sqlint32 hIndex;
+char hName[51];
+char hSurname[51];
+char hBirthPlace[51];
+short hIndBirthPlace;
+char hGradDate[11];
+short hIndGradDate;
 EXEC SQL END DECLARE SECTION;
 
-void is_error(const char *str)
-{
-    if(SQLCODE < 0)
-    {
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
         fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
 
         EXEC SQL CONNECT RESET;
@@ -27,10 +25,10 @@ void is_error(const char *str)
 int main()
 {
     EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
-    is_error("Konekcija na bazu podataka");
+    checkSQL("Konekcija na bazu podataka");
 
-    printf("Unesite broj indeksa: ");
-    scanf("%d", &indeks);
+    printf("Unesite broj hIndexa: ");
+    scanf("%d", &hIndex);
 
     EXEC SQL 
         SELECT  INDEKS, 
@@ -38,29 +36,29 @@ int main()
                 PREZIME, 
                 MESTORODJENJA, 
                 DATDIPLOMIRANJA
-        INTO    :indeks, 
-                :ime, 
-                :prezime, 
-                :mesto_rodjenja :ind_mesto_rodjenja, 
-                :datum_diplomiranja :ind_datum_diplomiranja
+        INTO    :hIndex, 
+                :hName, 
+                :hSurname, 
+                :hBirthPlace :hIndBirthPlace, 
+                :hGradDate :hIndGradDate
         FROM    DA.DOSIJE
-        WHERE   INDEKS = :indeks;
-    is_error("Izdvajanje podatka o studentu sa ucitanim indeksom");
+        WHERE   INDEKS = :hIndex;
+    checkSQL("Izdvajanje podatka o studentu sa ucitanim indeksom");
 
     printf("+--------------+------------------------------+\n");
-    printf("|INDEKS        |%-30d|\n", indeks);
+    printf("|INDEKS        |%-30d|\n", hIndex);
     printf("|--------------|------------------------------|\n");
-    printf("|IME           |%-30s|\n", ime);
+    printf("|IME           |%-30s|\n", hName);
     printf("|--------------|------------------------------|\n");
-    printf("|PREZIME       |%-30s|\n", prezime);
+    printf("|PREZIME       |%-30s|\n", hSurname);
     printf("|--------------|------------------------------|\n");
-    printf("|MESTO RODJENJA|%-30s|\n", (ind_mesto_rodjenja < 0) ? "NULL" : mesto_rodjenja);
+    printf("|MESTO RODJENJA|%-30s|\n", (hIndBirthPlace < 0) ? "NULL" : hBirthPlace);
     printf("|--------------|------------------------------|\n");
-    printf("|DATUM DIPL.   |%-30s|\n", (ind_datum_diplomiranja < 0) ? "NULL" : datum_diplomiranja);
+    printf("|DATUM DIPL.   |%-30s|\n", (hIndGradDate < 0) ? "NULL" : hGradDate);
     printf("+--------------+------------------------------+\n");
 
     EXEC SQL CONNECT RESET;
-    is_error("Prekidanje konekcije sa bazom podataka");
+    checkSQL("Prekidanje konekcije sa bazom podataka");
 
     return 0;
 }

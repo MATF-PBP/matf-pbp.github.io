@@ -13,61 +13,69 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-char stmt[512];
+char hStatementString[512];
 EXEC SQL END DECLARE SECTION;
 
 // Deklarisemo SQLDA promenljive za opisivanje dinamickih naredbi
-struct sqlda *sqldaptr_output = NULL;
-struct sqlda *sqldaptr_input = NULL;
+struct sqlda *hInputSqldaPtr = NULL;
+struct sqlda *hOutputSqldaPtr = NULL;
 
 // Enumerator za tip DESCRIBE naredbe
-enum describe_type {
+enum DescribeType {
 	INPUT,
 	OUTPUT
 };
 
+//////////////////////////////////////////////
 // BEGIN funkcije za obradu dinamickih naredbi
+
 // Ucitavanje i pripremanje dinamicke naredbe 
-void unesi_i_pripremi_naredbu();
+void readAndPrepareStatement();
+
 // Dohvatanje informacija o ulaznim i izlaznim parametrima pripremljene naredbe
-void pripremi_sqlda(struct sqlda **sqldaptr, enum describe_type d_type);
+void prepareSqlda(struct sqlda **sqldaptr, enum DescribeType d_type);
+
 // Upravljanje memorijom za podatke
-void pripremi_podatke_za_izvrsavanje_naredbe();
-void alociraj_prostor_za_sqlda(struct sqlda *sqldaptr);
-void markiraj_prvih_i_SQLVAR_u_sqlda_za_oslobadjanje(struct sqlda *sqldaptr, int i);
-void oslobodi_sqlda();
+void prepareDataForExecutingStatement();
+void alocateSpaceForSqlda(struct sqlda *sqldaptr);
+void markFirstISqlvarsForDeletion(struct sqlda *sqldaptr, int i);
+void freeSqlda();
+
 // Ucitavanje ulaznih podataka
-void zatrazi_vrednosti_za_parametarske_oznake();
+void askForParameterMarkerValues();
+
 // Izvrsavanje naredbi
-void izvrsi_naredbu_na_osnovu_tipa();
-void izvrsi_ne_select_naredbu();
-void ispisi_podatke();
-double dohvati_double_iz_decimal(char *sqldata, short sqllen);
+void executeStatement();
+void executeNotSelectStatement();
+void executeSelectStatement();
+double getDoubleFromDecimal(char *sqldata, short sqllen);
+
 // END funkcije za obradu dinamickih naredbi
+////////////////////////////////////////////
 
 // Funkcije za obradu gresaka
-void is_error(const char *str, int linenum);
-void izadji_bez_uspeha_sa_oslobadjanjem_memorije();
+void checkSQL(const char *str, int linenum);
+void exitGracefully();
 
-// Makro koji poziva funkciju `is_error` za obradu greske,
+// Makro koji poziva funkciju `checkSQL` za obradu greske,
 // pri cemu ce proslediti liniju u fajlu gde je doslo do greske
-#define IS_ERROR_WITH_LINE(err) is_error(err, __LINE__)
+#define IS_ERROR_WITH_LINE(err) checkSQL(err, __LINE__)
 
 int main() {
     EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
     IS_ERROR_WITH_LINE("Connect");
     
-    unesi_i_pripremi_naredbu();    
-    pripremi_sqlda(&sqldaptr_input, INPUT);
-	pripremi_sqlda(&sqldaptr_output, OUTPUT);
-	pripremi_podatke_za_izvrsavanje_naredbe();
-    izvrsi_naredbu_na_osnovu_tipa();
+    readAndPrepareStatement();    
+    prepareSqlda(&hInputSqldaPtr, INPUT);
+	prepareSqlda(&hOutputSqldaPtr, OUTPUT);
+	prepareDataForExecutingStatement();
+    executeStatement();
     
     printf("\n##########################################################\n");
-    printf("%s", stmt);
+    printf("%s", hStatementString);
     printf("\n##########################################################\n");
     
-    oslobodi_sqlda();
+    freeSqlda();
 
     EXEC SQL COMMIT;
     IS_ERROR_WITH_LINE("Potvrdjivanje izmena");
@@ -78,27 +86,27 @@ int main() {
     return 0;
 }
 
-void unesi_i_pripremi_naredbu() {
-    printf("Unesite SQL naredbu do %d karaktera:\n", (int)(sizeof(stmt)));
+void readAndPrepareStatement() {
+    printf("Unesite SQL naredbu do %d karaktera:\n", (int)(sizeof(hStatementString)));
 
     char c;
     int broj_karaktera = 0;
-    while (broj_karaktera < sizeof(stmt)) {
+    while (broj_karaktera < sizeof(hStatementString)) {
         c = getchar();
         
         if (c == ';') {
             break;
         }
         
-        stmt[broj_karaktera] = c;
+        hStatementString[broj_karaktera] = c;
         ++broj_karaktera;
     }
     
-    EXEC SQL PREPARE PREPARED_STATEMENT FROM :stmt;
+    EXEC SQL PREPARE pStatement FROM :hStatementString;
     IS_ERROR_WITH_LINE("Prepare");
 }
 
-void pripremi_sqlda(struct sqlda **sqldaptr, enum describe_type d_type) {
+void prepareSqlda(struct sqlda **sqldaptr, enum DescribeType d_type) {
     // Ova funkcija koristi tehniku 2, koja sadrzi dva koraka,
     // za alokaciju najmanje potrebne memorije za SQLDA strukturu.
     
@@ -107,7 +115,7 @@ void pripremi_sqlda(struct sqlda **sqldaptr, enum describe_type d_type) {
     *sqldaptr = (struct sqlda*)malloc(SQLDASIZE(0));
     if(*sqldaptr == NULL) {
         fprintf(stderr, "Neuspesna alokacija SQLDA zaglavlja\n\n");
-        izadji_bez_uspeha_sa_oslobadjanjem_memorije();
+        exitGracefully();
     }
 
     // Postaviti velicinu SQLN na 0
@@ -115,14 +123,14 @@ void pripremi_sqlda(struct sqlda **sqldaptr, enum describe_type d_type) {
 
     // Izvrsiti prvi put naredbu DESCRIBE 
 	if (d_type == INPUT) {
-		EXEC SQL DESCRIBE INPUT PREPARED_STATEMENT 
+		EXEC SQL DESCRIBE INPUT pStatement 
 			INTO :**sqldaptr;
 	} else if (d_type == OUTPUT) {
-		EXEC SQL DESCRIBE OUTPUT PREPARED_STATEMENT 
+		EXEC SQL DESCRIBE OUTPUT pStatement 
 			INTO :**sqldaptr;
 	} else {
 		fprintf(stderr, "Nepoznat tip DESCRIBE naredbe\n\n");
-        izadji_bez_uspeha_sa_oslobadjanjem_memorije();
+        exitGracefully();
 	}
     IS_ERROR_WITH_LINE("Describe - Korak 1");
 
@@ -142,7 +150,7 @@ void pripremi_sqlda(struct sqlda **sqldaptr, enum describe_type d_type) {
         
         if(*sqldaptr == NULL) {
             fprintf(stderr, "Neuspesna alokacija SQLDA strukture\n\n");
-            izadji_bez_uspeha_sa_oslobadjanjem_memorije();    
+            exitGracefully();    
         }    
     }
 
@@ -151,26 +159,26 @@ void pripremi_sqlda(struct sqlda **sqldaptr, enum describe_type d_type) {
 
     // Izvrsavamo finalnu naredbu DESCRIBE OUTPUT
     if (d_type == INPUT) {
-		EXEC SQL DESCRIBE INPUT PREPARED_STATEMENT 
+		EXEC SQL DESCRIBE INPUT pStatement 
 			INTO :**sqldaptr;
 	} else if (d_type == OUTPUT) {
-		EXEC SQL DESCRIBE OUTPUT PREPARED_STATEMENT 
+		EXEC SQL DESCRIBE OUTPUT pStatement 
 			INTO :**sqldaptr;
 	} else {
 		fprintf(stderr, "Nepoznat tip DESCRIBE naredbe\n\n");
-        izadji_bez_uspeha_sa_oslobadjanjem_memorije();
+        exitGracefully();
 	}
 
     IS_ERROR_WITH_LINE("Describe - Korak 2");
 }
 
-void pripremi_podatke_za_izvrsavanje_naredbe() {
-	alociraj_prostor_za_sqlda(sqldaptr_input);
-    alociraj_prostor_za_sqlda(sqldaptr_output);
-	zatrazi_vrednosti_za_parametarske_oznake();
+void prepareDataForExecutingStatement() {
+	alocateSpaceForSqlda(hInputSqldaPtr);
+    alocateSpaceForSqlda(hOutputSqldaPtr);
+	askForParameterMarkerValues();
 }
 
-void alociraj_prostor_za_sqlda(struct sqlda *sqldaptr) {
+void alocateSpaceForSqlda(struct sqlda *sqldaptr) {
     int i = 0;
     short sqltype, sqllen;
     for( ; i < sqldaptr->sqld; ++i) {
@@ -239,8 +247,8 @@ void alociraj_prostor_za_sqlda(struct sqlda *sqldaptr) {
             printf("Neuspesna alokacija SQLVAR za kolonu %d\n", i);
             
             // Oslobadjamo sve alocirane prostore do sada
-            markiraj_prvih_i_SQLVAR_u_sqlda_za_oslobadjanje(sqldaptr, i);
-            izadji_bez_uspeha_sa_oslobadjanjem_memorije();
+            markFirstISqlvarsForDeletion(sqldaptr, i);
+            exitGracefully();
         }
         // Provera alokacije za indikatorsku promenljivu
         if (sqldaptr->sqlvar[i].sqlind == NULL) {
@@ -250,44 +258,44 @@ void alociraj_prostor_za_sqlda(struct sqlda *sqldaptr) {
             free(sqldaptr->sqlvar[i].sqldata);
             
             // Pa onda i sve prethodne 
-            markiraj_prvih_i_SQLVAR_u_sqlda_za_oslobadjanje(sqldaptr, i);
-            izadji_bez_uspeha_sa_oslobadjanjem_memorije();
+            markFirstISqlvarsForDeletion(sqldaptr, i);
+            exitGracefully();
         }
     }
 }
 
-void markiraj_prvih_i_SQLVAR_u_sqlda_za_oslobadjanje(struct sqlda *sqldaptr, int i) {
+void markFirstISqlvarsForDeletion(struct sqlda *sqldaptr, int i) {
     sqldaptr->sqld = i;
 }
 
-void oslobodi_sqlda() {
-    if (sqldaptr_input != NULL) {
+void freeSqlda() {
+    if (hInputSqldaPtr != NULL) {
 		int i = 0;
-		for(; i < sqldaptr_input->sqld; ++i) {
-			free(sqldaptr_input->sqlvar[i].sqldata);
-			free(sqldaptr_input->sqlvar[i].sqlind);
+		for(; i < hInputSqldaPtr->sqld; ++i) {
+			free(hInputSqldaPtr->sqlvar[i].sqldata);
+			free(hInputSqldaPtr->sqlvar[i].sqlind);
 		}
 
-		free(sqldaptr_input);
+		free(hInputSqldaPtr);
 	}
 
-	if (sqldaptr_output != NULL) {
+	if (hOutputSqldaPtr != NULL) {
 		int i = 0;
-		for(; i < sqldaptr_output->sqld; ++i) {
-			free(sqldaptr_output->sqlvar[i].sqldata);
-			free(sqldaptr_output->sqlvar[i].sqlind);
+		for(; i < hOutputSqldaPtr->sqld; ++i) {
+			free(hOutputSqldaPtr->sqlvar[i].sqldata);
+			free(hOutputSqldaPtr->sqlvar[i].sqlind);
 		}
 
-		free(sqldaptr_output);
+		free(hOutputSqldaPtr);
 	}
 }
 
-void zatrazi_vrednosti_za_parametarske_oznake() {
+void askForParameterMarkerValues() {
     int i = 0;
     short sqltype, sqllen;
-    for(; i < sqldaptr_input->sqld; ++i) {
-        sqltype = sqldaptr_input->sqlvar[i].sqltype;
-        sqllen = sqldaptr_input->sqlvar[i].sqllen;
+    for(; i < hInputSqldaPtr->sqld; ++i) {
+        sqltype = hInputSqldaPtr->sqlvar[i].sqltype;
+        sqllen = hInputSqldaPtr->sqlvar[i].sqllen;
         
         // Za svaku parametarsku oznaku na osnovu njegov tipa,
         // pitamo korisnika da unese vrednost
@@ -296,22 +304,22 @@ void zatrazi_vrednosti_za_parametarske_oznake() {
         switch (sqltype) {
             case SQL_TYP_SMALL:
             case SQL_TYP_NSMALL:
-                scanf("%hd", (short *)sqldaptr_input->sqlvar[i].sqldata);
+                scanf("%hd", (short *)hInputSqldaPtr->sqlvar[i].sqldata);
                 break;
 				
             case SQL_TYP_INTEGER:
             case SQL_TYP_NINTEGER:
-                scanf("%d", (int *)sqldaptr_input->sqlvar[i].sqldata);
+                scanf("%d", (int *)hInputSqldaPtr->sqlvar[i].sqldata);
                 break;
 				
             case SQL_TYP_FLOAT:
             case SQL_TYP_NFLOAT:
-                scanf("%f", (float *)sqldaptr_input->sqlvar[i].sqldata);
+                scanf("%f", (float *)hInputSqldaPtr->sqlvar[i].sqldata);
                 break;
 				
             case SQL_TYP_DECIMAL:
             case SQL_TYP_NDECIMAL:
-                scanf("%lf", (double *)sqldaptr_input->sqlvar[i].sqldata);
+                scanf("%lf", (double *)hInputSqldaPtr->sqlvar[i].sqldata);
                 break;
             
             case SQL_TYP_DATE:
@@ -329,7 +337,7 @@ void zatrazi_vrednosti_za_parametarske_oznake() {
                         }
                         break;
                     }
-                    sqldaptr_input->sqlvar[i].sqldata[j] = c;
+                    hInputSqldaPtr->sqlvar[i].sqldata[j] = c;
                     ++j;
                 }
                 break;
@@ -349,7 +357,7 @@ void zatrazi_vrednosti_za_parametarske_oznake() {
                         }
                         break;
                     }
-                    sqldaptr_input->sqlvar[i].sqldata[j] = c;
+                    hInputSqldaPtr->sqlvar[i].sqldata[j] = c;
                     ++j;
                 }
                 break;
@@ -361,36 +369,36 @@ void zatrazi_vrednosti_za_parametarske_oznake() {
     }
 }
 
-void izvrsi_naredbu_na_osnovu_tipa() {
+void executeStatement() {
 	// Ukoliko naredba nije SELECT, tj. broj kolona izlaza je 0,
     // mozemo koristiti EXECUTE naredbu.
-    if(sqldaptr_output->sqld == 0) {
-        izvrsi_ne_select_naredbu();
+    if(hOutputSqldaPtr->sqld == 0) {
+        executeNotSelectStatement();
 		return;
     }
 
 	// U suprotnom, moramo obraditi naredbu SELECT pomocu kursora.
-    ispisi_podatke();
+    executeSelectStatement();
 }
 
-void izvrsi_ne_select_naredbu() {
-    EXEC SQL EXECUTE PREPARED_STATEMENT USING DESCRIPTOR :*sqldaptr_input;
+void executeNotSelectStatement() {
+    EXEC SQL EXECUTE pStatement USING DESCRIPTOR :*hInputSqldaPtr;
     IS_ERROR_WITH_LINE("Execute immediate");
 }
 
-void ispisi_podatke() {
-    EXEC SQL DECLARE KURSOR CURSOR FOR PREPARED_STATEMENT;
+void executeSelectStatement() {
+    EXEC SQL DECLARE KURSOR CURSOR FOR pStatement;
     IS_ERROR_WITH_LINE("Declare");
 
     EXEC SQL OPEN KURSOR
-        USING DESCRIPTOR :*sqldaptr_input;
+        USING DESCRIPTOR :*hInputSqldaPtr;
     IS_ERROR_WITH_LINE("Open");
 
     int broj_reda = 1;
     
     for(;;) {
         EXEC SQL FETCH KURSOR 
-            USING DESCRIPTOR :*sqldaptr_output;
+            USING DESCRIPTOR :*hOutputSqldaPtr;
         IS_ERROR_WITH_LINE("Fetch");
 
         if (SQLCODE == 100) {
@@ -400,59 +408,59 @@ void ispisi_podatke() {
         printf("\n# %3d >>\t", broj_reda);
         
         int i = 0;
-        for(; i < sqldaptr_output->sqld; ++i) {
-            short sqltype = sqldaptr_output->sqlvar[i].sqltype;
+        for(; i < hOutputSqldaPtr->sqld; ++i) {
+            short sqltype = hOutputSqldaPtr->sqlvar[i].sqltype;
             
             switch (sqltype) {
                 case SQL_TYP_SMALL:
                 case SQL_TYP_NSMALL:
-                    if (*(short*)(sqldaptr_output->sqlvar[i].sqlind) < 0) {
+                    if (*(short*)(hOutputSqldaPtr->sqlvar[i].sqlind) < 0) {
                         printf("%s \t", "NULL");
                     }
                     else {
-                        printf("%hd \t", *((short*)(sqldaptr_output->sqlvar[i].sqldata)));
+                        printf("%hd \t", *((short*)(hOutputSqldaPtr->sqlvar[i].sqldata)));
                     }
                     break;
 					
                 case SQL_TYP_INTEGER:
                 case SQL_TYP_NINTEGER:
-                    if (*(short*)(sqldaptr_output->sqlvar[i].sqlind) < 0) {
+                    if (*(short*)(hOutputSqldaPtr->sqlvar[i].sqlind) < 0) {
                         printf("%s \t", "NULL");
                     }
                     else {
-                        printf("%d \t", *((sqlint32*)(sqldaptr_output->sqlvar[i].sqldata)));
+                        printf("%d \t", *((sqlint32*)(hOutputSqldaPtr->sqlvar[i].sqldata)));
                     }
                     break;
 					
                 case SQL_TYP_FLOAT:
                 case SQL_TYP_NFLOAT:
-                    if (*(short*)(sqldaptr_output->sqlvar[i].sqlind) < 0) {
+                    if (*(short*)(hOutputSqldaPtr->sqlvar[i].sqlind) < 0) {
                         printf("%s \t", "NULL");
                     }
                     else {
-                        printf("%f \t", *((float*)(sqldaptr_output->sqlvar[i].sqldata)));
+                        printf("%f \t", *((float*)(hOutputSqldaPtr->sqlvar[i].sqldata)));
                     }
                     break;
 					
                 case SQL_TYP_DECIMAL:
                 case SQL_TYP_NDECIMAL:
-                    if (*(short*)(sqldaptr_output->sqlvar[i].sqlind) < 0) {
+                    if (*(short*)(hOutputSqldaPtr->sqlvar[i].sqlind) < 0) {
                         printf("%s \t", "NULL");
                     }
                     else {
-                        double value = dohvati_double_iz_decimal(sqldaptr_output->sqlvar[i].sqldata, sqldaptr_output->sqlvar[i].sqllen);
+                        double value = getDoubleFromDecimal(hOutputSqldaPtr->sqlvar[i].sqldata, hOutputSqldaPtr->sqlvar[i].sqllen);
                         printf("%lf", value);
                     }
                     break;
                 
                 case SQL_TYP_CSTR:
                 case SQL_TYP_NCSTR:
-                    if (*(short*)(sqldaptr_output->sqlvar[i].sqlind) < 0) {
+                    if (*(short*)(hOutputSqldaPtr->sqlvar[i].sqlind) < 0) {
                         printf("%s \t", "NULL");
                     }
                     else {
-                        sqldaptr_output->sqlvar[i].sqldata[sqldaptr_output->sqlvar[i].sqllen] = 0;
-                        printf("%s \t", (char*)(sqldaptr_output->sqlvar[i].sqldata));
+                        hOutputSqldaPtr->sqlvar[i].sqldata[hOutputSqldaPtr->sqlvar[i].sqllen] = 0;
+                        printf("%s \t", (char*)(hOutputSqldaPtr->sqlvar[i].sqldata));
                     }
                     break;
                     
@@ -474,7 +482,7 @@ void ispisi_podatke() {
     IS_ERROR_WITH_LINE("Commit");
 }
 
-double dohvati_double_iz_decimal(char *sqldata, short sqllen) {
+double getDoubleFromDecimal(char *sqldata, short sqllen) {
     char buf[1000];
     short precision = (short)(((char *)&sqllen)[0]);
     short scale = (short)(((char *)&sqllen)[1]);
@@ -545,22 +553,22 @@ double dohvati_double_iz_decimal(char *sqldata, short sqllen) {
     return atof(buf);
 }
 
-void is_error(const char *str, int linenum) {
+void checkSQL(const char *str, int linenum) {
     if(sqlca.sqlcode < 0) {
-        char Buffer[1024];
-        short BufferSize = sizeof(Buffer);
-        short LineWidth = 50;
-        sqlaintp(Buffer, BufferSize, LineWidth, &sqlca);
+        char buffer[1024];
+        short bufferSize = sizeof(buffer);
+        short lineWidth = 50;
+        sqlaintp(buffer, bufferSize, lineWidth, &sqlca);
 
         fprintf(stderr, "Greska %d: %s\n", sqlca.sqlcode, str);
-        fprintf(stderr, "%s\n", Buffer);
-
-        izadji_bez_uspeha_sa_oslobadjanjem_memorije();
+        fprintf(stderr, "%s\n", buffer);
+        
+        exitGracefully();
     }
 }
 
-void izadji_bez_uspeha_sa_oslobadjanjem_memorije() {
-	oslobodi_sqlda();
+void exitGracefully() {
+	freeSqlda();
 	
     EXEC SQL ROLLBACK;
     exit(EXIT_FAILURE);

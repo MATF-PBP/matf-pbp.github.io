@@ -5,16 +5,14 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-sqlint32 id_predmeta;
-char oznaka[21];
-char naziv[151];
-short bodovi;
+sqlint32 hCourseId;
+char hCourseLabel[21];
+char hCourseName[151];
+short hESPB;
 EXEC SQL END DECLARE SECTION;
 
-void is_error(const char *str)
-{
-    if(SQLCODE < 0)
-    {
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
         fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
 
         EXEC SQL CONNECT RESET;
@@ -23,112 +21,111 @@ void is_error(const char *str)
 }
 
 // Deklaracije funkcija za svaki deo zadatka 
-void unesi_novi_predmet();
-void izmeni_novi_predmet();
-void obrisi_novi_predmet();
+void insertNewCourse();
+void updateNewCourse();
+void deleteNewCourse();
+
 // Pomocna funkcija koja se poziva nakon unosa i izmene novog predmeta
-void ispisi_novi_predmet();
+void printNewCourseInfo();
 
 // Glavni deo zadatka
-int main()
-{
+int main() {
     EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
-    is_error("Konekcija na bazu");
+    checkSQL("Konekcija na bazu");
 
-    unesi_novi_predmet();
-    izmeni_novi_predmet();
-    obrisi_novi_predmet();
+    insertNewCourse();
+    updateNewCourse();
+    deleteNewCourse();
 
     EXEC SQL CONNECT RESET;
-    is_error("Diskonekcija sa baze");
+    checkSQL("Diskonekcija sa baze");
 
     return 0;
 }
 
 // Definicije funkcija za svaki deo zadatka
-void unesi_novi_predmet()
-{
+void insertNewCourse() {
     printf("Identifikator predmeta: ");
-    scanf("%d", &id_predmeta);
+    scanf("%d", &hCourseId);
 
     printf("Oznaka predmeta: ");
-    scanf("%s", oznaka);
+    scanf("%s", hCourseLabel);
     // Funkcija scanf() nece procitati karakter za novi red,
-    // pa pozivamo jos jednom getchar() kako ga naredna funkcija ne bi citala.
+    // pa pozivamo jos jednom getchar() kako ga poziv funkcije fgets() ispod ne bi procitao.
     getchar(); 
 
     printf("Naziv predmeta: ");
     // Funkcija fgets() ce procitati i karakter za novi red na kraju reda,
     // tako da moramo da ga postavimo na terminirajucu nulu,
     // kako ne bismo u bazu uneli karakter za novi red.
-    fgets(naziv, sizeof(naziv), stdin);
-    naziv[strcspn(naziv, "\n")] = '\0';
+    fgets(hCourseName, sizeof(hCourseName), stdin);
+    hCourseName[strcspn(hCourseName, "\n")] = '\0';
 
     printf("Bodovi predmeta: ");
-    scanf("%hd", &bodovi);
+    scanf("%hd", &hESPB);
     
     printf("\nUnosim novi predmet u bazu podataka...\n");
 
     EXEC SQL 
         INSERT  INTO DA.PREDMET
-        VALUES  (:id_predmeta, :oznaka, :naziv, :bodovi);
-    is_error("Unos podataka o predmetu");
+        VALUES  (:hCourseId, :hCourseLabel, :hCourseName, :hESPB);
+    checkSQL("Unos podataka o predmetu");
     
     printf("\nINSERT naredba se uspesno izvrsila!\n");
 
-    ispisi_novi_predmet();
+    printNewCourseInfo();
 }
 
-void izmeni_novi_predmet()
+void updateNewCourse()
 {
     printf("\nMenjam podatke o novom predmetu u bazi podataka...\n");
     
     EXEC SQL 
         UPDATE  DA.PREDMET
         SET     ESPB = ESPB * 2
-        WHERE   ID = :id_predmeta;
-    is_error("Azuriranje podataka o predmetu");
+        WHERE   ID = :hCourseId;
+    checkSQL("Azuriranje podataka o predmetu");
     
     printf("\nUPDATE naredba se uspesno izvrsila!\n");
 
-    ispisi_novi_predmet();
+    printNewCourseInfo();
 }
 
-void obrisi_novi_predmet()
+void deleteNewCourse()
 {
     printf("\nBrisem podatke o novom predmetu iz baze podataka...\n");
     
     EXEC SQL 
         DELETE  FROM DA.PREDMET
-        WHERE   ID = :id_predmeta;
-    is_error("Brisanje podataka o predmetu");
+        WHERE   ID = :hCourseId;
+    checkSQL("Brisanje podataka o predmetu");
 
     printf("\nDELETE naredba se uspesno izvrsila!\n");
 }
 
-void ispisi_novi_predmet()
+void printNewCourseInfo()
 {
     EXEC SQL 
     SELECT  ID, 
             OZNAKA, 
             NAZIV,  
             ESPB
-    INTO    :id_predmeta, 
-            :oznaka, 
-            :naziv, 
-            :bodovi
+    INTO    :hCourseId, 
+            :hCourseLabel, 
+            :hCourseName, 
+            :hESPB
     FROM    DA.PREDMET
-    WHERE   ID = :id_predmeta;
-    is_error("Izlistavanje podataka");
+    WHERE   ID = :hCourseId;
+    checkSQL("Izlistavanje podataka");
 
     putc('\n', stdout);
     printf("+--------------+------------------------------+\n");
-    printf("|IDENTIFIKATOR |%-30d|\n", id_predmeta);
+    printf("|IDENTIFIKATOR |%-30d|\n", hCourseId);
     printf("|--------------|------------------------------|\n");
-    printf("|OZNAKA        |%-30s|\n", oznaka);
+    printf("|OZNAKA        |%-30s|\n", hCourseLabel);
     printf("|--------------|------------------------------|\n");
-    printf("|NAZIV         |%-30s|\n", naziv);
+    printf("|NAZIV         |%-30s|\n", hCourseName);
     printf("|--------------|------------------------------|\n");
-    printf("|ESPB          |%-30hd|\n", bodovi);
+    printf("|ESPB          |%-30hd|\n", hESPB);
     printf("+--------------+------------------------------+\n");
 }

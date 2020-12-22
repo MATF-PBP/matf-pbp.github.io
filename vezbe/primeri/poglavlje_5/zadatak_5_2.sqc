@@ -3,10 +3,8 @@
 
 EXEC SQL INCLUDE SQLCA;
 
-void is_error(const char *str)
-{
-    if(SQLCODE < 0)
-    {
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
         fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
 
         EXEC SQL ROLLBACK;
@@ -16,10 +14,9 @@ void is_error(const char *str)
     }
 }
 
-int main()
-{
+int main() {
     EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
-    is_error("Connect");
+    checkSQL("Connect");
     
     EXEC SQL 
         BEGIN COMPOUND ATOMIC STATIC
@@ -31,15 +28,15 @@ int main()
             WHERE   SKGODINA = YEAR(CURRENT_DATE) AND
                     OZNAKAROKA = 'maj';
         END COMPOUND;
-    is_error("Compound");
+    checkSQL("Compound");
     
     printf("Sve naredbe su uspesno izvrsene!\n");
     
     EXEC SQL COMMIT;
-    is_error("Commit");
+    checkSQL("Commit");
     
     EXEC SQL CONNECT RESET;
-    is_error("Connect reset");
+    checkSQL("Connect reset");
     
     return 0;
 }

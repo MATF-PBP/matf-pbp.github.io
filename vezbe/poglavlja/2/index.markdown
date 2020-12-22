@@ -112,7 +112,7 @@ U programskom jeziku C, da bismo deklarisali ovakve promenljive, potrebno je da 
 
 ```c
 EXEC SQL BEGIN DECLARE SECTION;
-double prosek;
+double hAverageGrade;
 EXEC SQL END DECLARE SECTION;
 ```
 
@@ -123,7 +123,7 @@ Postoje neka pravila koja se moraju ispoštovati pri korišćenju ovih naredbi. 
 Kako se sada ovako definisane matične promenljive koriste? Matičnu promenljivu možemo koristiti u izračunavanjima u matičnom jeziku kao i bilo koje druge promenljive, na primer:
 
 ```c
-printf("Prosecna ocena studenata je %lf\n", prosek);
+printf("Prosecna ocena studenata je %lf\n", hAverageGrade);
 ```
 
 Ukoliko želimo da iskoristimo matičnu promenljivu u SQL naredbi, onda ispred identifikatora promenljive moramo staviti karakter dvotačke, na primer:
@@ -131,8 +131,8 @@ Ukoliko želimo da iskoristimo matičnu promenljivu u SQL naredbi, onda ispred i
 ```c
 EXEC SQL 
     SELECT  AVG(CAST(OCENA AS DOUBLE)) 
-    INTO    :prosek 
-    FROM    ISPIT;
+    INTO    :hAverageGrade 
+    FROM    DA.ISPIT;
 ```
 
 ### 2.2.3 DB2 tipovi promenljivih
@@ -163,8 +163,8 @@ U ovom poglavlju ćemo demonstrirati najjednostavniji slučaj dohvatanja podatak
 
 ```c
 EXEC SQL BEGIN DECLARE SECTION;
-char prviIspit[11];
-char poslednjiIspit[11];
+char hFirstExamDate[11];
+char hLastExamDate[11];
 EXEC SQL END DECLARE SECTION;
 ```
 
@@ -174,9 +174,9 @@ Ukoliko želimo da iz tabele `ISPIT` dohvatimo datume o prvom i poslednjem ispit
 EXEC SQL 
     SELECT  MIN(DATPOLAGANJA), 
             MAX(DATPOLAGANJA) 
-    INTO    :prviIspit,
-            :poslednjiIspit
-    FROM    ISPIT;
+    INTO    :hFirstExamDate,
+            :hLastExamDate
+    FROM    DA.ISPIT;
 ```
 
 ### 2.2.5 Indikatorske promenljive
@@ -189,26 +189,26 @@ Indikatorska promenljiva se u SQL naredbi navodi odmah nakon matične promenljiv
 
 ```c
 EXEC SQL BEGIN DECLARE SECTION;
-char mesto_rodjenja[51];
-short ind_mesto_rodjenja;
+char hBirthPlace[51];
+short hIndBirthPlace;
 EXEC SQL END DECLARE SECTION;
 
 // ...
 
-EXEC
+EXEC SQL
     SELECT  MESTORODJENJA
-    INTO    :mesto_rodjenja :ind_mesto_rodjenja
-    FROM    DOSIJE
+    INTO    :hBirthPlace :hIndBirthPlace
+    FROM    DA.DOSIJE
     WHERE   INDEKS = ...;
 ```
 
 Ispitivanje da li je neka vrednost `NULL` ili ne, može se izvršiti proverom vrednosti indikatorske promenljive. Ako je njena vrednost negativan broj, dohvaćena vrednost je `NULL` i odgovarajuću matičnu promenljivu ne bi trebalo koristiti. U suprotnom, matična promenljiva sadrži odgovarajuću vrednost iz tabele. RSUBP neće promeniti vrednost matične promenljive u slučaju da je dohvaćena vrednost `NULL`. Primer provere nedostajuće vrednosti se može ilustrovati narednim delom koda:
 
 ```c
-if (ind_mesto_rodjenja < 0) {
+if (hIndBirthPlace < 0) {
     printf("Podatak ne postoji!\n");
 } else {
-    printf("Dohvacen je podatak: %s\n", mesto_rodjenja);
+    printf("Dohvacen je podatak: %s\n", hBirthPlace);
 }
 ```
 
@@ -237,13 +237,13 @@ U zavisnosti od vrednosti u koju se razvije makro `SQLCODE`, razlikujemo naredna
 Da bismo otkrili šta znaci određena greška, potrebno je da u komandnoj liniji izvršimo komandu:
 
 ```shell
-db2 ? sql<KOD GRESKE>
+db2 "? sql<KOD GRESKE>"
 ```
 
 Na primer, ukoliko želimo da vidimo šta znači greška čiji je kod `-502`, potrebno je da izvršimo:
 
 ```shell
-db2 ? sql-502
+db2 "? sql-502"
 ```
 
 ### 2.2.7 Tok pisanja programa
@@ -280,7 +280,7 @@ Kako je indeks definisan tipom `INTEGER`, možemo birati neki od tipova `int`, `
 
 ```c
 EXEC SQL BEGIN DECLARE SECTION;
-sqlint32 maxIndeks;
+sqlint32 hMaxIndex;
 EXEC SQL END DECLARE SECTION;
 ```
 
@@ -302,20 +302,20 @@ EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
 
 **Izvršavanje SQL naredbi**
 
-U ovom koraku je potrebno da napišemo odgovarajući SQL upit za izračunavanje najvećeg indeksa iz tabele `ISPIT` i da rezultat smestimo u prethodno definisanu matičnu promenljivu `maxIndeks`. Zatim, potrebno je da ispišemo rezultat. To se može uraditi narednim delom koda:
+U ovom koraku je potrebno da napišemo odgovarajući SQL upit za izračunavanje najvećeg indeksa iz tabele `ISPIT` i da rezultat smestimo u prethodno definisanu matičnu promenljivu `hMaxIndex`. Zatim, potrebno je da ispišemo rezultat. To se može uraditi narednim delom koda:
 
 ```c
 EXEC SQL 
     SELECT  MAX(INDEKS) 
-    INTO    :maxIndeks 
-    FROM    ISPIT;
+    INTO    :hMaxIndex 
+    FROM    DA.ISPIT;
 
-printf("Najveci indeks je %d\n", maxIndeks);
+printf("Najveci indeks je %d\n", hMaxIndex);
 ```
 
 **Obrada SQL grešaka**
 
-Naredni deo koda ilustruje najjednostavniji način provere da li je došlo do greške. Definišemo funkciju `is_error` koja će izvršavati proveru grešaka i njihovu obradu. Ova funkcija se poziva nakon svake SQL naredbe koja dolazi do izražaja u fazi izvršavanja. Funkcija kao argument prihvata nisku koja sadrži opis SQL naredbe nakon koje se poziva. Ovo ima smisla zbog toga što, u slučaju da dođe do greške, možemo vrlo jednostavno videti u kom delu izvornog koda je došlo do greške.
+Naredni deo koda ilustruje najjednostavniji način provere da li je došlo do greške. Definišemo funkciju `checkSQL` koja će izvršavati proveru grešaka i njihovu obradu. Ova funkcija se poziva nakon svake SQL naredbe koja dolazi do izražaja u fazi izvršavanja. Funkcija kao argument prihvata nisku koja sadrži opis SQL naredbe nakon koje se poziva. Ovo ima smisla zbog toga što, u slučaju da dođe do greške, možemo vrlo jednostavno videti u kom delu izvornog koda je došlo do greške.
 
 ```c
 #include <stdio.h>
@@ -324,10 +324,8 @@ Naredni deo koda ilustruje najjednostavniji način provere da li je došlo do gr
 EXEC SQL INCLUDE SQLCA;
 
 // Definicija funkcije za obradu gresaka
-void is_error(const char *str)
-{
-    if(SQLCODE < 0)
-    {
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
         // Ispisujemo kod greske na standardni izlaz za greske, zajedno sa porukom koju smo prosledili
         fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
 
@@ -337,21 +335,20 @@ void is_error(const char *str)
     }
 }
 
-int main()
-{
+int main() {
     EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
-    is_error("Konekcija na bazu podataka");
+    checkSQL("Konekcija na bazu podataka");
 
     // ...
 
     EXEC SQL CONNECT RESET;
-    is_error("Prekidanje konekcije sa bazom podataka");
+    checkSQL("Prekidanje konekcije sa bazom podataka");
 
     return 0;
 }
 ```
 
-U svakom na\v sem programu \'cemo definisati funkciju `is_error`, koja je prikazana iznad. Dodatno, nakon svake `EXEC SQL` naredbe (koja \'ce se pozvati u fazi izvr\v savanja programa, dakle, sve naredbe osim `EXEC SQL INCLUDE`, `EXEC SQL BEGIN DECLARE SECTION` i `EXEC SQL END DECLARE SECTION`) neophodno je da pozovemo funkciju `is_error`, pri \v cemu \'cemo joj proslediti nisku koja sadrži opis te SQL naredbe, kako bismo lak\v se znali na kom mestu u programu je do\v slo do problema.
+U svakom na\v sem programu \'cemo definisati funkciju `checkSQL`, koja je prikazana iznad. Dodatno, nakon svake `EXEC SQL` naredbe (koja \'ce se pozvati u fazi izvr\v savanja programa, dakle, sve naredbe osim `EXEC SQL INCLUDE`, `EXEC SQL BEGIN DECLARE SECTION` i `EXEC SQL END DECLARE SECTION`) neophodno je da pozovemo funkciju `checkSQL`, pri \v cemu \'cemo joj proslediti nisku koja sadrži opis te SQL naredbe, kako bismo lak\v se znali na kom mestu u programu je do\v slo do problema.
 
 **Prekidanje konekcije sa bazom podataka**
 
@@ -399,11 +396,11 @@ Ove naredbe se jednostavno implementiraju njihovim navođenjem nakon `EXEC SQL`.
 
 {% include lab/exercise.html broj="2.4" tekst="Napisati naredne funkcije:
 
-- Napisati funkciju `void unesi_novi_predmet()` koja sa standardnog ulaza učitava podatke o identifikatoru, oznaci, nazivu i bodovima za novi predmet na fakultetu. Potrebno je uneti te podatke u tabelu `PREDMET`. Nakon toga, odgovarajućom naredbom proveriti da li su podaci dobro uneti i ispisati ih.
+- Napisati funkciju `void insertNewCourse()` koja sa standardnog ulaza učitava podatke o identifikatoru, oznaci, nazivu i bodovima za novi predmet na fakultetu. Potrebno je uneti te podatke u tabelu `PREDMET`. Nakon toga, odgovarajućom naredbom proveriti da li su podaci dobro uneti i ispisati ih.
 
-- Napisati funkciju `void izmeni_novi_predmet()` koja izvršava ažuriranje podataka za novouneseni predmet, tako što se broj bodova duplo povećava i nakon čega se podaci izlistavaju ponovo.
+- Napisati funkciju `void updateNewCourse()` koja izvršava ažuriranje podataka za novouneseni predmet, tako što se broj bodova duplo povećava i nakon čega se podaci izlistavaju ponovo.
 
-- Napisati funkciju `void obrisi_novi_predmet()` koja briše novouneseni predmet iz baze podataka.
+- Napisati funkciju `void deleteNewCourse()` koja briše novouneseni predmet iz baze podataka.
 
 Napisati i C/SQL program koji testira napisane funkcije."%}
 
