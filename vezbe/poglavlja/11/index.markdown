@@ -649,11 +649,11 @@ Ova anotacija se još koristi i kada se zbog bidirekcione veze duplicira strani 
 
 {% include lab/exercise.html broj="11.2" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate za sve studente, koji su rođeni u mestu koje se unosi sa standardnog ulaza i upisali su studijski program obima epsb koji se unosi sa standardnog ulaza, ispisuje ime, prezime i naziv studijskog programa." %}
 
-Re\v senje: Tabelu `DOSIJE` do sad nismo koristili pa je potrebno da kreiramo odgovarajuću klasu i definišemo preslikavanje u tabelu `DOSIJE`, a onda i vezu sa klasom `StudijskiProgram`. Vezu definišemo koa više-ka-jedan u klasi `Student` jer više studenata mogu upisati isti smer. Pošto tabela dosije sadrži polje `idprograma`, a dodavanjem ove veze dupliciramo podatke (polje `StudijskiProgram studijskiProgram`  takođe sadrži informaciju o identifikatoru) potrebno je dodati i anotaciju `@JoinColumn` za polje `studijskiProgram`:
+Re\v senje: Tabelu `DOSIJE` do sad nismo koristili pa je potrebno da kreiramo odgovarajuću klasu i definišemo preslikavanje u tabelu `DOSIJE`, a onda i vezu sa klasom `StudijskiProgram`. Vezu definišemo koa više-ka-jedan u klasi `Student` jer više studenata mogu upisati isti studijski program. Pošto tabela dosije sadrži polje `idprograma`, a dodavanjem ove veze dupliciramo podatke (polje `StudijskiProgram studijskiProgram`  takođe sadrži informaciju o identifikatoru) potrebno je dodati i anotaciju `@JoinColumn` za polje `studijskiProgram`:
 
 include_source(vezbe/primeri/poglavlje_11/src/zadatak_11_2/Student.java, java)
 
-Ova veza je definisana u klasi `StudijskiProgram` kao jedan-ka-više, s obzirom da jedan smer može sadržati više studenata:
+Ova veza je definisana u klasi `StudijskiProgram` kao jedan-ka-više, s obzirom da jedan studijski program može sadržati više studenata:
 
 include_source(vezbe/primeri/poglavlje_11/src/zadatak_11_2/StudijskiProgram.java, java)
 
