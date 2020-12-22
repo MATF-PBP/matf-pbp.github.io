@@ -43,7 +43,7 @@ int main()
         FROM        DA.ISPIT I
         WHERE       NOT EXISTS (
                         SELECT  *
-                        FROM    DA.STATISTIKA_POLAGANJA SP
+                        FROM    DA.STATISTIKAPOLAGANJA SP
                         WHERE   SP.SKGODINA = I.SKGODINA AND
                                 SP.OZNAKAROKA = I.OZNAKAROKA AND
                                 SP.IDPREDMETA = I.IDPREDMETA
@@ -75,7 +75,7 @@ int main()
         }
         
         EXEC SQL
-            INSERT  INTO DA.STATISTIKA_POLAGANJA
+            INSERT  INTO DA.STATISTIKAPOLAGANJA
             VALUES  (:sk_godina, :oznaka_roka, :id_predmeta, NULL);
         is_error("Insert");
         
@@ -83,7 +83,7 @@ int main()
         is_error("Savepoint");
         
         EXEC SQL 
-            UPDATE  DA.STATISTIKA_POLAGANJA
+            UPDATE  DA.STATISTIKAPOLAGANJA
             SET     USPESNOST = :uspesnost
             WHERE   SKGODINA = :sk_godina AND
                     OZNAKAROKA = :oznaka_roka AND

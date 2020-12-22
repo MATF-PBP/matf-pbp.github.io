@@ -34,8 +34,8 @@ int main()
                 ESPB
         FROM    DA.PREDMET
         WHERE   ID NOT IN (
-                    SELECT  ID_PREDMETA
-                    FROM    DA.OBRADJENI_PREDMETI
+                    SELECT  IDPREDMETA
+                    FROM    DA.OBRADJENIPREDMETI
                 )
         FOR     UPDATE OF ESPB;
     is_error("Declare");
@@ -80,7 +80,7 @@ int main()
         
         // Ubelezavamo u BP da smo obradili tekuci predmet
         EXEC SQL
-            INSERT  INTO DA.OBRADJENI_PREDMETI
+            INSERT  INTO DA.OBRADJENIPREDMETI
             VALUES  (:id_predmeta);
         is_error("Insert into");
         

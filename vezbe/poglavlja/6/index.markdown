@@ -180,17 +180,17 @@ Sledi jo\v s jedan zadatak koji ilustruje koncept konkurentnih transakcija u vi\
 
 ```sql
 CREATE TABLE DA.DRZAVA (
-    ID_DRZAVE INTEGER NOT NULL PRIMARY KEY,
+    IDDRZAVE INTEGER NOT NULL PRIMARY KEY,
     NAZIV VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE DA.EKSKURZIJA (
     INDEKS INTEGER NOT NULL,
-    ID_DRZAVE INTEGER NOT NULL,
-    TRENUTAK_PRIJAVE TIMESTAMP NOT NULL,
+    IDDRZAVE INTEGER NOT NULL,
+    TRENUTAKPRIJAVE TIMESTAMP NOT NULL,
     PRIMARY KEY (INDEKS),
     FOREIGN KEY (INDEKS) REFERENCES DA.DOSIJE,
-    FOREIGN KEY (ID_DRZAVE) REFERENCES DA.DRZAVA
+    FOREIGN KEY (IDDRZAVE) REFERENCES DA.DRZAVA
 );
 
 INSERT  INTO DA.DRZAVA
@@ -418,9 +418,9 @@ include_source(vezbe/primeri/poglavlje_6/zadatak_6_8/exclusiveMode.sqc, c)
 
 ## 6.6 Zadaci za vežbu
 
-{% include lab/exercise.html broj="6.9" tekst="Napisati C/SQL program koji za sve ispitne rokove pronalazi informacije o polaganjima za svaki polo\v zeni predmet u tom ispitnom roku i te podatke unosi u tabelu `ISPITNI_ROKOVI_POLAGANJA`. Nakon jednog unosa podataka ispisati unete podatke odvojene zapetom. Nakon svih unosa podataka, potrebno je odgovaraju\'com SQL naredbom izra\v cunati broj unetih redova u tabeli `ISPITNI_ROKOVI_POLAGANJA` i ispisati rezultat na standardni izlaz. Napisati program tako da mo\v ze da radi u vi\v sekorisni\v ckom okru\v zenju. Unos podataka za jedan ispitni rok i jedno polaganje predstavlja jednu transakciju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
+{% include lab/exercise.html broj="6.9" tekst="Napisati C/SQL program koji za sve ispitne rokove pronalazi informacije o polaganjima za svaki polo\v zeni predmet u tom ispitnom roku i te podatke unosi u tabelu `ISPITNIROKOVIPOLAGANJA`. Nakon jednog unosa podataka ispisati unete podatke odvojene zapetom. Nakon svih unosa podataka, potrebno je odgovaraju\'com SQL naredbom izra\v cunati broj unetih redova u tabeli `ISPITNIROKOVIPOLAGANJA` i ispisati rezultat na standardni izlaz. Napisati program tako da mo\v ze da radi u vi\v sekorisni\v ckom okru\v zenju. Unos podataka za jedan ispitni rok i jedno polaganje predstavlja jednu transakciju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
 
-Napraviti tabelu `ISPITNI_ROKOVI_POLAGANJA` koja sadr\v zi kolone sa podacima o:
+Napraviti tabelu `ISPITNIROKOVIPOLAGANJA` koja sadr\v zi kolone sa podacima o:
 - godini roka
 - oznaci roka
 - identifikatoru predmeta
@@ -431,9 +431,9 @@ Napraviti tabelu `ISPITNI_ROKOVI_POLAGANJA` koja sadr\v zi kolone sa podacima o:
 
 Definisati primarni klju\v c na osnovu prvih 5 kolona i strane klju\v ceve ka odgovaraju\'cim tabelama. 
 
-{% include lab/exercise.html broj="6.10" tekst="Napisati C/SQL program koji za sve studente pronalazi informacije o smeru na kojem studiraju i te podatke unosi u tabelu `SMER_STUDENTI`. Nakon jednog unosa podataka ispisati unete podatke odvojene zapetom. Nakon svih unosa podataka, potrebno je odgovaraju\'com SQL naredbom izra\v cunati broj unetih redova u tabeli `SMER_STUDENTI` i ispisati rezultat na standardni izlaz. Napisati program tako da mo\v ze da radi u vi\v sekorisni\v ckom okru\v zenju. Unos podataka za jednog studenta i jedan smer predstavlja jednu transakciju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
+{% include lab/exercise.html broj="6.10" tekst="Napisati C/SQL program koji za sve studente pronalazi informacije o smeru na kojem studiraju i te podatke unosi u tabelu `SMERSTUDENTI`. Nakon jednog unosa podataka ispisati unete podatke odvojene zapetom. Nakon svih unosa podataka, potrebno je odgovaraju\'com SQL naredbom izra\v cunati broj unetih redova u tabeli `SMERSTUDENTI` i ispisati rezultat na standardni izlaz. Napisati program tako da mo\v ze da radi u vi\v sekorisni\v ckom okru\v zenju. Unos podataka za jednog studenta i jedan smer predstavlja jednu transakciju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
 
-Napraviti tabelu `SMER_STUDENTI` koja sadr\v zi kolone sa podacima o:
+Napraviti tabelu `SMERSTUDENTI` koja sadr\v zi kolone sa podacima o:
 - indeksu studenta
 - nazivu smera
 - imenu i prezimenu studenta
@@ -454,8 +454,8 @@ ve\'c izabrani predmeti. Odabrani predmet se unosi u tabelu `PRAKSA`.
 Svako prijavljivanje predstavlja nezavisnu transakciju. Napisati program tako da radi ispravno u vi\v sekorisni\v ckom okru\v zenju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
 
 Potrebno je u bazi vstud kreirati naredbu koja pravi tabelu `PRAKSA` koja ima kolone:
-- `indeks` - indeks studenta;
-- `id_predmeta` - identifikator predmeta koji student prijavljuje.
+- `INDEKS` - indeks studenta;
+- `IDPREDMETA` - identifikator predmeta koji student prijavljuje.
 
 Definisati primarni klju\v c u tabeli `PRAKSA` i strane klju\v ceve nad tabelama `DOSIJE` i `PREDMET`. U ovoj tabeli se \v cuvaju podaci o prijavljenim praksama. Jedan student mo\v ze potencijalno prijaviti vi\v se razli\v citih predmeta, a i isti predmet mo\v ze prijaviti vi\v se razli\v citih studenata.
 
