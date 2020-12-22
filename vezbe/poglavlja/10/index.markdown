@@ -51,9 +51,9 @@ implementiraju nad poznatom bazom podataka `STUD2020`):
 
 | Kolona | Vrednost |
 | --- | --- |
-| Identifikator | 300 |
-| Oznaka | MATF_2021 |
-| Naziv | Novi MATF studijski program u 2021. godini |
+| Identifikator | 102 |
+| Oznaka | MATF_2020 |
+| Naziv | Novi MATF studijski program u 2020. godini |
 | ESPB  | 240 | 
 | Zvanje |  Diplomirani informaticar | 
 | Opis  | Novi studijski program na Matematickom fakultetu | 
@@ -62,7 +62,7 @@ implementiraju nad poznatom bazom podataka `STUD2020`):
 1. Čitanje podataka o prethodno unetom studijskom programu iz tabele `STUDIJSKIPROGRAM`.
 2. Ažuriranje podataka o prethodno unetom studijskom programu iz tabele `STUDIJSKIPROGRAM`. 
 3. Brisanje podataka o prethodno unetom studijskom programu iz tabele `STUDIJSKIPROGRAM`.
-4. Unos podataka o novom ispitnom roku (jun 2021. godine) u tabelu `ISPITNIROK`.
+4. Unos podataka o novom ispitnom roku (jun 2020. godine) u tabelu `ISPITNIROK`.
 5. Brisanje podataka o prethodno unetom ispitnom roku iz tabele `ISPITNIROK`.
 6. Ispisivanje podataka o svim ispitnim rokovima.
 7. Ispisivanje podataka o ispitnom roku čija se oznaka roka i godina roka unose sa standarnog ulaza.
@@ -73,7 +73,7 @@ Takođe, omogućiti da obrada svakog zahteva predstavlja zasebnu transakciju.
 
 ## 10.1 Podešavanje Hibernate projekta
 
-Hibernate biblioteka se veoma jednostavno instalira. Sa veze [https://hibernate.org/orm/](https://hibernate.org/orm/) potrebno je preuzeti odgovaraju\'cu verziju biblioteke. Mi \'cemo raditi sa poslednjom stabilnom verzijom, a to je verzija 5.4 koja se mo\v ze preuzeti klikom na dugme _Download Zip archive_ sa [ove veze](https://hibernate.org/orm/releases/5.4/). Preuzetu arhivu je potrebno otpakovati na neku lokaciju. Na virtualnoj ma\v sini "BazePodataka2020", ta lokacija je `/opt/hibernate-5.4.10/`. Dodatno, Java projekat koji budemo kreirali mora da sadr\v zi informaciju i o implementaciji JDBC drajvera za DB2. Pode\v savanje Java projekta sa podr\v skom za razvoj Hibernate aplikacija se vr\v si narednim koracima:
+Hibernate biblioteka se veoma jednostavno instalira. Sa veze [https://hibernate.org/orm/](https://hibernate.org/orm/) potrebno je preuzeti odgovaraju\'cu verziju biblioteke. Mi \'cemo raditi sa poslednjom stabilnom verzijom, a to je verzija 5.4 koja se mo\v ze preuzeti klikom na dugme _Download Zip archive_ sa [ove veze](https://hibernate.org/orm/releases/5.4/). Preuzetu arhivu je potrebno otpakovati na neku lokaciju. Na virtualnoj ma\v sini "BazePodataka2020", ta lokacija je `/opt/hibernate-5.4.22/`. Dodatno, Java projekat koji budemo kreirali mora da sadr\v zi informaciju i o implementaciji JDBC drajvera za DB2. Pode\v savanje Java projekta sa podr\v skom za razvoj Hibernate aplikacija se vr\v si narednim koracima:
 
 1. Otvoriti IBM Data Studio.
 2. Iz glavnog menija odabrati _Window_ -> _Perspective_ -> _Open Perspective_ -> _Other_ -> _Java_ -> _OK_
@@ -215,17 +215,17 @@ name, make sure you pass that as an argument — like `configure("my-hib-cfg.xml
 {% include lab/exercise.html broj="10.1" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate redom: \n
 \n
 1. unosi podatak o novom studijskom programu u tabeli `STUDIJSKIPROGRAM` sa podacima iz naredne tabele,\n
-2. čita podatke o studijskom programu sa identifikatorom `300` iz tabele `STUDIJSKIPROGRAM`,\n
-3. ažurira podatke o studijskom programu sa identifikatorom `300` iz tabele `STUDIJSKIPROGRAM`,\n
-4. čita podatke o studijskom programu sa identifikatorom `300` iz tabele `STUDIJSKIPROGRAM`, \n
-5. briše podatke o studijskom programu sa identifikatorom `300` iz tabele `STUDIJSKIPROGRAM`,\n
-6. čita podatke o studijskom programu sa identifikatorom `300` iz tabele `STUDIJSKIPROGRAM`." %}
+2. čita podatke o studijskom programu sa identifikatorom `102` iz tabele `STUDIJSKIPROGRAM`,\n
+3. ažurira podatke o studijskom programu sa identifikatorom `102` iz tabele `STUDIJSKIPROGRAM`,\n
+4. čita podatke o studijskom programu sa identifikatorom `102` iz tabele `STUDIJSKIPROGRAM`, \n
+5. briše podatke o studijskom programu sa identifikatorom `102` iz tabele `STUDIJSKIPROGRAM`,\n
+6. čita podatke o studijskom programu sa identifikatorom `102` iz tabele `STUDIJSKIPROGRAM`." %}
 
 | Kolona | Vrednost |
 | --- | --- |
-| Identifikator | 300 |
-| Oznaka | MATF_2021 |
-| Naziv | Novi MATF studijski program u 2021. godini |
+| Identifikator | 102 |
+| Oznaka | MATF_2020 |
+| Naziv | Novi MATF studijski program u 2020. godini |
 | ESPB  | 240 | 
 | Zvanje |  Diplomirani informaticar | 
 | Opis  | Novi studijski program na Matematickom fakultetu | 
@@ -356,9 +356,9 @@ private static void insertStudijskiProgram() {
     Session session = HibernateUtil.getSessionFactory().openSession();
     StudijskiProgram studijskiProgram = new StudijskiProgram();
     
-    studijskiProgram.setId(300);
-    studijskiProgram.setOznaka("MATF_2021");
-    studijskiProgram.setNaziv("Novi MATF studijski program u 2021. godini");
+    studijskiProgram.setId(102);
+    studijskiProgram.setOznaka("MATF_2020");
+    studijskiProgram.setNaziv("Novi MATF studijski program u 2020. godini");
     studijskiProgram.setESPB(240);
     studijskiProgram.setNivo(110);
     studijskiProgram.setZvanje("Diplomirani informaticar");
@@ -655,7 +655,7 @@ public class IdClassBook {
 }
 ```
 
-{% include lab/exercise.html broj="10.3" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate implementira unos podataka o novom ispitnom roku (jun 2021. godine) u tabelu `ISPITNIROK`, a zatim briše podatke o unetom ispitnom roku iz tabele `ISPITNIROK`." %}
+{% include lab/exercise.html broj="10.3" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate implementira unos podataka o novom ispitnom roku (jun 2020. godine) u tabelu `ISPITNIROK`, a zatim briše podatke o unetom ispitnom roku iz tabele `ISPITNIROK`." %}
 
 Re\v senje: Potrebno je da prvo napravimo klasu
 koja će predstavljati složeni ključ. Nazovimo je `IspitniRokId`. U nastavku je data njena
