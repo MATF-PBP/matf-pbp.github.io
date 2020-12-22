@@ -72,11 +72,11 @@ public class Main {
             // Citanje reda moze dovesti do problema zbog S ili U katanaca,
             // te moramo poziv metoda next() obraditi zasebno,
             // pa zato ide unutar petlje za obradu.
-            boolean ima_redova = true;
+            boolean imaRedova = true;
             while(true) {
                 // S ili U katanac
                 try {
-                    ima_redova = kursor.next();
+                    imaRedova = kursor.next();
                 }
                 catch (SQLException e) {
                     // Obrada katanaca
@@ -90,21 +90,21 @@ public class Main {
                 
                 // Izlaz iz beskonacne petlje
                 // ukoliko vise nema redova u kursoru
-                if (!ima_redova) {
+                if (!imaRedova) {
                     break;
                 }
                 
                 // Inace, dohvatamo podatke
-                int id_predmeta = kursor.getInt(1);
+                int idPredmeta = kursor.getInt(1);
                 String naziv = kursor.getString(2);
-                short bodovi = kursor.getShort(3);
+                short espb = kursor.getShort(3);
                 
                 // Preskacemo one predmete koje smo vec obradili
-                if (obradjeniPredmeti.contains(id_predmeta)) {
+                if (obradjeniPredmeti.contains(idPredmeta)) {
                     continue;
                 }
                 
-                System.out.printf("\nPredmet %s ima %d bodova\n", naziv.trim(), bodovi);
+                System.out.printf("\nPredmet %s ima %d bodova\n", naziv.trim(), espb);
                 System.out.println("Da li zelite da uvecate broj bodova za 1? [da/ne]");
                 
                 String odgovor = ulaz.next();
@@ -113,7 +113,7 @@ public class Main {
                     try {
                         // Ovde koristimo metode updateXXX i updateRow za azuriranje podataka.
                         // Za vezbu uraditi zadatak pozicionirajucom UPDATE naredbom.
-                        kursor.updateShort(3, (short) (bodovi + 1));
+                        kursor.updateShort(3, (short) (espb + 1));
                         kursor.updateRow();
                     }
                     catch (SQLException e) {
@@ -129,7 +129,7 @@ public class Main {
                 }
                 
                 // Evidentiranje obrade tekuceg predmeta
-                obradjeniPredmeti.add(id_predmeta);
+                obradjeniPredmeti.add(idPredmeta);
                 
                 // Zavrsavamo jednu transakciju
                 con.commit();

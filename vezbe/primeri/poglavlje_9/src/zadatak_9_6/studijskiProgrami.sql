@@ -1,0 +1,6 @@
+SELECT  ID,
+        NAZIV,
+        OBIMESPB,
+        ZVANJE
+FROM    DA.STUDIJSKIPROGRAM;
+	   
