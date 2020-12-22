@@ -56,7 +56,7 @@ Na\v sa funkcija za obradu gre\v ske \'ce sada izgledati:
 // i definisati globalnu `sqlca` strukturu koja se koristi u celom programu.
 EXEC SQL INCLUDE SQLCA;
 
-void is_error(const char *str)
+void checkSQL(const char *str)
 {
     // `SQLCODE` je makro koji se razvija u `sqlca.sqlcode`
     if(sqlca.sqlcode < 0)
