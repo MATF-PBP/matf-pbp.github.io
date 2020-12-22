@@ -22,6 +22,4 @@ clean:
 	rm -f updateIspitniRok
 
 db:
-	db2 connect to stud2020 user student using abcdef
-	db2 -t -f pripremaBaze.sql
-	db2 connect reset
+	db2 -tf pripremaBaze.sql || true
