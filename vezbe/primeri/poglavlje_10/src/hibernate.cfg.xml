@@ -2,7 +2,7 @@
 <hibernate-configuration>
    	<session-factory>
    		<property name="connection.url">
-   			jdbc:db2://localhost:50001/VSTUD
+   			jdbc:db2://localhost:50000/STUD2020
    		</property>
     	<property name="connection.driver_class">
     		com.ibm.db2.jcc.DB2Driver

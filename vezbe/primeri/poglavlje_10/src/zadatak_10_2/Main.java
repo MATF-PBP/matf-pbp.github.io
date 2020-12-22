@@ -24,13 +24,11 @@ class Main {
 		
 		// Kreiramo prvo identifikator, tj. slozeni kljuc,
 		// a zatim i ostale podatke
-		IspitniRokId id = new IspitniRokId(2019, "jun");
+		IspitniRokId id = new IspitniRokId(2020, "jun");
 		ir.setId(id);
-		ir.setNaziv("Jun 2019");
-		ir.setPocetak("6/1/2019");
-		ir.setKraj("6/22/2018");
-		// Ne moramo da podesimo jer ce biti izabrana podrazumevana vrednost
-		// ir.setTip("B");
+		ir.setNaziv("Jun 2021");
+		ir.setPocetak("6/1/2021");
+		ir.setKraj("6/22/2021");
 		
 		// Procedura za cuvanje je ista kao i do sada
 		Transaction TR = null;
@@ -56,7 +54,7 @@ class Main {
 		Session session = HibernateUtil.getSessionFactory().openSession();
 		
 		IspitniRok ir = new IspitniRok();
-		IspitniRokId id = new IspitniRokId(2019, "jun");
+		IspitniRokId id = new IspitniRokId(2020, "jun");
 		
 		Transaction TR = null;
 		try {

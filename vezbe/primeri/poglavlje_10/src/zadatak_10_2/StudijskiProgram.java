@@ -6,10 +6,10 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "SMER")
-class Smer {
+@Table(name = "DA.STUDIJSKIPROGRAM")
+class StudijskiProgram {
     @Id
-    private int id_smera;
+    private int id;
 
     @Column(name = "OZNAKA", nullable = false)
     private String Oznaka;
@@ -17,13 +17,10 @@ class Smer {
     @Column(name = "NAZIV", nullable = false)
     private String Naziv;
 
-    @Column(name = "SEMESTARA", nullable = false)
-    private Integer Semestara;
+    @Column(name = "OBIMESPB", nullable = false)
+    private Integer Espb;
 
-    @Column(name = "BODOVI", nullable = false)
-    private Integer Bodovi;
-
-    @Column(name = "ID_NIVOA", nullable = false)
+    @Column(name = "IDNIVOA", nullable = false)
     private Integer Nivo;
 
     @Column(name = "ZVANJE", nullable = false)
@@ -32,12 +29,27 @@ class Smer {
     @Column(name = "OPIS", nullable = true)
     private String Opis;
 
-    public int getId_smera() {
-        return id_smera;
+
+    public StudijskiProgram() {
+	}
+    
+    public StudijskiProgram(int id, String oznaka, String naziv, Integer espb, Integer nivo,
+			String zvanje, String opis) {
+		this.id = id;
+		Oznaka = oznaka;
+		Naziv = naziv;
+		Espb = espb;
+		Nivo = nivo;
+		Zvanje = zvanje;
+		Opis = opis;
+	}
+
+    public int getId() {
+        return id;
     }
 
-    public void setId_smera(int id_smera) {
-        this.id_smera = id_smera;
+	public void setId(int id) {
+        this.id = id;
     }
 
     public String getOznaka() {
@@ -56,20 +68,12 @@ class Smer {
         Naziv = naziv;
     }
 
-    public Integer getSemestara() {
-        return Semestara;
+    public Integer getEspb() {
+        return Espb;
     }
 
-    public void setSemestara(Integer semestara) {
-        Semestara = semestara;
-    }
-
-    public Integer getBodovi() {
-        return Bodovi;
-    }
-
-    public void setBodovi(Integer bodovi) {
-        Bodovi = bodovi;
+    public void setEspb(Integer espb) {
+        Espb = espb;
     }
 
     public Integer getNivo() {
@@ -96,4 +100,9 @@ class Smer {
         Opis = opis;
     }
 
+	@Override
+	public String toString() {
+		return "Studijski program [id=" + id + ", Oznaka=" + Oznaka + ", Naziv=" + Naziv
+				+ ", Espb=" + Espb + ", Nivo=" + Nivo + ", Zvanje=" + Zvanje + ", Opis=" + Opis + "]";
+	}
 }
