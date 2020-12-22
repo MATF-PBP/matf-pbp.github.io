@@ -81,12 +81,12 @@ int main() {
         // cije smo podatke ispisali iznad, pa mozemo da iskoristimo pozicionirajucu UPDATE naredbu.
         // Naravno, ovo radimo samo ako korisnik potvrdi da zeli da izmeni tekuci red.
         printf("\tDa li zelite da povecate broj ESPB za 10? [d/n] ");
-        char odgovor;
-        scanf("%c", &odgovor);
+        char userResponse;
+        scanf("%c", &userResponse);
         getchar(); // Da bismo procitali i znak za novi red
         
         // Ukoliko korisnik zeli izmenu...
-        if (odgovor == 'd') {
+        if (userResponse == 'd') {
             // Izvrsavamo pozicionirajucu UPDATE naredbu
             EXEC SQL 
                 UPDATE  DA.STUDIJSKIPROGRAM
