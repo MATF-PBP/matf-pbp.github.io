@@ -53,7 +53,7 @@ int main() {
         for(;;)
         {
             EXEC SQL 
-                FETCH   cFinals;
+                FETCH   cFinals
                 INTO    :hSchoolYear, 
                         :hFinalsLabel, 
                         :hFinalsName,
