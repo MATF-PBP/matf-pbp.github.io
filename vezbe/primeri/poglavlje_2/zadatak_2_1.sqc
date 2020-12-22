@@ -5,14 +5,12 @@ EXEC SQL INCLUDE SQLCA;
 
 // Deklaracija potrebnih maticnih promenljivih
 EXEC SQL BEGIN DECLARE SECTION;
-sqlint32 maxIndeks;
+sqlint32 hMaxIndex;
 EXEC SQL END DECLARE SECTION;
 
 // Definicija funkcije za obradu gresaka
-void is_error(const char *str)
-{
-    if(SQLCODE < 0)
-    {
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
         // Ispisujemo kod greske na standardni izlaz za greske, zajedno sa porukom koju smo prosledili
         fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
 
@@ -22,25 +20,24 @@ void is_error(const char *str)
     }
 }
 
-int main()
-{
+int main() {
     // Konekcija na bazu
     EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
-    is_error("Konekcija na bazu podataka");
+    checkSQL("Konekcija na bazu podataka");
 
-    // Izdvajamo maksimalni indeks i smestamo u maticnu promenljivu maxIndeks
+    // Izdvajamo maksimalni indeks i smestamo u maticnu promenljivu hMaxIndex
     EXEC SQL 
         SELECT  MAX(INDEKS) 
-        INTO    :maxIndeks 
+        INTO    :hMaxIndex 
         FROM    DA.ISPIT;
-    is_error("Izdvajanje podatka o najvecem indeksu");
+    checkSQL("Izdvajanje podatka o najvecem indeksu");
 
-    // Ispisujemo podatak koji se sada nalazi u maticnoj promenljivoj maxIndeks
-    printf("Najveci indeks je %d\n", maxIndeks);
+    // Ispisujemo podatak koji se sada nalazi u maticnoj promenljivoj hMaxIndex
+    printf("Najveci indeks je %d\n", hMaxIndex);
 
     // Diskonekcija sa baze
     EXEC SQL CONNECT RESET;
-    is_error("Prekidanje konekcije sa bazom podataka");
+    checkSQL("Prekidanje konekcije sa bazom podataka");
     
     return 0;
 }

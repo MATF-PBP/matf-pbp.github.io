@@ -315,7 +315,7 @@ printf("Najveci indeks je %d\n", maxIndeks);
 
 **Obrada SQL grešaka**
 
-Naredni deo koda ilustruje najjednostavniji način provere da li je došlo do greške. Definišemo funkciju `is_error` koja će izvršavati proveru grešaka i njihovu obradu. Ova funkcija se poziva nakon svake SQL naredbe koja dolazi do izražaja u fazi izvršavanja. Funkcija kao argument prihvata nisku koja sadrži opis SQL naredbe nakon koje se poziva. Ovo ima smisla zbog toga što, u slučaju da dođe do greške, možemo vrlo jednostavno videti u kom delu izvornog koda je došlo do greške.
+Naredni deo koda ilustruje najjednostavniji način provere da li je došlo do greške. Definišemo funkciju `checkSQL` koja će izvršavati proveru grešaka i njihovu obradu. Ova funkcija se poziva nakon svake SQL naredbe koja dolazi do izražaja u fazi izvršavanja. Funkcija kao argument prihvata nisku koja sadrži opis SQL naredbe nakon koje se poziva. Ovo ima smisla zbog toga što, u slučaju da dođe do greške, možemo vrlo jednostavno videti u kom delu izvornog koda je došlo do greške.
 
 ```c
 #include <stdio.h>
@@ -324,7 +324,7 @@ Naredni deo koda ilustruje najjednostavniji način provere da li je došlo do gr
 EXEC SQL INCLUDE SQLCA;
 
 // Definicija funkcije za obradu gresaka
-void is_error(const char *str)
+void checkSQL(const char *str)
 {
     if(SQLCODE < 0)
     {
@@ -340,18 +340,18 @@ void is_error(const char *str)
 int main()
 {
     EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
-    is_error("Konekcija na bazu podataka");
+    checkSQL("Konekcija na bazu podataka");
 
     // ...
 
     EXEC SQL CONNECT RESET;
-    is_error("Prekidanje konekcije sa bazom podataka");
+    checkSQL("Prekidanje konekcije sa bazom podataka");
 
     return 0;
 }
 ```
 
-U svakom na\v sem programu \'cemo definisati funkciju `is_error`, koja je prikazana iznad. Dodatno, nakon svake `EXEC SQL` naredbe (koja \'ce se pozvati u fazi izvr\v savanja programa, dakle, sve naredbe osim `EXEC SQL INCLUDE`, `EXEC SQL BEGIN DECLARE SECTION` i `EXEC SQL END DECLARE SECTION`) neophodno je da pozovemo funkciju `is_error`, pri \v cemu \'cemo joj proslediti nisku koja sadrži opis te SQL naredbe, kako bismo lak\v se znali na kom mestu u programu je do\v slo do problema.
+U svakom na\v sem programu \'cemo definisati funkciju `checkSQL`, koja je prikazana iznad. Dodatno, nakon svake `EXEC SQL` naredbe (koja \'ce se pozvati u fazi izvr\v savanja programa, dakle, sve naredbe osim `EXEC SQL INCLUDE`, `EXEC SQL BEGIN DECLARE SECTION` i `EXEC SQL END DECLARE SECTION`) neophodno je da pozovemo funkciju `checkSQL`, pri \v cemu \'cemo joj proslediti nisku koja sadrži opis te SQL naredbe, kako bismo lak\v se znali na kom mestu u programu je do\v slo do problema.
 
 **Prekidanje konekcije sa bazom podataka**
 
