@@ -6,7 +6,7 @@ import java.sql.*;
 public class Vstud extends Database {
     public Vstud() throws SQLException {
         dbName = "VSTUD";
-        url = "jdbc:db2://localhost:50000/stud2020";
+        url = "jdbc:db2://localhost:50001/vstud";
         username = "student";
         password = "abcdef";
         connect();
