@@ -10,10 +10,9 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "ISPITNI_ROK")
-public class IspitniRok {
+@Table(name = "DA.ISPITNIROK")
+class IspitniRok {
     // Primarni kljuc
-
     @Id
     private IspitniRokId id = null;
 
@@ -22,14 +21,11 @@ public class IspitniRok {
     @Column(name = "NAZIV", nullable = false)
     private String Naziv;
 
-    @Column(name = "POCETAK_PRIJAVLJIVANJA", nullable = false)
+    @Column(name = "DATPOCETKA", nullable = false)
     private String Pocetak;
 
-    @Column(name = "KRAJ_PRIJAVLJIVANJA", nullable = false)
+    @Column(name = "DATKRAJA", nullable = false)
     private String Kraj;
-
-    @Column(name = "TIP", nullable = false)
-    private String Tip = "B";
 
     // Kreiranje veze izmedju IspitniRok i Ispit.
     // S obzirom da je veza izmedju ovih klasa dvosmerna,
@@ -72,18 +68,6 @@ public class IspitniRok {
         Kraj = kraj;
     }
 
-    public String getTip() {
-        return Tip;
-    }
-
-    public void setTip(String tip) {
-        if (tip == null) {
-            Tip = "B";
-            return;
-        }
-        Tip = tip;
-    }
-
     public List<Ispit> getIspiti() {
         return ispiti;
     }
@@ -92,9 +76,9 @@ public class IspitniRok {
         this.ispiti = ispiti;
     }
 
+    
 	@Override
 	public String toString() {
-		return "IspitniRok [id=" + id + ", Naziv=" + Naziv + ", Pocetak=" + Pocetak + ", Kraj=" + Kraj + ", Tip=" + Tip
-				+ ", ispiti=" + ispiti + "]";
+		return "IspitniRok [" + id + ", Naziv=" + Naziv + ", Pocetak=" + Pocetak + ", Kraj=" + Kraj + "]";
 	}
 }

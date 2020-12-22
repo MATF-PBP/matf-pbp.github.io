@@ -8,40 +8,34 @@ import javax.persistence.Embeddable;
 @Embeddable
 class IspitniRokId implements Serializable {
 
-    // Podrazumevani serijski ID verzije
     private static final long serialVersionUID = 1L;
 
-    // Kolone koje ulaze u primarni kljuc
-    private Integer godina;
-    private String oznaka;
+    private Integer skGodina;
+    private String oznakaRoka;
 
-    // Podrazumevani konstruktor
     public IspitniRokId() {
     }
 
     public IspitniRokId(Integer godina, String oznaka) {
-        this.godina = godina;
-        this.oznaka = oznaka;
+        this.skGodina = godina;
+        this.oznakaRoka = oznaka;
     }
 
-    // Autogenerisani get/set metodi
-    public Integer getGodina() {
-        return godina;
+    public Integer getSkGodina() {
+        return skGodina;
     }
 
-    public void setGodina(Integer godina) {
-        this.godina = godina;
+    public void setSkGodina(Integer godina) {
+        this.skGodina = godina;
     }
 
-    public String getOznaka() {
-        return oznaka;
+    public String getOznakaRoka() {
+        return oznakaRoka;
     }
 
-    public void setOznaka(String oznaka) {
-        this.oznaka = oznaka;
+    public void setOznakaRoka(String oznaka) {
+        this.oznakaRoka = oznaka;
     }
-
-    // Prevazilazenje metoda radi testiranja kolizije primarnih kljuceva
 
     @Override
     public boolean equals(Object o) {
@@ -55,18 +49,16 @@ class IspitniRokId implements Serializable {
 
         IspitniRokId irOther = (IspitniRokId) o;
 
-        return Objects.equals(this.godina, irOther.getGodina()) && Objects.equals(this.oznaka, irOther.getOznaka());
+        return Objects.equals(this.skGodina, irOther.getSkGodina()) && Objects.equals(this.oznakaRoka, irOther.getOznakaRoka());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.godina, this.oznaka);
+        return Objects.hash(this.skGodina, this.oznakaRoka);
     }
-
-	@Override
-	public String toString() {
-		return "IspitniRokId [godina=" + godina + ", oznaka=" + oznaka + "]";
-	}
     
-    
+    @Override
+    public String toString() {
+    	return "Skolska godina= " + skGodina + ", Oznaka roka:" + oznakaRoka;
+    }
 }
