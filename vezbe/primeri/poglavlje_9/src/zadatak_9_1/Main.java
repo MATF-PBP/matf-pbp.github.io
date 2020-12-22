@@ -23,13 +23,13 @@ public class Main {
             // kako bismo pozvali metode commit() ili rollback()
             // tik pred zatvaranje konekcije
             try {
-                Integer indeks = pronadji_najveci_indeks(con);
+                Integer indeks = pronadjiNajveciIndeks(con);
                 System.out.println("1. Najveci indeks u tabeli ISPIT je " + indeks);
-                obrisi_ispite(con, indeks);
-                indeks = pronadji_najveci_indeks(con);
+                obrisiIspite(con, indeks);
+                indeks = pronadjiNajveciIndeks(con);
                 System.out.println("3. Najveci indeks u tabeli ISPIT je " + indeks);
-                potvrdi_ili_ponisti_izmene(con);
-                indeks = pronadji_najveci_indeks(con);
+                potvrdiIliPonistiIzmene(con);
+                indeks = pronadjiNajveciIndeks(con);
                 System.out.println("5. Najveci indeks u tabeli ISPIT je " + indeks);
                 
                 // S obzirom da je sve proslo kako treba ako se doslo do ove tacke,
@@ -56,10 +56,10 @@ public class Main {
         }
     }
 
-    private static Integer pronadji_najveci_indeks(Connection con) throws SQLException, Exception {
+    private static Integer pronadjiNajveciIndeks(Connection con) throws SQLException, Exception {
         String sql = 
             "SELECT  MAX(INDEKS)" +
-            "FROM    ISPIT";
+            "FROM    DA.ISPIT";
         Statement stmt = con.createStatement();
         ResultSet kursor = stmt.executeQuery(sql);
         
@@ -78,9 +78,9 @@ public class Main {
         return indeks;
     }
 
-    private static void obrisi_ispite(Connection con, Integer indeks) throws SQLException {
+    private static void obrisiIspite(Connection con, Integer indeks) throws SQLException {
         String sql = 
-            "DELETE  FROM ISPIT " +
+            "DELETE  FROM DA.ISPIT " +
             "WHERE   INDEKS = ?";
         PreparedStatement stmt = con.prepareStatement(sql);
         stmt.setInt(1, indeks);
@@ -90,7 +90,7 @@ public class Main {
         System.out.println("2. Obrisani su ispiti za studenta sa indeksom " + indeks);
     }
 
-    private static void potvrdi_ili_ponisti_izmene(Connection con) throws SQLException {
+    private static void potvrdiIliPonistiIzmene(Connection con) throws SQLException {
         System.out.println("4. Da li zelite da potvrdite izmene [y] ili da ponistite izmene [n]?");
         try (Scanner ulaz = new Scanner(System.in)) {
             String odgovor = ulaz.next();

@@ -123,9 +123,9 @@ Connection con = DriverManager.getConnection(dbURL, userId, password);
 con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 ```
 
-{% include lab/exercise.html broj="9.2" tekst="Napisati Java program u kojem se SQL naredbe izvr\v savaju dinami\v cki koji iz tabele `UKUPNI_BODOVI` (videti ispod) izdvaja 10 najuspe\v snijih studenata. Za svakog studenta ispisati podatke iz te tabele i upitati korisnika da li \v zeli da dodeli tom studentu po\v casnih 10 ESPB. Ukoliko \v zeli, izvr\v siti odgovaraju\'cu izmenu. Nakon svih izmena, ispisati izve\v staj rada u kojem se vide izmene. Sve izmene i prikaz izve\v staja implementirati kao jednu transakciju. Omogu\'citi da nijedan drugi korisnik ne mo\v ze da vidi izmene tokom rada ovog programa." %}
+{% include lab/exercise.html broj="9.2" tekst="Napisati Java program u kojem se SQL naredbe izvr\v savaju dinami\v cki koji iz tabele `UKUPNIBODOVI` (videti ispod) izdvaja 10 najuspe\v snijih studenata. Za svakog studenta ispisati podatke iz te tabele i upitati korisnika da li \v zeli da dodeli tom studentu po\v casnih 10 ESPB. Ukoliko \v zeli, izvr\v siti odgovaraju\'cu izmenu. Nakon svih izmena, ispisati izve\v staj rada u kojem se vide izmene. Sve izmene i prikaz izve\v staja implementirati kao jednu transakciju. Omogu\'citi da nijedan drugi korisnik ne mo\v ze da vidi izmene tokom rada ovog programa." %}
 
-Re\v senje: Pre početka izvršavanja, izvr\v siti naredni skript nad bazom podataka `VSTUD` koji \'ce pripremiti podatke:
+Re\v senje: Pre početka izvršavanja, izvr\v siti naredni skript nad bazom podataka `STUD2020` koji \'ce pripremiti podatke:
 
 include_source(vezbe/primeri/poglavlje_9/src/zadatak_9_2/priprema_baze.sql, sql)
 
@@ -264,7 +264,7 @@ private static ResultSet obradiCekanje(String codeHint, Connection con, Statemen
 Naredni primeri ilustruju konstrukciju JDBC aplikacija koje koriste transakcioni rad u
 višekorisničkom okruženju.
 
-{% include lab/exercise.html broj="9.4" tekst="Napisati Java program u kojem se SQL naredbe izvr\v savaju dinami\v cki koji za svaki predmet koji je obavezan na smeru čiji je identifikator 201, pita korisnika da li želi da poveća broj bodova za 1. Ukoliko je odgovor korisnika ”da”, izvršava se odgovarajuća naredba. Zadatak uraditi tako da aplikacija radi u višekorisničkom okruženju. Obrada jednog predmeta treba da predstavlja jednu transakciju. Postaviti istek vremena na 5 sekundi. Omogu\'citi da drugi korisnici mogu da pristupaju predmetima koje ovaj program trenutno obrađuje." %}
+{% include lab/exercise.html broj="9.4" tekst="Napisati Java program u kojem se SQL naredbe izvr\v savaju dinami\v cki koji za svaki predmet koji je obavezan na studijskom programu čiji je identifikator 103, pita korisnika da li želi da poveća broj ESPB bodova za 1. Ukoliko je odgovor korisnika ”da”, izvršava se odgovarajuća naredba. Zadatak uraditi tako da aplikacija radi u višekorisničkom okruženju. Obrada jednog predmeta treba da predstavlja jednu transakciju. Postaviti istek vremena na 5 sekundi. Omogu\'citi da drugi korisnici mogu da pristupaju predmetima koje ovaj program trenutno obrađuje." %}
 
 Re\v senje: Da bismo implementirali date zahteve, potrebno je da pamtimo koje smo predmete obra\dj ivali. Zato \'cemo kreirati promenljivu `obradjeniPredmeti` tipa `ArrayList<Integer>` koja \'ce \v cuvati informaciju o identifikatorima predmeta koje smo obradili. Zbog toga \v sto se primarni klju\v c tabele `PREDMET` sastoji samo od jedne kolone tipa `INTEGER`, to je \v sablonski parametar kolekcije `ArrayList` tipa `Integer`. U slu\v caju slo\v zenih primarnih klju\v ceva, neophodno je da kreiramo klasu koja sadr\v zi atribute koji odgovaraju kolonama slo\v zenog primarnog klju\v ca (videti [zadatke za ve\v zbu](#94-zadaci-za-ve\v zbu)). Dodatno, potrebno je da postavimo nivo izolovanosti stabilno \v citanje, kako bismo omogu\'cili da drugi programi mogu da \v citaju slogove koji se ne a\v zuriraju od strane na\v se aplikacije.
 

@@ -26,7 +26,7 @@ public class Main {
             con.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
 
             try (Scanner ulaz = new Scanner(System.in)) {
-                izdvoji_10_najuspesnijih_studenata(con, ulaz);
+                izdvoji10NajuspesnijihStudenata(con, ulaz);
                 con.commit();
             } catch (Exception e) {
                 con.rollback();
@@ -46,12 +46,12 @@ public class Main {
         }
     }
 
-    private static void izdvoji_10_najuspesnijih_studenata(Connection con, Scanner ulaz)
+    private static void izdvoji10NajuspesnijihStudenata(Connection con, Scanner ulaz)
             throws SQLException, IOException {
         Statement stmt = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
         String sql = 
                 "SELECT  * " + 
-                "FROM    UKUPNI_BODOVI " +
+                "FROM    DA.UKUPNIBODOVI " +
                 "FETCH   FIRST 10 ROWS ONLY";
         ResultSet kursor = stmt.executeQuery(sql);
 
@@ -61,13 +61,13 @@ public class Main {
             int indeks = kursor.getInt(1);
             String ime = kursor.getString(2).trim();
             String prezime = kursor.getString(3).trim();
-            int bodovi = kursor.getInt(4);
+            int espb = kursor.getInt(4);
 
-            System.out.println(i + ". " + ime + " " + prezime + "(" + indeks + ") ima osvojenih " + bodovi + " ESPB.");
+            System.out.println(i + ". " + ime + " " + prezime + "(" + indeks + ") ima osvojenih " + espb + " ESPB.");
             System.out.println("Da li zelite da dodelite 10 pocasnih bodova? [d/n]");
             String odgovor = ulaz.nextLine();
             if (odgovor.equalsIgnoreCase("d")) {
-                kursor.updateInt(4, bodovi + 10);
+                kursor.updateInt(4, espb + 10);
                 kursor.updateRow();
                 System.out.println("Uspesno ste dodeliti pocasne poene!");
             }

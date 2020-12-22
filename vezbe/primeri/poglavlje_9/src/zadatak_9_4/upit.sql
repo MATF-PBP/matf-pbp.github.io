@@ -1,9 +1,10 @@
-SELECT ID_PREDMETA,  
+SELECT ID,  
        NAZIV,  
-       BODOVI 
-FROM   PREDMET 
-WHERE  ID_PREDMETA IN ( 
-           SELECT  ID_PREDMETA 
-           FROM    OBAVEZAN_PREDMET 
-           WHERE   ID_SMERA = 201 
-       )
+       ESPB 
+FROM   DA.PREDMET 
+WHERE  ID IN ( 
+           SELECT  IDPREDMETA 
+           FROM    DA.PREDMETPROGRAMA 
+           WHERE   IDPROGRAMA = 103 AND 
+           		   VRSTA = 'obavezan'
+       );
