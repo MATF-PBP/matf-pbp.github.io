@@ -685,22 +685,20 @@ include_source(vezbe/primeri/poglavlje_8/src/zadatak_8_10/Main.java, java)
 
 ## 8.4 Zadaci za vežbu
 
-{% include lab/exercise.html broj="8.11" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji ispisuje podatke za predmet čiji je identifikator `640`." %}
+{% include lab/exercise.html broj="8.11" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji ispisuje podatke za predmet čiji je identifikator `2027`." %}
 
-{% include lab/exercise.html broj="8.12" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji ispisuje broj studenata koji su upisali studije u godini koja se unosi sa standardnog ulaza." %}
+{% include lab/exercise.html broj="8.12" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji ispisuje broj studenata koji su upisali studije u \v skolskoj godini koja se unosi sa standardnog ulaza." %}
 
-{% include lab/exercise.html broj="8.13" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji za svaku ocenu od 6 do 10 ispisuje ime i prezime studenta koji je poslednji položio neki ispit sa tom ocenom. U slučaju da ima više takvih studenata, klauzom `LIMIT 1` naredbe `SELECT INTO` se osigurati da rezultat vrati najviše 1 rezultat. (Pomoć: Koristiti `for` petlju za menjanje vrednosti matične promenljive koja sadrži ocenu, pa u svakoj iteraciji dohvatiti informaciju za tekuću vrednost te matične promenljive.)" %}
+{% include lab/exercise.html broj="8.13" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji za svaku ocenu od 6 do 10 ispisuje ime i prezime studenta koji je poslednji položio neki ispit sa tom ocenom. U slučaju da ima više takvih studenata, klauzom `LIMIT 1` naredbe `SELECT INTO` se osigurati da bude vra\' cen najviše 1 red. (Pomoć: Koristiti `for` petlju za menjanje vrednosti matične promenljive koja sadrži ocenu, pa u svakoj iteraciji dohvatiti informaciju za tekuću vrednost te matične promenljive.)" %}
 
-{% include lab/exercise.html broj="8.14" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki kojim se dodaje da je za polaganje predmeta čiji je identifikator `720` uslov da se položi predmet čiji je identifikator `655`." %}
+{% include lab/exercise.html broj="8.14" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki kojim se dodaje da je za polaganje predmeta čiji je identifikator `2327` uslov da se položi predmet čiji je identifikator `1588`." %}
 
-{% include lab/exercise.html broj="8.15" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki kojim se u tabelu `NIVO_KVALIFIKACIJE` dodaje novi nivo čiji se identifikator, naziv i stepen unose sa standardnog ulaza." %}
+{% include lab/exercise.html broj="8.15" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki kojim se u tabelu `NIVOKVALIFIKACIJE` dodaje novi nivo čiji se identifikator i naziv." %}
 
-{% include lab/exercise.html broj="8.16" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki kojim se svim obaveznim predmetima na smeru `'Informatika'` povećava broj semestra za 1." %}
+{% include lab/exercise.html broj="8.16" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki kojim se, za sve položene ispite čiji se naziv predmeta unosi sa standardnog ulaza, ocena uvećava za 1." %}
 
-{% include lab/exercise.html broj="8.17" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki kojim se, za sve položene ispite čiji se naziv predmeta unosi sa standardnog ulaza, ocena uvećava za 1." %}
+{% include lab/exercise.html broj="8.17" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki kojim se u tabeli `USLOVNIPREDMET` brišu sve uslovnosti za predmet čiji se identifikator unosi sa standardnog ulaza." %}
 
-{% include lab/exercise.html broj="8.18" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki kojim se u tabeli `USLOVNI_PREDMET` brišu svi redovi koji se odnose na predmete koji su uslovni da bi se položio predmet čiji se identifikator unosi sa standardnog ulaza." %}
+{% include lab/exercise.html broj="8.18" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki kojim se brišu svi podaci o ispitima za studenta čiji se indeks unosi sa standardnog ulaza." %}
 
-{% include lab/exercise.html broj="8.19" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki kojim se brišu svi podaci o ispitima za studenta čiji se indeks unosi sa standardnog ulaza." %}
-
-{% include lab/exercise.html broj="8.20" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji iz tabele `PREDMET` briše podatak o predmetu čija se šifra unosi sa standardnog ulaza. " %}
+{% include lab/exercise.html broj="8.19" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji iz tabele `PREDMET` briše podatak o predmetu čija se oznaka unosi sa standardnog ulaza. " %}
