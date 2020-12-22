@@ -91,7 +91,7 @@ void deklarisi_kursor_za_godine(sqlint32 indeks) {
                 STATUS = 'o' AND
                 NOT EXISTS (
                     SELECT  *
-                    FROM    DA.OBRADJENA_POLAGANJA
+                    FROM    DA.OBRADJENAPOLAGANJA
                     WHERE   INDEKS = :indeks AND
                             GODINA = I.SKGODINA
                 )
@@ -145,7 +145,7 @@ void deklarisi_kursor_za_polaganja(sqlint32 indeks, short godina) {
 
 void polaganja_za_studenta_u_godini(sqlint32 indeks, short godina) {
     EXEC SQL 
-        INSERT  INTO DA.OBRADJENA_POLAGANJA
+        INSERT  INTO DA.OBRADJENAPOLAGANJA
         VALUES  (:indeks, :godina);
     is_error("Insert into");
     
