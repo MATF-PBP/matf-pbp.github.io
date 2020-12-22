@@ -4,51 +4,52 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-char naziv[201];
-short espb;
+char hStudyProgramName[201];
+short hStudyProgramESPB;
 EXEC SQL END DECLARE SECTION;
 
 // Definisemo funkciju koja ce vrsiti obradu cekanja u slucaju da dodje do problema u visekorisnickom okruzenju.
 // Primetimo da je definicija funkcije odvojena od njene deklaracije,
-// zato sto se u definiciji ove funkcije koristi (otvara) kursor `c_studijski_programi`.
+// zato sto se u definiciji ove funkcije koristi (otvara) kursor `cStudyPrograms`.
 // Ako bismo stavili definiciju ove funkcije ispred `main` funkcije,
 // onda bi Db2 pretprocesor izdao upozorenje da se kursor koristi (otvara) pre deklaracije.
 // Funkcija vraca 1 ukoliko je doslo do problema, a 0 inace.
-int wait_for_lock();
+int waitForLock();
 
-void is_error(const char *str);
+// Funkcija za obradu SQL gresaka
+void checkSQL(const char *str);
 
 int main() {
     EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
-    is_error("Connect");
+    checkSQL("Connect");
     
     // Postavljanje isteka vremena na 5 sekundi
     EXEC SQL SET CURRENT LOCK TIMEOUT 5;
-    is_error("Set current lock timeout 5");
+    checkSQL("Set current lock timeout 5");
     
     EXEC SQL 
-        DECLARE c_studijski_programi CURSOR FOR 
+        DECLARE cStudyPrograms CURSOR FOR 
         SELECT  TRIM(NAZIV), 
                 OBIMESPB
         FROM    DA.STUDIJSKIPROGRAM
         FOR     UPDATE OF OBIMESPB;
-    is_error("Declare c_studijski_programi");
+    checkSQL("Declare cStudyPrograms");
     
-    EXEC SQL OPEN c_studijski_programi;
-    is_error("Open c_studijski_programi");
+    EXEC SQL OPEN cStudyPrograms;
+    checkSQL("Open cStudyPrograms");
 
     for(;;) {
         // Naredba FETCH dohvata jedan red iz rezultata upita.
         // Bilo da li se informacije koriste za citanje ili za eventualnu izmenu,
         // SUBP mora da dodeli aplikaciji odgovarajuci katanac.
         EXEC SQL 
-            FETCH   c_studijski_programi 
-            INTO    :naziv, 
-                    :espb;
-        if (wait_for_lock()) {
+            FETCH   cStudyPrograms 
+            INTO    :hStudyProgramName, 
+                    :hStudyProgramESPB;
+        if (waitForLock()) {
             continue;
         }
-        is_error("Fetch c_studijski_programi");
+        checkSQL("Fetch cStudyPrograms");
 
         if (SQLCODE == 100) {
             printf("Nema vise studijskih programa za obradjivanje!\n");
@@ -56,51 +57,51 @@ int main() {
         }
             
         EXEC SQL COMMIT;
-        is_error("Commit fetch");
+        checkSQL("Commit fetch");
             
-        printf("%s (%hd)\n", naziv, espb);
+        printf("%s (%hd)\n", hStudyProgramName, hStudyProgramESPB);
 
         printf("Da li zelite da promenite bodove za ovaj studijski program? [d/n] ");
-        char odgovor_od_korisnika = getchar();
+        char userResponse = getchar();
         getchar();  // novi red
 
-        if (odgovor_od_korisnika != 'd') {
+        if (userResponse != 'd') {
             continue;
         }
         
         printf("Unesite broj bodova: ");
-        scanf("%hd", &espb);
+        scanf("%hd", &hStudyProgramESPB);
 
         // Izvrsavanje naredbe UPDATE uvek trazi katanac za azuriranje podataka
         EXEC SQL 
             UPDATE  DA.STUDIJSKIPROGRAM
-            SET     OBIMESPB = :espb
-            WHERE   CURRENT OF c_studijski_programi;
-        if (wait_for_lock()) {
+            SET     OBIMESPB = :hStudyProgramESPB
+            WHERE   CURRENT OF cStudyPrograms;
+        if (waitForLock()) {
             continue;
         }
-        is_error("Update");
+        checkSQL("Update");
 
         printf("Bodovi su azurirani!\n\n");
     }
 
-    EXEC SQL CLOSE c_studijski_programi;
-    is_error("Close c_studijski_programi");
+    EXEC SQL CLOSE cStudyPrograms;
+    checkSQL("Close cStudyPrograms");
 
     // Vracamo istek vremena na podrazumevanu vrednost
     EXEC SQL SET CURRENT LOCK TIMEOUT NULL;
-    is_error("Set current lock timeout null");
+    checkSQL("Set current lock timeout null");
 
     EXEC SQL COMMIT;
-    is_error("Potvrdjivanje izmena");
+    checkSQL("Potvrdjivanje izmena");
 
     EXEC SQL CONNECT RESET;
-    is_error("Connect reset");
+    checkSQL("Connect reset");
 
     return 0;
 }
 
-void is_error(const char *str) {
+void checkSQL(const char *str) {
     if(SQLCODE < 0) {
         fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
 
@@ -111,16 +112,16 @@ void is_error(const char *str) {
     }
 }
 
-int wait_for_lock() {
+int waitForLock() {
     if (SQLCODE == -911 || SQLCODE == -913) {
         printf("Objekat je zakljucan od strane druge transakcije. "
             "Sacekati neko vreme...\n");
         
         EXEC SQL ROLLBACK;
-        is_error("Rollback");
+        checkSQL("Rollback");
 
-        EXEC SQL OPEN c_studijski_programi;
-        is_error("Open c_studijski_programi - wait_for_lock");
+        EXEC SQL OPEN cStudyPrograms;
+        checkSQL("Open cStudyPrograms - waitForLock");
 
         return 1;
     }

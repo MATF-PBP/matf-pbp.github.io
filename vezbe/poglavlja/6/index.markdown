@@ -172,7 +172,7 @@ Napisati program tako da može da radi u višekorisničkom okruženju. Obrada je
 
 Rešenje: S obzirom da se ovoga puta obrada katanaca vr\v si kao deo zasebne transakcije, onda je potrebno da poni\v stavamo izmene ukoliko do\dj e do isteka vremena za dobijanje katanaca. Zbog toga, funkciji za obradu \v cekanja dodajemo naredbu `ROLLBACK`. Dodatno, kako \'ce ta naredba zatvoriti sve otvorene kursore u transakciji (pa \v cak i one deklarisane klauzom `WITH HOLD`), potrebno je otvoriti kursor koji se koristio pre nego \v sto se pre\dj e u narednu iteraciju petlje koja obra\dj uje taj kursor. 
 
-Tako\dj e, primetimo da aplikacija \v cuva niz obra\dj enih predmeta tokom svog rada. Prilikom obra\dj ivanja narednog predmeta, aplikacija prvo proverava funkcijom `int predmet_je_obradjen(sqlint32 id)` i ukoliko jeste, aplikacija ga preska\v ce i prelazi na naredni predmet. U suprotnom, vr\v si se obrada i funkcijom `void oznaci_kao_obradjen(sqlint32 id)` se predmet ozna\v cava da je obra\dj en za naredne provere.
+Tako\dj e, primetimo da aplikacija \v cuva niz obra\dj enih predmeta tokom svog rada. Prilikom obra\dj ivanja narednog predmeta, aplikacija prvo proverava funkcijom `int isCourseProcessed(sqlint32 id)` i ukoliko jeste, aplikacija ga preska\v ce i prelazi na naredni predmet. U suprotnom, vr\v si se obrada i funkcijom `void setCourseAsProcessed(sqlint32 id)` se predmet ozna\v cava da je obra\dj en za naredne provere.
 
 include_source(vezbe/primeri/poglavlje_6/zadatak_6_2.sqc, c)
 
@@ -202,9 +202,9 @@ VALUES  (1, 'Spanija'),
         (6, 'Francuska');
 ```
 
-{% include lab/exercise.html broj="6.3" tekst="Napisati C/SQL program koji od korisnika zahteva da unese identifikator studijskog programa sa osnovnih studija. Program na osnovu unetog podatka pronalazi naredne informacije o studentima sa datog studijskog programa: (1) broj indeksa, (2) ime, (3) prezime, (4) broj položenih ispita tog studenta, (5) broj položenih ESPB bodova, ali samo ukoliko student ima položeno bar 12 predmeta, ima skupljeno bar 120 bodova i ako se studentov indeks već ne nalazi u tabeli EKSKURZIJA.
+{% include lab/exercise.html broj="6.3" tekst="Napisati C/SQL program koji od korisnika zahteva da unese identifikator studijskog programa sa osnovnih studija. Program na osnovu unetog podatka pronalazi naredne informacije o studentima sa datog studijskog programa: (1) broj indeksa, (2) ime, (3) prezime, (4) broj položenih ispita tog studenta, (5) broj položenih ESPB bodova, ali samo ukoliko student ima položeno bar 12 predmeta, ima skupljeno bar 120 bodova i ako se studentov indeks već ne nalazi u tabeli `EKSKURZIJA`.
 
-Za svakog pronađenog studenta, korisnik unosi ceo broj koji predstavlja jedan od identifikatora država iz tabele DRZAVA ili 0 (pretpostaviti da je ispravan unos). Ukoliko korisnik unese identifikator, aplikacija unosi informacije u tabelu EKSKURZIJA, a ukoliko unese 0, prelazi se na sledećeg studenta.Nakon svaka 3 uneta glasa, ponuditi korisniku mogućnost da prekine sa daljom obradom i napusti program, unošenjem odgovora 'da'.
+Za svakog pronađenog studenta, korisnik unosi ceo broj koji predstavlja jedan od identifikatora država iz tabele DRZAVA ili 0 (pretpostaviti da je ispravan unos). Ukoliko korisnik unese identifikator, aplikacija unosi informacije u tabelu `EKSKURZIJA`, a ukoliko unese 0, prelazi se na sledećeg studenta. Nakon svaka 3 uneta glasa, ponuditi korisniku mogućnost da prekine sa daljom obradom i napusti program, unošenjem odgovora `'da'`.
 
 Napomene: Obrada jednog studenta predstavlja jednu transakciju. Proveravati greške koje se javljaju prilikom izvršavanja aplikacije u višekorisničkom okruženju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
 

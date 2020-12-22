@@ -4,14 +4,14 @@
 EXEC SQL INCLUDE SQLCA;
 
 EXEC SQL BEGIN DECLARE SECTION;
-short godina;
-char oznaka[21], 
-     naziv[31],
-     datum_pocetka[11],
-     datum_kraja[11];
+short hSchoolYear;
+char hFinalsLabel[21], 
+     hFinalsName[31],
+     hFinalsStartDate[11],
+     hFinalsEndDate[11];
 EXEC SQL END DECLARE SECTION;
 
-void is_error(const char *str) {
+void checkSQL(const char *str) {
     if(SQLCODE < 0) {
         fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
 
@@ -24,10 +24,10 @@ void is_error(const char *str) {
 
 int main() {
     EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
-    is_error("Connect");
+    checkSQL("Connect");
 
     EXEC SQL 
-        DECLARE ispitniRok CURSOR FOR
+        DECLARE cFinals CURSOR FOR
         SELECT  SKGODINA, 
                 OZNAKAROKA, 
                 NAZIV,
@@ -37,7 +37,7 @@ int main() {
         WHERE   SKGODINA = 2021
         FOR     READ ONLY
         WITH    RR;
-    is_error("Declare cursor");
+    checkSQL("Declare cursor");
 
     int i = 1;
     for(; i<3; ++i)
@@ -45,40 +45,40 @@ int main() {
         printf("\nCitanje rezultata %d. put. Pritisnite ENTER za pocetak.\n", i);
         getchar();
         
-        EXEC SQL OPEN ispitniRok;
-        is_error("Open");
+        EXEC SQL OPEN cFinals;
+        checkSQL("Open");
         
         printf("\n---------------------------------------------------------\n");
         
         for(;;)
         {
             EXEC SQL 
-                FETCH   ispitniRok 
-                INTO    :godina, 
-                        :oznaka, 
-                        :naziv,
-                        :datum_pocetka,
-                        :datum_kraja;
-            is_error("Fetch");
+                FETCH   cFinals;
+                INTO    :hSchoolYear, 
+                        :hFinalsLabel, 
+                        :hFinalsName,
+                        :hFinalsStartDate,
+                        :hFinalsEndDate;
+            checkSQL("Fetch");
 
             if(SQLCODE == 100) {
                 break;
             }
 
-            printf("%4.4d %-10.10s %-20.20s %-10.10s %-10.10s\n", godina, oznaka, naziv, datum_pocetka, datum_kraja);
+            printf("%4.4d %-10.10s %-20.20s %-10.10s %-10.10s\n", hSchoolYear, hFinalsLabel, hFinalsName, hFinalsStartDate, hFinalsEndDate);
         }
         
         printf("\n---------------------------------------------------------\n");
         
-        EXEC SQL CLOSE ispitniRok;    
-        is_error("Close");
+        EXEC SQL CLOSE cFinals;    
+        checkSQL("Close");
     }
 
     EXEC SQL COMMIT;
-    is_error("Potvrdjivanje izmena");
+    checkSQL("Potvrdjivanje izmena");
 
     EXEC SQL CONNECT RESET;
-    is_error("Connect reset");
+    checkSQL("Connect reset");
     
     return 0;
 }
