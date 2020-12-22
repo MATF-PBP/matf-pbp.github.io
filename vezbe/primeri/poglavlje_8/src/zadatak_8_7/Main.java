@@ -16,8 +16,9 @@ public class Main {
     	String url = "jdbc:db2://localhost:50000/stud2020";
 
         try (Connection con = DriverManager.getConnection(url, "student", "abcdef")) {
-            
-            ispisiIAzurirajPredmete(con);
+
+            int[] ucitaniESPB = ucitajStareINoveESPB();
+            ispisiIAzurirajPredmete(con, ucitaniESPB[0], ucitaniESPB[1]);
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -33,9 +34,7 @@ public class Main {
         }
     }
 
-    private static void ispisiIAzurirajPredmete(Connection con) throws SQLException {
-        int[] ucitaniESPB = ucitajStareINoveESPB();
-        
+    private static void ispisiIAzurirajPredmete(Connection con, int X, int Y) throws SQLException {
         String sql = 
             "SELECT * " + 
             "FROM   DA.PREDMET";
@@ -53,9 +52,9 @@ public class Main {
             System.out.println("Oznaka: " + rs.getString(2).trim() + ", " + "Naziv:" + rs.getString(3).trim() + ", "
                     + "ESPB: " + rs.getInt(4));
 
-            if (rs.getInt(4) == ucitaniESPB[0]) {
+            if (rs.getInt(4) == X) {
                 // Azuriramo vrednost u koloni broj 5 (ESPB) iz upita iznad.
-                rs.updateInt(4, ucitaniESPB[1]);
+                rs.updateInt(4, Y);
                 // Kada zavrsimo sa azuriranjem svih kolona,
                 // pozivamo metod updateRow
                 // da bi se sve promene odmah oslikale.

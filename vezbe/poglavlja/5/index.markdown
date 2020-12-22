@@ -295,19 +295,19 @@ Rešenje:
 
 include_source(vezbe/primeri/poglavlje_5/zadatak_5_3.sqc, c)
 
-Za naredni program je potrebno kreirati tabelu `OBRADJENI_PREDMETI` sa narednom strukturom:
+Za naredni program je potrebno kreirati tabelu `OBRADJENIPREDMETI` sa narednom strukturom:
 
 ```sql
-DROP TABLE DA.OBRADJENI_PREDMETI;
+DROP TABLE DA.OBRADJENIPREDMETI;
 
-CREATE TABLE DA.OBRADJENI_PREDMETI (
-    ID_PREDMETA INTEGER NOT NULL,
-    PRIMARY KEY (ID_PREDMETA),
-    FOREIGN KEY (ID_PREDMETA) REFERENCES DA.PREDMET
+CREATE TABLE DA.OBRADJENIPREDMETI (
+    IDPREDMETA INTEGER NOT NULL,
+    PRIMARY KEY (IDPREDMETA),
+    FOREIGN KEY (IDPREDMETA) REFERENCES DA.PREDMET
 );
 ```
 
-{% include lab/exercise.html broj="5.4" tekst="Napisati C/SQL program koji za svaki predmet koji se ne nalazi u tabeli OBRADJENI_PREDMETI izlistava njegov naziv i ESPB. Korisniku se nudi opcija da poveća broj bodova za 1. Obrada 5 uzastopnih predmeta predstavlja jednu transakciju. Nakon svakog 5. predmeta pitati korisnika da li želi da nastavi sa daljim izmenama. Ukoliko ne želi, program se prekida. U suprotnom, nastaviti sa daljom obradom predmeta." %}
+{% include lab/exercise.html broj="5.4" tekst="Napisati C/SQL program koji za svaki predmet koji se ne nalazi u tabeli OBRADJENIPREDMETI izlistava njegov naziv i ESPB. Korisniku se nudi opcija da poveća broj bodova za 1. Obrada 5 uzastopnih predmeta predstavlja jednu transakciju. Nakon svakog 5. predmeta pitati korisnika da li želi da nastavi sa daljim izmenama. Ukoliko ne želi, program se prekida. U suprotnom, nastaviti sa daljom obradom predmeta." %}
 
 Rešenje: 
 
@@ -336,9 +336,9 @@ Naredni zadaci ilustruju kompleksniju upotrebu ta\v caka \v cuvanja u okviru tra
 Za naredni program je potrebno izvr\v siti naredne SQL naredbe:
 
 ```sql
-DROP    TABLE DA.STATISTIKA_POLAGANJA;
+DROP    TABLE DA.STATISTIKAPOLAGANJA;
 
-CREATE  TABLE DA.STATISTIKA_POLAGANJA (
+CREATE  TABLE DA.STATISTIKAPOLAGANJA (
     SKGODINA    SMALLINT NOT NULL,
     OZNAKAROKA  VARCHAR(20) NOT NULL,
     IDPREDMETA  INTEGER NOT NULL,
@@ -351,7 +351,7 @@ CREATE  TABLE DA.STATISTIKA_POLAGANJA (
 );
 ```
 
-{% include lab/exercise.html broj="5.6" tekst="Napisati C/SQL program koji izra\v cunava statistiku polaganja predmeta po ispitnim rokovima i te podatke upisuje u tabelu `STATISTIKA_POLAGANJA`. Program prvo ispisuje procenat polo\v zenih ispita u odnosu na ukupan broj polaganih ispita za predmete po ispitnim rokovima, ali samo za one predmete u ispitnom rokovima koji nemaju statistiku, pa zatim bele\v zi izra\v cunatu statistiku. Nakon unosa polaganja, pitati korisnika da li \v zeli da poni\v sti zabele\v zenu statistiku, ali omogu\'citi da se sa\v cuva informacija o tome da je statistika zabele\v zena (tj. da kolona `USPESNOST` bude `NULL`). Cela obrada jednog predmeta u jednom ispitnom roku predstavlja jednu transakciju." %}
+{% include lab/exercise.html broj="5.6" tekst="Napisati C/SQL program koji izra\v cunava statistiku polaganja predmeta po ispitnim rokovima i te podatke upisuje u tabelu `STATISTIKAPOLAGANJA`. Program prvo ispisuje procenat polo\v zenih ispita u odnosu na ukupan broj polaganih ispita za predmete po ispitnim rokovima, ali samo za one predmete u ispitnom rokovima koji nemaju statistiku, pa zatim bele\v zi izra\v cunatu statistiku. Nakon unosa polaganja, pitati korisnika da li \v zeli da poni\v sti zabele\v zenu statistiku, ali omogu\'citi da se sa\v cuva informacija o tome da je statistika zabele\v zena (tj. da kolona `USPESNOST` bude `NULL`). Cela obrada jednog predmeta u jednom ispitnom roku predstavlja jednu transakciju." %}
 
 Rešenje:
 
@@ -360,9 +360,9 @@ include_source(vezbe/primeri/poglavlje_5/zadatak_5_6.sqc, c)
 Za naredni program je potrebno izvr\v siti naredne SQL naredbe:
 
 ```sql
-DROP TABLE DA.OBRADJENA_POLAGANJA;
+DROP TABLE DA.OBRADJENAPOLAGANJA;
 
-CREATE TABLE DA.OBRADJENA_POLAGANJA (
+CREATE TABLE DA.OBRADJENAPOLAGANJA (
     INDEKS INTEGER NOT NULL,
     GODINA SMALLINT NOT NULL,
     PRIMARY KEY (INDEKS, GODINA),
@@ -370,17 +370,17 @@ CREATE TABLE DA.OBRADJENA_POLAGANJA (
         REFERENCES DA.DOSIJE
 );
 
-INSERT INTO DA.OBRADJENA_POLAGANJA
+INSERT INTO DA.OBRADJENAPOLAGANJA
 VALUES (20180050, 2018);
 ```
 
 {% include lab/exercise.html broj="5.7" tekst="Napisati C/SQL program kojim se omogu\'cuje da radnik u studentskoj slu\v zbi poni\v stava studentske ispite. Obrada jednog studenta u jednoj godini roka, koja je opisana u nastavku, mora da predstavlja zasebnu transakciju. Transakcija se sastoji od narednih koraka:
 
 1. Aplikacija zahteva od korisnika da unese indeks studenta.
-2. Aplikacija na osnovu unetog indeksa ispisuje godine rokova u kojima student ima neke polo\v zene ispite, ali samo ukoliko ve\'c nije prethodno ta godina roka obra\dj ena za tog studenta (ova informacija se \v cuva u tabeli `OBRADJENA_POLAGANJA`).
+2. Aplikacija na osnovu unetog indeksa ispisuje godine rokova u kojima student ima neke polo\v zene ispite, ali samo ukoliko ve\'c nije prethodno ta godina roka obra\dj ena za tog studenta (ova informacija se \v cuva u tabeli `OBRADJENAPOLAGANJA`).
 3. Korisnik bira jednu od ispisanih godina.
 4. Aplikacija pronalazi sve polo\v zene ispite za datog studenta u odabranoj godini studija. Za svaki ispit, aplikacija ispisuje naziv polo\v zenog predmeta i ocenu koju je student ostvario. Tako\dj e, aplikacija pita korisnika da li \v zeli da poni\v sti teku\'ci ispit \v cije su informacije ispisane. Ukoliko korisnik odgovori potvrdno, aplikacija poni\v stava teku\'ci ispit. U svakom slu\v caju, aplikacija prelazi na naredni ispit sve do ispisivanja svih ispita.
-5. Kada se svi ispiti obrade, aplikacija pita korisnika da potvrdi sve izmene u teku\'coj transakciji. Ukoliko korisnik odgovori odri\v cno, onda je potrebno poni\v stiti sve izmene koje se ti\v cu poni\v stavanja ispita iz koraka 4. Me\dj utim, potrebno je omogu\'citi da, u svakom slu\v caju, teku\'ca godina roka za dati indeks bude obra\dj ena (tj. trajno zapam\'cena u tabeli `OBRADJENA_POLAGANJA`).
+5. Kada se svi ispiti obrade, aplikacija pita korisnika da potvrdi sve izmene u teku\'coj transakciji. Ukoliko korisnik odgovori odri\v cno, onda je potrebno poni\v stiti sve izmene koje se ti\v cu poni\v stavanja ispita iz koraka 4. Me\dj utim, potrebno je omogu\'citi da, u svakom slu\v caju, teku\'ca godina roka za dati indeks bude obra\dj ena (tj. trajno zapam\'cena u tabeli `OBRADJENAPOLAGANJA`).
 
 Na kraju svake transakcije, aplikacija pita korisnika da li \v zeli da zavr\v si sa radom. Ukoliko korisnik odgovori potvrdno, aplikacija se zavr\v sava. U suprotnom, zapo\v cinje se nova transakcija sa prethodno opisanim koracima." %}
 
@@ -394,7 +394,7 @@ Rešenje: Da bismo lak\v se modulirali na\v se re\v senje, implementirajmo nared
 
 4. Funkcija `void polaganja_za_studenta_u_godini(sqlint32 indeks, short godina)` implementira neophodne operacije koje \v cine deo transakcije za jednog studenta. Funkcija redom:
 
-- Unosi informacije (`INSERT`) o indeksu i godini roka u tabelu `OBRADJENA_POLAGANJA`.
+- Unosi informacije (`INSERT`) o indeksu i godini roka u tabelu `OBRADJENAPOLAGANJA`.
 - Kreira ta\v cku \v cuvanja, kako bismo mogli da eventualno poni\v stimo sve izmene, osim unosa u tabelu iz prethodne ta\v cke.
 - Prolazi kroz kursor `c_polozeni`. Za svaki red ispisuje informacije iz kursora i ukoliko korisnik potvrdi poni\v stavanje ispita, izvr\v sava odgovaraju\'ce a\v zuriranje (`UPDATE`).
 - Postavlja pitanje korisniku da li \v zeli da potvrdi izmene. Ukoliko je odgovor negativan, funkcija poni\v stava sve izmene, ali ne i izmenu koja je u\v cinjena u prvoj ta\v cki (tj. naredbu `INSERT` iznad), po\v sto bez obzira na poni\v stavanje a\v zuriranja, \v zelimo da informacija o obra\dj ivanju bude trajno upisana.
@@ -427,7 +427,7 @@ Obezbediti da se navedene operacije izvrše zasebno." %}
 
 {% include lab/exercise.html broj="5.10" tekst="Napisati C/SQL program koji za svaki predmet koji je obavezan na smeru čiji je identifikator 201, pita korisnika da li želi da poveća broj bodova za 1. Ukoliko je odgovor korisnika 'da', izvršava se odgovarajuća naredba. Obrada jednog predmeta treba da predstavlja jednu transakciju." %}
 
-{% include lab/exercise.html broj="5.11" tekst="Napisati C/SQL program koji omogućava korisniku da obriše informacije o studentima koji su upisani u godini koja se unosi sa standardnog ulaza. Za svakog studenta, program pita korisnika da li želi da obriše informacije. Ako korisnik potvrdi, obrisati podatke iz tabela `ISPIT`, `UPISAN_KURS`, `UPIS_GODINE`, `STATUS` i `DOSIJE` (tim redosledom) za tekućeg studenta i ispisati poruku o uspešnosti brisanja za svaku tabelu ponaosob. Nakon toga, aplikacija pita korisnika da li želi da izvrši potvrđivanje ili poništavanje dotadašnjih izmena. Korisnik može da bira jednu od tri opcije:
+{% include lab/exercise.html broj="5.11" tekst="Napisati C/SQL program koji omogućava korisniku da obriše informacije o studentima koji su upisani u godini koja se unosi sa standardnog ulaza. Za svakog studenta, program pita korisnika da li želi da obriše informacije. Ako korisnik potvrdi, obrisati podatke iz tabela `ISPIT`, `UPISANKURS`, `UPISGODINE`, `PRIZNATIISPIT`, `DOSIJEEXT` i `DOSIJE` (tim redosledom) za tekućeg studenta i ispisati poruku o uspešnosti brisanja za svaku tabelu ponaosob. Nakon toga, aplikacija pita korisnika da li želi da izvrši potvrđivanje ili poništavanje dotadašnjih izmena. Korisnik može da bira jednu od tri opcije:
 1. Izvršavanje potvrđivanja
 2. Izvršavanje poništavanja
 3. Bez akcije
