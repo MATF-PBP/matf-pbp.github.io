@@ -314,23 +314,30 @@ Do sada smo naše JDBC aplikacije pisali u proceduralnom stilu - metod `main()` 
 
 Ovaj pristup nije problematičan prilikom kreiranja jednostavnih aplikacija kao što su to bile aplikacije koje smo videli do sada. Međutim, što se složenost aplikacije povećava, ovakav pristup postaje izuzetno naporan za održavanje - što je i jedna od najvećih mana proceduralne paradigme programiranja. Neke od re\v senja ovih problema \'cemo prikazati kroz naredni zadatak.
 
-{% include lab/exercise.html broj="9.6" tekst="Uraditi zadatak 9.5 kori\v s\'cenjem objektno-orijentisanog pristupa dizajnu." %}
+{% include lab/exercise.html broj="9.6" tekst="Napisati Java program u kojem se SQL naredbe izvr\v savaju dinami\v cki koji izdvaja studente po studijskim programima. Za svaki studijski program ispisati naziv obim u ESPB i zvanje, a zatim spisak studenata (indeks, ime i prezime) koji su upisali taj program. Zadatak uraditi kori\v s\'cenjem objektno-orijentisanog pristupa dizajnu." %}
 
-Re\v senje: Jedan od problema koji smo imali prilike da vidimo jeste umnožavanje ”istog” koda - u zadatku 9.5, za obe baze podataka, metod `main()` mora da čuva po jedan objekat konekcije, URL ka bazi podataka, da izvršava povezivanje, oslobađanje resursa i drugo. Jedina svetla tačka tog koda jeste izdvajanje logičkih celina nad jednom bazom podataka u odgovarajuću funkciju, umesto da se i te obrade izvršavaju u metodi `main()`. Ova odluka zapravo predstavlja prvi korak ka jednom od osnovnih koncepata objektno-orijentisane paradigme - jedna klasa treba da implementira jednu jezgrovitu funkcionalnost. U tu svrhu, u nastavku teksta, pokušaćemo da rešimo neke probleme koje se javljaju u rešenju zadatka 9.5.
+Re\v senje: Jednan od osnovnih koncepata objektno-orijentisane paradigme je da jedna klasa treba da implementira jednu jezgrovitu funkcionalnost.
 
-Za početak, pogledajmo koji su to elementi koji se ponavljaju za obe baze podataka (naravno, sa različitim vrednostima): objekat konekcije, naziv baze podataka, URL, korisničko ime i lozinka. Svi ovi elementi su idealni kandidati za članice klase za svaku od baza podataka. Od ponašanja koje ove baze podataka imaju zajedničko jesu: povezivanje, diskonekcija, pohranjivanje i poništavanje izmena. Ovo će se direktno oslikati u metode klasa koje kreiramo. Takođe, primetimo da postoje i funkcionalnosti koje se razlikuju. U pitanju su operacije procesiranja podataka - za svaku bazu podataka imamo različite zahteve.
+Za početak, mo\v zemo napisati po jednu klasu za svaku tabelu koja \' ce se koristiti. U ovom slu\v caju to su tabele `StudijskiProgram` i `Dosije`. Svaka klasa treba da sadr\v zi polja koja odgovaraju nekoj od kolona tabele. Jedan objekat klase predstavlja jedan slog odgovaraju\' ce tabele.
 
-Kako imamo elemente koji su zajednički za obe baze podataka, ali i oni koji su različiti, to nas dovodi do zaključka da bi trebalo da kreiramo jednu baznu klasu, na primer, `Database`, koja će implementirati zajedničko ponašanje, ali i skladištiti zajedničke podatke (i implementirati pomoćne funkcije za njihovo lakše upravljanje), kao i po jednu klasu za svaku bazu podataka, na primer, `Vstud` i `Mstud`, koje će dodeliti odgovarajuće vrednosti podacima i pozvati metod `connect()` i, zatim, potrebno je implementirati zahteve nad tim bazama podataka kao metode odgovaraju\'cih klasa. Time dobijamo naredne klase:
+Potrebna nam je i klasa, na primer `Database`, koja implementira osnovne operacije za rad sa bazom. Zatim, ove funkcionalnosti mo\v zemo iskoristiti u implementaciji za rad sa bazom `STUD2020` tako \v sto \' cemo napisati posebnu klasu za ovu bazu, na primer `Stud2020`,  koja \' ce naslediti klasu `Database`. U ovoj klasi implementiramo zahteve kao metode klase. Time dobijamo naredne klase:
 
 include_source(vezbe/primeri/poglavlje_9/src/zadatak_9_6/Database.java, java)
 
-include_source(vezbe/primeri/poglavlje_9/src/zadatak_9_6/Vstud.java, java)
+include_source(vezbe/primeri/poglavlje_9/src/zadatak_9_6/Stud2020.java, java)
 
-include_source(vezbe/primeri/poglavlje_9/src/zadatak_9_6/Mstud.java, java)
+include_source(vezbe/primeri/poglavlje_9/src/zadatak_9_6/StudijskiProgram.java, java)
+
+include_source(vezbe/primeri/poglavlje_9/src/zadatak_9_6/Student.java, java)
 
 include_source(vezbe/primeri/poglavlje_9/src/zadatak_9_6/Main.java, java)
 
-SQL datoteke koje sadr\v ze odgovaraju\'ce naredbe su identi\v cne onima iz re\v senja zadatka 9.5, tako da ih ne\'cemo prikazivati ovde.
+Naredne SQL datoteke sadr\v ze odgovaraju\'ce naredbe:
+
+include_source(vezbe/primeri/poglavlje_9/src/zadatak_9_6/studijskiProgrami.sql, sql)
+
+include_source(vezbe/primeri/poglavlje_9/src/zadatak_9_6/studentiStudijskogPrograma.sql, sql)
+
 
 ## 9.5 Zadaci za ve\v zbu
 
@@ -374,57 +381,57 @@ include_source(vezbe/primeri/poglavlje_9/src/zadatak_9_7/statistika.sql, sql)
 include_source(vezbe/primeri/poglavlje_9/src/zadatak_9_7/statistikaMSTUD.sql, sql)
 
 {% include lab/exercise.html broj="9.8" tekst="Napisati Java program u kojem se SQL naredbe izvr\v savaju dinami\v cki koji za sve ispitne rokove pronalazi
-informacije o polaganjima za svaki položeni predmet u tom ispitnom roku i te podatke unosi u tabelu `ISPITNI_ROKOVI_POLAGANJA`. Kreirati datu tabelu na osnovu SQL koda ispod.\n
+informacije o polaganjima za svaki položeni predmet u tom ispitnom roku i te podatke unosi u tabelu `ISPITNIROKOVIPOLAGANJA`. Kreirati datu tabelu na osnovu SQL koda ispod.\n
 \n
 Pre jednog unosa podataka ispisati podatke koji ce biti uneti. Takođe, omogućiti da se podaci unose tako što korisnik mora da odobri unos podataka na svakih 20 redova (tzv. *batch* unos podataka). Napisati program tako da može da radi u višekorisničkom okruženju. Unos podataka za jedno polaganje predstavlja jednu transakciju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi. Obraditi sve moguće greške.\n
 \n
 SQL naredbe za kreiranje i brisanje tabele sačuvati u datotekama 2a.sql i 2b.sql, redom, a `SELECT` naredbu kojim se izdvajaju potrebni podaci sačuvati u datoteci 2c.sql." %}
 
 ```sql
-CREATE TABLE ISPITNI_ROKOVI_POLAGANJA (
+CREATE TABLE DA.ISPITNIROKOVIPOLAGANJA (
     GODINA SMALLINT NOT NULL,
     OZNAKA VARCHAR(20) NOT NULL,
-    ID_PREDMETA INTEGER NOT NULL,
+    IDPREDMETA INTEGER NOT NULL,
     OCENA SMALLINT NOT NULL,
     BROJ INTEGER NOT NULL,
-    NAZIV_ROKA VARCHAR(50),
-    NAZIV_PREDMETA VARCHAR(200),
-    PRIMARY KEY(GODINA, OZNAKA, ID_PREDMETA, OCENA, BROJ)
+    NAZIVROKA VARCHAR(50),
+    NAZIVPREDMETA VARCHAR(200),
+    PRIMARY KEY(GODINA, OZNAKA, IDPREDMETA, OCENA, BROJ)
 )
 ```
 
-Pomo\'c pri re\v savanju zadatka: Kreirati tabelu `OBRADJENA_POLAGANJA` na osnovu SQL koda ispod koja \'ce sadr\v zati informacije o ve\'c obra\dj enim polaganjima iz tabele `ISPITNI_ROKOVI_POLAGANJA`. Nakon svake obrade jednog polaganja, uneti novi red u ovu tabelu i potvrditi izmene.
+Pomo\'c pri re\v savanju zadatka: Kreirati tabelu `OBRADJENAPOLAGANJA` na osnovu SQL koda ispod koja \'ce sadr\v zati informacije o ve\'c obra\dj enim polaganjima iz tabele `ISPITNIROKOVIPOLAGANJA`. Nakon svake obrade jednog polaganja, uneti novi red u ovu tabelu i potvrditi izmene.
 
 ```sql
-CREATE TABLE OBRADJENA_POLAGANJA (
+CREATE TABLE OBRADJENAPOLAGANJA (
     GODINA SMALLINT NOT NULL,
     OZNAKA VARCHAR(20) NOT NULL,
-    ID_PREDMETA INTEGER NOT NULL,
+    IDPREDMETA INTEGER NOT NULL,
     OCENA SMALLINT NOT NULL,
     BROJ INTEGER NOT NULL,
-    PRIMARY KEY(GODINA, OZNAKA, ID_PREDMETA, OCENA, BROJ),
-    FOREIGN KEY(GODINA, OZNAKA, ID_PREDMETA, OCENA, BROJ) REFERENCES ISPITNI_ROKOVI_POLAGANJA
+    PRIMARY KEY(GODINA, OZNAKA, IDPREDMETA, OCENA, BROJ),
+    FOREIGN KEY(GODINA, OZNAKA, IDPREDMETA, OCENA, BROJ) REFERENCES DA.ISPITNIROKOVIPOLAGANJA
 )
 ```
 
 {% include lab/exercise.html broj="9.9" tekst="Napisati Java program u kojem se SQL naredbe izvr\v savaju dinami\v cki koji redom:\n
 \n
 1. Naredbama `INSERT` unosi podatke o nekoliko stipendija u tabelu `STIPENDIJA`. Izračunati i broj unetih redova. U slučaju da je broj unetih redova jednak nuli, ispisati poruku ”Nijedan red nije dodat”, a inače ispisati poruku u unetom broju redova. Kreirati datu tabelu na osnovu SQL koda ispod.\n
-2. Za svaku stipendiju, pita korisnika da li želi da promeni broj studenata za tu stipendiju i ukoliko je odgovor korinika potvrdan, od korisnika traži da unese novi broj studenata i izvršava odgovarajuću naredbu.\n
-3. Za svaku stipendiju, pita korisnika da li želi da obriše tu stipendiju i ukoliko je odgovor korinika potvrdan, izvršava odgovarajuću naredbu.\n
+2. Za svaku stipendiju, pita korisnika da li želi da promeni broj studenata za tu stipendiju i ukoliko je odgovor korisnika potvrdan, od korisnika traži da unese novi broj studenata i izvršava odgovarajuću naredbu.\n
+3. Za svaku stipendiju, pita korisnika da li želi da obriše tu stipendiju i ukoliko je odgovor korisnika potvrdan, izvršava odgovarajuću naredbu.\n
 \n
 Aplikacija treba da radi u višekorisničkom okruženju. Obrada jedne stipendije u svim zahtevima treba da predstavlja jednu transakciju. Postaviti istek vremena na 5 sekundi." %}
 
 ```sql
 CREATE TABLE STIPENDIJA (
-    ID_STIPENDIJE INTEGER NOT NULL,
+    ID INTEGER NOT NULL,
     NAZIV VARCHAR(100) NOT NULL,
     GODINA SMALLINT NOT NULL,
-    BROJ_STIPENDISTA SMALLINT NOT NULL,
-    VISINA_STIPENDIJE SMALLINT,
-    MIN PROSEK FLOAT,
+    BROJSTIPENDISTA SMALLINT NOT NULL,
+    VISINASTIPENDIJE SMALLINT,
+    MINPROSEK FLOAT,
     NAPOMENA VARCHAR(50),
-    PRIMARY KEY (ID_STIPENDIJE)
+    PRIMARY KEY (ID)
 )
 ```
 
