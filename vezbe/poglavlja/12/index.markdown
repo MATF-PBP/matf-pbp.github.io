@@ -149,18 +149,18 @@ c.select(stud)
 
 The second fundamental concept to revisit is the path expression. The path expression is the key to the power and flexibility of the HQL language, and it is likewise a central piece of the Criteria API. 
 
-Govorili smo o korenima upita u prethodnoj podsekciji, ali svi koreni zapravo predstavljaju specijalni tip izraza putanje. Posmatrajmo naredni jednostavan HQL upit koji vra\'ca sve studente koji su upisani na smeru Informatika:
+Govorili smo o korenima upita u prethodnoj podsekciji, ali svi koreni zapravo predstavljaju specijalni tip izraza putanje. Posmatrajmo naredni jednostavan HQL upit koji vra\'ca sve studente koji su upisani na studijskom programu Informatika:
 
 ```sql
 SELECT  s
 FROM    Student s
-WHERE   s.smer.naziv = 'Informatika'
+WHERE   s.studijskiProgram.naziv = 'Informatika'
 ```
 
 Razmi\v sljaju\'ci u terminima JPA Criteria API, koren ovog izraza je entitet `Student` i neka je on predstavljen objektom `stud`. Ovaj upit tako\dj e sadr\v zi izraz putanje u `WHERE` klauzi. Da bismo predstavili ovaj izraz putanje kori\v s\'cenjem JPA Criteria API, koristimo naredni izraz:
 
 ```java
-stud.get("smer").get("naziv")
+stud.get("studijskiProgram").get("naziv")
 ```
 
 Metod `get()` je izveden iz interfejsa `Path` pro\v sirenog interfejsom `Root` i ekvivalentan je operatoru ta\v cke koji se koristi u HQL izrazima putanje radi navigacije kroz putanju. S obzirom da metod `get()` vra\'ca objekat interfejsa `Path`, pozivi metoda se mogu ulan\v cavati, \v sto \'ce nam biti veoma korisna tehnika pri izgradnji upita, jer time izbegavamo uvo\dj enje privremenih lokalnih promenljivih (koji nam ne slu\v ze prakti\v cno ni\v cemu). Argument metoda `get()` je naziv atributa entiteta za koji smo zainteresovani. Zbog toga \v sto je rezultat konstruisanja izraza putanje objekat interfejsa `Expression` koji mi mo\v zemo da koristimo za izgradnju uslovnih izraza, mo\v zemo prethodni HQL upit izraziti na slede\'ci na\v cin:
@@ -170,7 +170,7 @@ CriteriaQuery<Student> c    = cb.createQuery(Student.class);
 Root<Student> stud          = c.from(Student.class);
 
 c.select(stud)
- .where(cb.equal(stud.get("smer").get("naziv"), "Informatika"));
+ .where(cb.equal(stud.get("studijskiProgram").get("naziv"), "Informatika"));
 ```
 
 Much like HQL, path expressions may be used throughout the different clauses of the query definition. With the Criteria API, it is necessary to hold onto the root object in a local variable and use it to form path expressions where required. Once again it is worth emphasizing that the `from()` method of `AbstractQuery` should never be invoked more than once for each desired root. Invoking it multiple times will result in additional roots being created and a `Cartesian` product if not careful. Always store the `root` objects locally and refer to them when necessary.
@@ -337,19 +337,19 @@ Root<Student> stud          = c.from(Student.class);
 Join<Student,Ispit> ispit   = stud.join("indeks", JoinType.LEFT);
 ```
 
-Da smo izostavili argument `JoinType.LEFT`, spajanje bi podrazumevano bilo unutra\v snje. Poput HQL-a, vi\v sestruka spajanja se mogu asocirati za istu `From` instancu. Na primer, za navigaciju kroz `Ispit` i `Smer`, potrebno je koristiti naredni kod, koji pretpostavlja unutra\v snja spajanja:
+Da smo izostavili argument `JoinType.LEFT`, spajanje bi podrazumevano bilo unutra\v snje. Poput HQL-a, vi\v sestruka spajanja se mogu asocirati za istu `From` instancu. Na primer, za navigaciju kroz `Ispit` i `StudijskiProgram`, potrebno je koristiti naredni kod, koji pretpostavlja unutra\v snja spajanja:
 
 ```java
 Root<Student> stud          = c.from(Student.class);
 Join<Student,Ispit> ispit   = stud.join("indeks");
-Join<Student,Smer> smer     = stud.join("smer");
+Join<Student,StudijskiProgram> studijskiProgram     = stud.join("studijskiProgram");
 ```
 
 Spajanja se tako\dj e mogu ulan\v cavati u jednu naredbu. Rezultuju\'ce spajanje \'ce biti tipizirano tipom izvora i tipom cilja poslednjeg spajanja u naredbi:
 
 ```java
-Root<Smer> smer             = c.from(Smer.class);
-Join<Student,Ispit> ispiti  = smer.join("studentiNaSmeru").join("ispiti");
+Root<StudijskiProgram> studijskiProgram             = c.from(StudijskiProgram.class);
+Join<Student,Ispit> ispiti  = studijskiProgram.join("studenti").join("ispiti");
 ```
 
 Joins across collection relationships that use `Map` are a special case. HQL uses the `KEY` and `VALUE` keywords to extract the key or value of a `Map` element for use in other parts of the query. In the JPA Criteria API, these operators are handled by the `key()` and `value()` methods of the `MapJoin` interface. Consider the following example assuming a `Map` join across the phones relationship of the `Employee` entity:
@@ -536,7 +536,7 @@ Upravljanje parametrima u JPA Criteria API upitima se razlikuje od pristupa u HQ
 ```sql
 SELECT  s
 FROM    Student s
-WHERE   s.smer.naziv = :ns
+WHERE   s.studijskiProgram.naziv = :ns
 ```
 
 Naredni kod ilustruje kori\v s\'cenje ovog metoda:
@@ -547,11 +547,11 @@ Root<Student> stud          = c.from(Student.class);
 
 c.select(stud);
 
-ParameterExpression<String> nazivSmera =
+ParameterExpression<String> nazivStudijskogPrograma =
     cb.parameter(String.class, "ns");
 
-c.where(cb.equal(stud.get("smer").get("naziv"), 
-                 nazivSmera));
+c.where(cb.equal(stud.get("studijskiProgram").get("naziv"), 
+                 nazivStudijskogPrograma));
 ```
 
 Ako se parametar ne\'ce koristiti u drugim delovima upita, onda ga je mogu\'ce ugnezditi direktno u predikatskom izrazu da bismo u\v cinili ceo upit konciznijim. Naredni kod ilustruje ovu tehniku:
@@ -561,7 +561,7 @@ CriteriaQuery<Student> c    = cb.createQuery(Student.class);
 Root<Student> stud           = c.from(Employee.class);
 
 c.select(stud)
- .where(cb.equal(stud.get("smer").get("naziv"),
+ .where(cb.equal(stud.get("studijskiProgram").get("naziv"),
                  cb.parameter(String.class, "ns")));
 ```
 
@@ -569,7 +569,7 @@ Da bismo izvr\v sili ovaj upit, o\v cigledno, neophodno je da postavimo vrednost
 
 ```java
 TypedQuery<Student> query = session.createQuery(c);
-query.setParameter(nazivSmera, "Informatika");
+query.setParameter(nazivStudijskogPrograma, "Informatika");
 List<Student> results = query.getResultList();
 ```
 
@@ -716,17 +716,17 @@ Za razliku od drugih operatora, operator `IN` zahteva specijalno upravljanje u J
 ```sql
 SELECT  s
 FROM    Student s
-WHERE   s.smer.naziv IN ('Informatika', 'Matematika', 'Astronomija')
+WHERE   s.studijskiProgram.naziv IN ('Informatika', 'Matematika', 'Astronomija')
 ```
 
-Da bismo pretvorili ovaj upit u JPA Criteria API upit, potrebno je da pozovemo metod `value()` iz interfejsa `CriteriaBuilder.In` da bismo postavili skup vrednosti za nazive smerova za koje smo zainteresovani, kao u narednom kodu:
+Da bismo pretvorili ovaj upit u JPA Criteria API upit, potrebno je da pozovemo metod `value()` iz interfejsa `CriteriaBuilder.In` da bismo postavili skup vrednosti za nazive studijskih programa za koje smo zainteresovani, kao u narednom kodu:
 
 ```java
 CriteriaQuery<Student> c   = cb.createQuery(Student.class);
 Root<Student> stud         = c.from(Student.class);
 
 c.select(stud)
- .where(cb.in(stud.get("smer").get("naziv"))
+ .where(cb.in(stud.get("studijskiProgram").get("naziv"))
           .value("Informatika").value("Matematika").value("Astronomija"));
 ```
 
@@ -739,7 +739,7 @@ CriteriaQuery<Student> c   = cb.createQuery(Student.class);
 Root<Student> stud         = c.from(Student.class);
 
 c.select(stud)
- .where(stud.get("smer").get("naziv")
+ .where(stud.get("studijskiProgram").get("naziv")
             .in("Informatika", "Matematika", "Astronomija"));
 ```
 
@@ -896,24 +896,24 @@ Metod `orderBy()` interfejsa `CriteriaQuery` postavlja ure\dj enje u definiciji 
 ```java
 CriteriaQuery<Tuple> c  = cb.createQuery(Tuple.class);
 Root<Student> stud      = c.from(Student.class);
-Join<Student,Smer> smer = stud.join("smer");
+Join<Student,StudijskiProgram> studijskiProgram = stud.join("studijskiProgram");
 
-c.multiselect(smer.get("naziv"), 
+c.multiselect(studijskiProgram.get("naziv"), 
               stud.get("ime"),
               stud.get("prezime"));
-c.orderBy(cb.desc(smer.get("naziv")),
+c.orderBy(cb.desc(studijskiProgram.get("naziv")),
           cb.asc(stud.get("prezime")));
 ```
 
 Argumenti metoda `asc()` i `desc()` moraju biti jednovrednosni izrazi, tipi\v cno formirani na osnovu atributa entiteta. Redosled u kojem se argumenti prosle\dj uju metodu `orderBy()` defini\v su generisani SQL. Ekvivalentan HQL upit za prethodni primer je:
 
 ```sql
-SELECT      sm.naziv
+SELECT      sp.naziv
             s.ime,
             s.prezime
 FROM        Student s JOIN 
-            s.smer sm
-ORDER BY    sm.naziv DESC, 
+            s.studijskiProgram sp
+ORDER BY    sp.naziv DESC, 
             s.prezime
 ```
 
@@ -968,13 +968,13 @@ c.multiselect(stud.get("indeks"), cb.count(ispit))
                     cb.literal(new Long(30))));
 ```
 
-{% include lab/exercise.html broj="12.1" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate i JPA Criteria API-ja izdvaja podatke o studentima bez duplikata \v cija imena ili prezimena po\v cinju slovom `P` i koji \v zive u Beogradu ili Kragujevcu. Rezultat urediti po mestu stanovanja opadaju\'ce, pa po imenu i prezimenu rastu\'ce. Ispisati mesto stanovanja, indeks, ime i prezime za date studente." %}
+{% include lab/exercise.html broj="12.1" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate i JPA Criteria API-ja izdvaja podatke o studentima bez duplikata \v cija imena ili prezimena po\v cinju slovom `P` i koji su ro\dj eni u Beogradu ili Kragujevcu. Rezultat urediti po mestu ro\dj enja opadaju\'ce, pa po imenu i prezimenu rastu\'ce. Ispisati mesto stanovanja, indeks, ime i prezime za date studente." %}
 
 Re\v senje: Dajemo dva re\v senja. Prvo od njih koristi pristup sa metodom `select()` u kojem se izdvajaju objekti klase `Student`. Drugo od njih koristi pristup sa metodom `multiselect()` da izdvoji samo informacije od zna\v caja.
 
 include_source(vezbe/primeri/poglavlje_12/src/zadatak_12_1/Main.java, java)
 
-{% include lab/exercise.html broj="12.2" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate i JPA Criteria API-ja izdvaja nazive svih polo\v zenih predmeta za studenta \v ciji se indeks u\v citava sa standardnog ulaza. Ispisati prvo ime i prezime studenta, pa zatim spisak njegovih polozenih ispita." %}
+{% include lab/exercise.html broj="12.2" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate i JPA Criteria API-ja izdvaja nazive svih polo\v zenih predmeta za studenta \v ciji se indeks u\v citava sa standardnog ulaza. Ispisati prvo ime i prezime studenta, pa zatim spisak njegovih polo\v zenih ispita." %}
 
 Re\v senje: Dodajemo implementaciju u vidu klase `Predmet` za tabelu `PREDMET` kako bismo mogli da pristupimo nazivu predmeta. Potrebno je dopuniti i klasu `Ispit` radi ostvarivanja veze izme\dj u ove dve klase. Kona\v cno, dodajemo klasu `Predmet` u listu anotiranih klasa.
 
@@ -989,8 +989,6 @@ include_source(vezbe/primeri/poglavlje_12/src/zadatak_12_2/Main.java, java)
 
 {% include lab/exercise.html broj="12.3" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate i JPA Criteria API-ja izdvaja sve podatke o studentima koji su upisali fakultet godine koja se unosi sa standardnog ulaza." %}
 
-{% include lab/exercise.html broj="12.4" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate i JPA Criteria API-ja za svaki predmet izdvaja  šifru i naziv, a zatim i spisak uslovnih predmeta. Za svaki uslovni predmet izdvojiti šifru, naziv i broj bodova." %}
+{% include lab/exercise.html broj="12.4" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate i JPA Criteria API-ja za svaki predmet izdvaja oznaku i naziv, a zatim i spisak uslovnih predmeta. Za svaki uslovni predmet izdvojiti oznaku, naziv i broj ESPB bodova." %}
 
 {% include lab/exercise.html broj="12.5" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate i JPA Criteria API-ja za studenta, čiji se indeks unosi sa standardnog ulaza, pravi izveštaj o položenim ispitima i uspehu po upisanim školskim godinama. Za svaku upisanu godinu ispisati naziv predmeta, datum polaganja i ocenu, a zatim prosečnu ocenu." %}
-
-{% include lab/exercise.html broj="12.6" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate i JPA Criteria API-ja za sve studente za koje ne postoji podatak o datumu rođenja vrši ažuriranje podataka. Za svakog takvog studenta ispitati podatke: indeks, ime i prezime, a zatim pročitati vrednost za JMBG sa standardnog ulaza. Na osnovu unete vrednosti odrediti datum rođenja i ažurirati vrednosti za datum rođenja i JMBG. Obrada jednog studenta predstavlja jednu transakciju." %}
