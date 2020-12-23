@@ -6,11 +6,11 @@ import java.util.List;
 import javax.persistence.*;
 
 @Entity
-@Table (name = "predmet")
+@Table (name = "DA.PREDMET")
 public class Predmet {
 	@Id
 	@Column
-	private Integer id_predmeta;
+	private Integer id;
 	
 	@Column
 	private String naziv;
@@ -18,12 +18,12 @@ public class Predmet {
 	@OneToMany(mappedBy="predmet")
 	private List<Ispit> ispiti = new ArrayList<Ispit>();
 	
-	public Integer getId_predmeta() {
-		return id_predmeta;
+	public Integer getId() {
+		return id;
 	}
 
-	public void setId_predmeta(Integer id_predmeta) {
-		this.id_predmeta = id_predmeta;
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
 	public String getNaziv() {
