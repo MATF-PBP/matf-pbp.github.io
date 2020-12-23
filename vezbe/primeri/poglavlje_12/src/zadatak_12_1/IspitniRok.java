@@ -10,26 +10,22 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "ispitni_rok")
-public class IspitniRok {
+@Table(name = "DA.ISPITNIROK")
+class IspitniRok {
     // Primarni kljuc
-
     @Id
     private IspitniRokId id = null;
 
     // Ostale kolone
 
-    @Column(name = "naziv", nullable = false)
+    @Column(name = "NAZIV", nullable = false)
     private String Naziv;
 
-    @Column(name = "pocetak_prijavljivanja", nullable = false)
+    @Column(name = "DATPOCETKA", nullable = false)
     private String Pocetak;
 
-    @Column(name = "kraj_prijavljivanja", nullable = false)
+    @Column(name = "DATKRAJA", nullable = false)
     private String Kraj;
-
-    @Column(name = "tip", nullable = false)
-    private String Tip = "B";
 
     // Kreiranje veze izmedju IspitniRok i Ispit.
     // S obzirom da je veza izmedju ovih klasa dvosmerna,
@@ -72,18 +68,6 @@ public class IspitniRok {
         Kraj = kraj;
     }
 
-    public String getTip() {
-        return Tip;
-    }
-
-    public void setTip(String tip) {
-        if (tip == null) {
-            Tip = "B";
-            return;
-        }
-        Tip = tip;
-    }
-
     public List<Ispit> getIspiti() {
         return ispiti;
     }
@@ -92,4 +76,9 @@ public class IspitniRok {
         this.ispiti = ispiti;
     }
 
+    
+	@Override
+	public String toString() {
+		return "IspitniRok [" + id + ", Naziv=" + Naziv + ", Pocetak=" + Pocetak + ", Kraj=" + Kraj + "]";
+	}
 }

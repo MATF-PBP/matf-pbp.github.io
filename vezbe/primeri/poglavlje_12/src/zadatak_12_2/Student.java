@@ -6,31 +6,32 @@ import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "dosije")
+@Table(name = "DA.DOSIJE")
 public class Student {
-    // Primarni kljuc
-
+	// Primarni kljuc
     @Id
-    @Column
     private Integer indeks;
 
     // Kolone od znacaja
 
-    @Column(name = "id_smera", nullable = false)
-    private Integer idSmera;
-
-    @Column(name = "ime", nullable = false)
+    @Column(name = "IME", nullable = false)
     private String ime;
 
-    @Column(name = "prezime", nullable = false)
+    @Column(name = "PREZIME", nullable = false)
     private String prezime;
-    
-    @Column(name = "mesto_stanovanja", nullable = false)
-    private String mestoStanovanja;
+
+    @Column(name = "MESTORODJENJA")
+    private String mesto;
+
+    @ManyToOne
+    @JoinColumn(name="IDPROGRAMA", referencedColumnName="ID", insertable=false, updatable=false)
+    private StudijskiProgram studijskiProgram;
 
     // Da bismo izracunali prosek polozenih predmeta za studenta,
     // potrebno nam je da dohvatimo informacije o njegovim ispitima.
@@ -42,7 +43,7 @@ public class Student {
     @OneToMany(mappedBy = "student")
     private List<Ispit> ispiti = new ArrayList<>();
 
-    // Get/set metodi
+ // Get/set metodi
 
     public Integer getIndeks() {
         return indeks;
@@ -50,14 +51,6 @@ public class Student {
 
     public void setIndeks(Integer indeks) {
         this.indeks = indeks;
-    }
-
-    public Integer getId_smera() {
-        return idSmera;
-    }
-
-    public void setId_smera(Integer id_smera) {
-        this.idSmera = id_smera;
     }
 
     public String getIme() {
@@ -76,26 +69,36 @@ public class Student {
         this.prezime = prezime;
     }
 
-    public List<Ispit> getIspiti() {
-        return ispiti;
-    }
+    public String getMesto() {
+		return mesto;
+	}
 
-    public void setIspiti(List<Ispit> ispiti) {
-        this.ispiti = ispiti;
-    }
+	public void setMesto(String mesto) {
+		this.mesto = mesto;
+	}
 
-    public String getMestoStanovanja() {
-        return mestoStanovanja;
-    }
+	public StudijskiProgram getStudijskiProgram() {
+		return studijskiProgram;
+	}
 
-    public void setMestoStanovanja(String mestoStanovanja) {
-        this.mestoStanovanja = mestoStanovanja;
-    }
+	public void setStudijskiProgram(StudijskiProgram studijskiProgram) {
+		this.studijskiProgram = studijskiProgram;
+	}
 
-    // Metod koji racuna prosek studenta
+	public List<Ispit> getIspiti() {
+		return ispiti;
+	}
+
+	public void setIspiti(List<Ispit> ispiti) {
+		this.ispiti = ispiti;
+	}
+
+	// Metod koji racuna prosek studenta
     public double prosek() {
         double ukupno = 0;
         int broj_polozenih = 0;
+        // Pozivom getIspiti() vrsi se citanje podataka o ispitima 
+        // iz baze i njihovo smestanje u listu.
         List<Ispit> ispiti = this.getIspiti();
         for (Ispit ispit : ispiti) {
             // Izdvajamo informacije samo o polozenim ispitima
