@@ -63,7 +63,7 @@ try {
     // Successful scenario:
     con.commit();
     // Close the connection
-    conn.close();
+    con.close();
 }
 catch (SQLException e) {
     System.out.println("An error occured: " + e.getMessage());
@@ -73,7 +73,7 @@ catch (SQLException e) {
         // Unsuccessful scenario:
         con.rollback();
         // Close the connection
-        conn.close();
+        con.close();
     }
     catch (SQLException e) {
     }
@@ -296,7 +296,7 @@ Naredni primer ilustruje korišćenje dve baze podataka: `VSTUD` i `MSTUD`.
 3. Zatim, zahteva od korisnika da unese ocenu `O` (ceo broj od 6 do 10).\n
 4. Iz baze vstud izlistava indeks, naziv, ocenu, godinu i oznaku ispitnog roka za sve studente koji nikada nisu dobili ocenu manju nego što je ocena `O`.\n
 5. Nakon ispisivanja tih podataka, u bazi mstud, iz tabele ispit briše sva polaganja za studenta sa najmanjim brojem indeksa `I` iz dosije, i vraća `I`.\n
-6. Na kraju, u bazi vstud, u tabeli predmet za sve predmete koje je položio student sa brojem indeksa `I`, uvećava broj bodova za jedan (osim ako je broj bodova veći od 10, tada ostavlja nepromenjeno stanje)." %}
+6. Na kraju, u bazi vstud, u tabeli `PREDMET` za sve predmete koje je položio student sa brojem indeksa `I`, uvećava broj bodova za jedan (osim ako je broj bodova veći od 10, tada ostavlja nepromenjeno stanje)." %}
 
 Re\v senje: Datoteka `Main.java` implementira navedene funkcionalnosti, dok prate\'ce `*.sql` datoteke sadr\v ze SQL naredbe koje se koriste u re\v senju.
 
@@ -318,7 +318,7 @@ Ovaj pristup nije problematičan prilikom kreiranja jednostavnih aplikacija kao 
 
 Re\v senje: Jednan od osnovnih koncepata objektno-orijentisane paradigme je da jedna klasa treba da implementira jednu jezgrovitu funkcionalnost.
 
-Za početak, mo\v zemo napisati po jednu klasu za svaku tabelu koja \' ce se koristiti. U ovom slu\v caju to su tabele `StudijskiProgram` i `Dosije`. Svaka klasa treba da sadr\v zi polja koja odgovaraju nekoj od kolona tabele. Jedan objekat klase predstavlja jedan slog odgovaraju\' ce tabele.
+Za početak, mo\v zemo napisati po jednu klasu za svaku tabelu koja \' ce se koristiti. U ovom slu\v caju to su tabele `STUDIJSKIPROGRAM` i `DOSIJE`, a odgovarajuće klase nazvaćemo `StudijskiProgram` i `Student`. Svaka klasa treba da sadr\v zi polja koja odgovaraju nekoj od kolona tabele. Jedan objekat klase predstavlja jedan slog odgovaraju\' ce tabele.
 
 Potrebna nam je i klasa, na primer `Database`, koja implementira osnovne operacije za rad sa bazom. Zatim, ove funkcionalnosti mo\v zemo iskoristiti u implementaciji za rad sa bazom `STUD2020` tako \v sto \' cemo napisati posebnu klasu za ovu bazu, na primer `Stud2020`,  koja \' ce naslediti klasu `Database`. U ovoj klasi implementiramo zahteve kao metode klase. Time dobijamo naredne klase:
 
