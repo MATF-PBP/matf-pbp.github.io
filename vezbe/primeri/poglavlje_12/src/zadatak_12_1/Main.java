@@ -46,11 +46,11 @@ public class Main {
             Predicate p1 = cb.or(cb.like(st.get("ime"), "P%"), 
                                  cb.like(st.get("prezime"), "P%"));
             // Zive u Beogradu ili Kragujevcu
-            Predicate p2 = cb.isNotNull(st.get("mestoStanovanja"));
-            Predicate p3 = cb.in(st.get("mestoStanovanja")).value("Beograd").value("Kragujevac");
+            Predicate p2 = cb.isNotNull(st.get("mesto"));
+            Predicate p3 = cb.in(st.get("mesto")).value("Beograd").value("Kragujevac");
             criteria.where(cb.and(p1, p2, p3));
-            // Rezultat urediti po mestu stanovanja opadajuce
-            Order o1 = cb.desc(st.get("mestoStanovanja"));
+            // Rezultat urediti po mestu rodjenja opadajuce
+            Order o1 = cb.desc(st.get("mesto"));
             // pa po imenu i prezimenu rastuce
             Order o2 = cb.asc(st.get("ime"));
             Order o3 = cb.asc(st.get("prezime"));
@@ -60,7 +60,7 @@ public class Main {
             List<Student> studenti = session.createQuery(criteria).getResultList();
             for (Student s : studenti) {
                 System.out.println(
-                        s.getMestoStanovanja().trim() + " " +
+                        s.getMesto().trim() + " " +
                         s.getIndeks() + " " + 
                         s.getIme().trim() + " " + 
                         s.getPrezime().trim()
@@ -91,19 +91,19 @@ public class Main {
             // Za svakog studenta
             CriteriaQuery<Object[]> criteria = cb.createQuery(Object[].class);
             Root<Student> st = criteria.from(Student.class);
-            // Izdvojiti informacije o mestu stanovanja, imenu, prezimenu i indeksu
-            criteria.multiselect(st.get("mestoStanovanja"), st.get("ime"), st.get("prezime"), st.get("indeks"));
+            // Izdvojiti informacije o mestu rodjenja, imenu, prezimenu i indeksu
+            criteria.multiselect(st.get("mesto"), st.get("ime"), st.get("prezime"), st.get("indeks"));
             criteria.distinct(true);
             
             // Cije ime ili prezime pocinju na slovo 'P'
             Predicate p1 = cb.or(cb.like(st.get("ime"), "P%"), 
                                  cb.like(st.get("prezime"), "P%"));
             // Zive u Beogradu ili Kragujevcu
-            Predicate p2 = cb.isNotNull(st.get("mestoStanovanja"));
-            Predicate p3 = cb.in(st.get("mestoStanovanja")).value("Beograd").value("Kragujevac");
+            Predicate p2 = cb.isNotNull(st.get("mesto"));
+            Predicate p3 = cb.in(st.get("mesto")).value("Beograd").value("Kragujevac");
             criteria.where(cb.and(p1, p2, p3));
-            // Rezultat urediti po mestu stanovanja opadajuce
-            Order o1 = cb.desc(st.get("mestoStanovanja"));
+            // Rezultat urediti po mestu rodjenja opadajuce
+            Order o1 = cb.desc(st.get("mesto"));
             // pa po imenu i prezimenu rastuce
             Order o2 = cb.asc(st.get("ime"));
             Order o3 = cb.asc(st.get("prezime"));

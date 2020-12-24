@@ -444,11 +444,8 @@ CREATE TABLE DA.PRAKSA2020 (
 
 {% include lab/exercise.html broj="5.13" tekst="Napisati C/SQL program koji omogućava korisniku da unese nove ispitne rokove u 2020. godini za svaki mesec od aprila do oktobra, sa odgovarajućim oznakama i nazivima. Za svaki ispitni rok postaviti da je datum početka prijavljivanja današnji datum pomeren za odgovarajući broj meseci, kao i da prijavljivanje traje 20 dana.
 
-Omogućiti da korisnik unese broj ispitnih rokova koji želi da kreira. Minimalni broj ispitnih rokova je 0, a maksimalni broj je 6. U zavisnosti od unetog broja, kreirati odgovarajući broj ispitnih rokova. 
-
-Obezbediti da se navedene operacije izvrše zasebno." %}
-
 {% include lab/exercise.html broj="5.14" tekst="Napisati C/SQL program koji omogućava korisniku da obriše informacije o studentima koji su upisani u godini koja se unosi sa standardnog ulaza. Za svakog studenta, program pita korisnika da li želi da obriše informacije. Ako korisnik potvrdi, obrisati podatke iz tabela `ISPIT`, `UPISANKURS`, `UPISGODINE`, `PRIZNATIISPIT`, `DOSIJEEXT` i `DOSIJE` (tim redosledom) za tekućeg studenta i ispisati poruku o uspešnosti brisanja za svaku tabelu ponaosob. Nakon toga, aplikacija pita korisnika da li želi da izvrši potvrđivanje ili poništavanje dotadašnjih izmena. Korisnik može da bira jednu od tri opcije:
+
 1. Izvršavanje potvrđivanja
 2. Izvršavanje poništavanja
 3. Bez akcije
