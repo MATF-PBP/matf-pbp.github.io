@@ -213,7 +213,7 @@ ALTER TABLE DA.ISPIT
 ADD COLUMN NAPOMENA VARCHAR(100)
 ```
 
-{% include lab/exercise.html broj="3.6" tekst="Napisati C/SQL program kojim se za svaki smer pronalazi student koji ima najviše položenih ESPB bodova. Zatim u tabeli ISPIT u napomeni koja se odnosi na poslednji položeni ispit tog studenta zapisuje `'Ovo je student koji ima najvise polozenih kredita na svom smeru'`." %}
+{% include lab/exercise.html broj="3.6" tekst="Napisati C/SQL program kojim se za svaki smer pronalazi student koji ima najviše položenih ESPB bodova. Zatim u tabeli `ISPIT` u napomeni koja se odnosi na poslednji položeni ispit tog studenta zapisuje `'Ovo je student koji ima najvise polozenih kredita na svom smeru'`." %}
 
 Re\v senje: U ovom zadatku smo kreirali pomo\'cne funkcije koje upravljaju kursorima i obra\dj uju podatke iz dohva\'cenih rezultata, kako bismo pove\'cali modularnost koda. Ono \v sto je va\v zno primetiti jeste da, bez obzira na organizaciju izvornog koda, **neophodno je da se deklaracije kursora u kodu nalaze ispred drugih operacija sa kursorima u kodu**. Ukoliko to nije slu\v caj, onda \'ce Db2 pretprocesor prijaviti gre\v sku. Razlog za ovo pona\v sanje jeste zbog toga \v sto Db2 pretprocesor kod \v cita kao tekst, ne uzimaju\'ci u obzir redosled stvarnog izvr\v savanja operacija i poziva funkcija. Na primer, ukoliko bi Db2 pretprocesor prvo nai\v sao na naredbu `OPEN`, pa onda na `DECLARE`, tada bi prijavio gre\v sku zato \v sto naredba `OPEN` referi\v se na naziv kursora za koji Db2 pretprocesor prethodno nije zapamtio da postoji.
 
@@ -225,9 +225,9 @@ include_source(vezbe/primeri/poglavlje_3/zadatak_3_6.sqc, c)
 
 {% include lab/exercise.html broj="3.8" tekst="Napisati C/SQL program koji ispisuje za svakog studenta ime, prezime, poslednji položeni ispit (naziv predmeta koji je položen), kao i datum polaganja tog ispita." %}
 
-{% include lab/exercise.html broj="3.9" tekst="Napisati C/SQL program koji se za sve studente smera Informatika ažurira u tabeli ISPIT prvi položen ispit (ukoliko ima položenih ispita za tog studenta) tako što povećava ocenu za 1 (ukoliko je ocena bila 5 ili 10 ostavlja je nepromenjenu)." %}
+{% include lab/exercise.html broj="3.9" tekst="Napisati C/SQL program koji se za sve studente smera _Informatika_ ažurira u tabeli `ISPIT` prvi položen ispit (ukoliko ima položenih ispita za tog studenta) tako što povećava ocenu za 1 (ukoliko je ocena bila 5 ili 10 ostavlja je nepromenjenu)." %}
 
-{% include lab/exercise.html broj="3.10" tekst="Napisati C/SQL program koji ispisuje sve napomene koje se nalaze u tabeli ISPIT, navodeći i broj indeksa studenata. (Videti napomenu iznad zadatka 3.6 za kreiranje kolone NAPOMENA.)" %}
+{% include lab/exercise.html broj="3.10" tekst="Napisati C/SQL program koji ispisuje sve napomene koje se nalaze u tabeli `ISPIT`, navodeći i broj indeksa studenata. (Videti napomenu iznad zadatka 3.6 za kreiranje kolone NAPOMENA.)" %}
 
 {% include lab/exercise.html broj="3.11" tekst="Napisati C/SQL program kojim se sa standardnog ulaza unosi ime studijskog programa, a zatim se ispisuje 10 studenata tog smera koji imaju najviše neuspe\v snih polaganja na ispitima tokom studija. Izdvojiti ime, prezime, broj indeksa i broj neuspe\v snih polaganja tokom studija." %}
 
