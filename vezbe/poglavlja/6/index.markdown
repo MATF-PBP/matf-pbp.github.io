@@ -150,11 +150,11 @@ Ovoj naredbi je moguće specifikovati naredne vrednosti:
 
 - Navođenjem `<MATIČNA PROMENLJIVA>` specifikuje se celobrojna vrednost iz intervala `[-1, 32767]` koja se čita iz vrednosti date matične promenljive. Ako data vrednost pripada intervalu `[1, 32767]`, onda će SUBP čekati toliko sekundi pre nego što aplikaciji prosledi grešku. Vrednosti `-1` i `0` odgovaraju specifikovanju prethodno opisanih klauza `WAIT` i `NO WAIT`, redom.
 
-{% include lab/exercise.html broj="6.1" tekst="Napisati C/SQL program koji za svaki smer pita korisnika da li \v zeli da promeni broj bodova na tom smeru. Ukoliko korisnik odgovori potvrdno, aplikacija zahteva od korisnika da unese novi broj bodova nakon \v cega se vr\v si izmena podataka.
+{% include lab/exercise.html broj="6.1" tekst="Napisati C/SQL program koji za svaki studijski program pita korisnika da li \v zeli da promeni obim ESPB bodova na tom studijskom programu. Ukoliko korisnik odgovori potvrdno, aplikacija zahteva od korisnika da unese novi broj bodova nakon \v cega se vr\v si izmena podataka.
 
 Napisati program tako da može da radi u višekorisničkom okruženju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi.
 
-Pokrenuti dve instance aplikacije. Uveriti se da dok jedna aplikacija obra\dj uje teku\'ci smer, druga aplikacija ne mo\v ze da dobije katanac nad odgovaraju\'cim slogom." %}
+Pokrenuti dve instance aplikacije. Uveriti se da dok jedna aplikacija obra\dj uje teku\'ci studijski program, druga aplikacija ne mo\v ze da dobije katanac nad odgovaraju\'cim slogom." %}
 
 Re\v senje: Nakon izvr\v savanja svake SQL naredbe koja mo\v ze da zahteva zaklju\v cavanje nekog sloga u tabeli, potrebno je izvr\v siti proveru da li aplikacija mo\v ze da dobije odgovaraju\'ci katanac. Provera se sastoji u ispitivanju vrednosti makroa `SQLCODE` i to pre poziva funkcije za obradu gre\v ske, kako se proces ne bi zavr\v sio pre obrade katanaca. Sama obrada \v cekanja je u ovom slu\v caju vrlo jednostavna - potrebno je ispisati poruku korisniku da je isteklo vreme za \v cekanje trenutnog katanca i nastaviti dalje sa izvr\v savanjem (poni\v stiti eventualne izmene i ponovo otvoriti kursor koji se obra\dj uje).
 
@@ -162,7 +162,7 @@ include_source(vezbe/primeri/poglavlje_6/zadatak_6_1.sqc, c)
 
 ## 6.3 Obrada transakcija u višekorisničkom okruženju
 
-Problem sa pristupom obrade gre\v saka u prethodnom zadatku je taj \v sto se pod transakcijom smatra izvr\v savanje celog programa, te ako bilo gde u obradi do\dj e do problema dobijanja katanaca, sve izmene koje su do tada na\v cinjene se poni\v stavaju. Umesto toga, pouzdanija tehnika jeste definisati da jedna transakcija obuhvata obradu jednog podatka. U prethodnom primeru, to bi zna\v cilo da jedna transakcija obuhvata izmenu ta\v cno jednog smera, a ne svih smerova. Dodatno, \v cesto je po\v zeljno da aplikacija pamti koji podaci su ve\'c obra\dj eni, kako ih ne bi obra\dj ivala dva puta. Ovo je va\v zno pamtiti zbog toga \v sto otvaranjem kursora u obradi \v cekanja, kursor se pozicionira na po\v cetak rezultuju\'ce tabele, a ne tamo gde je obrada stala. (Alternativno, mo\v zemo pamtiti broj obra\dj enih redova u neku mati\v cnu promenljivu `row_count`, pa zatim koristiti klauzu `OFFSET :row_count ROWS` u `SELECT` naredbi.)
+Problem sa pristupom obrade gre\v saka u prethodnom zadatku je taj \v sto se pod transakcijom smatra izvr\v savanje celog programa, te ako bilo gde u obradi do\dj e do problema dobijanja katanaca, sve izmene koje su do tada na\v cinjene se poni\v stavaju. Umesto toga, pouzdanija tehnika jeste definisati da jedna transakcija obuhvata obradu jednog podatka. U prethodnom primeru, to bi zna\v cilo da jedna transakcija obuhvata izmenu ta\v cno jednog studijskog programa, a ne svih studijskih programa. Dodatno, \v cesto je po\v zeljno da aplikacija pamti koji podaci su ve\'c obra\dj eni, kako ih ne bi obra\dj ivala dva puta. Ovo je va\v zno pamtiti zbog toga \v sto otvaranjem kursora u obradi \v cekanja, kursor se pozicionira na po\v cetak rezultuju\'ce tabele, a ne tamo gde je obrada stala. (Alternativno, mo\v zemo pamtiti broj obra\dj enih redova u neku mati\v cnu promenljivu `row_count`, pa zatim koristiti klauzu `OFFSET :row_count ROWS` u `SELECT` naredbi.)
 
 Naredni zadatak ilustruje obradu transakcija u višekorisničkom okruženju korišćenjem znanja iz ovog poglavlja.
 
@@ -204,7 +204,7 @@ VALUES  (1, 'Spanija'),
 
 {% include lab/exercise.html broj="6.3" tekst="Napisati C/SQL program koji od korisnika zahteva da unese identifikator studijskog programa sa osnovnih studija. Program na osnovu unetog podatka pronalazi naredne informacije o studentima sa datog studijskog programa: (1) broj indeksa, (2) ime, (3) prezime, (4) broj položenih ispita tog studenta, (5) broj položenih ESPB bodova, ali samo ukoliko student ima položeno bar 12 predmeta, ima skupljeno bar 120 bodova i ako se studentov indeks već ne nalazi u tabeli `EKSKURZIJA`.
 
-Za svakog pronađenog studenta, korisnik unosi ceo broj koji predstavlja jedan od identifikatora država iz tabele DRZAVA ili 0 (pretpostaviti da je ispravan unos). Ukoliko korisnik unese identifikator, aplikacija unosi informacije u tabelu `EKSKURZIJA`, a ukoliko unese 0, prelazi se na sledećeg studenta. Nakon svaka 3 uneta glasa, ponuditi korisniku mogućnost da prekine sa daljom obradom i napusti program, unošenjem odgovora `'da'`.
+Za svakog pronađenog studenta, korisnik unosi ceo broj koji predstavlja jedan od identifikatora država iz tabele `DRZAVA` ili 0 (pretpostaviti da je ispravan unos). Ukoliko korisnik unese identifikator, aplikacija unosi informacije u tabelu `EKSKURZIJA`, a ukoliko unese 0, prelazi se na sledećeg studenta. Nakon svaka 3 uneta glasa, ponuditi korisniku mogućnost da prekine sa daljom obradom i napusti program, unošenjem odgovora `'da'`.
 
 Napomene: Obrada jednog studenta predstavlja jednu transakciju. Proveravati greške koje se javljaju prilikom izvršavanja aplikacije u višekorisničkom okruženju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
 
@@ -248,7 +248,7 @@ FROM    DA.STUDIJSKIPROGRAM
 WHERE   IDNIVOA = 1
 ```
 
-U slučaju RR nivoa izolovanosti izvršavanje ovog upita izazvaće zaključavanje svih redova tabele `SMER`, a u slučaju RS nivoa izolovanosti zaključavanje se vrši samo nad onim redovima koji ispunjavaju uslov restrikcije `IDNIVOA = 1`. Zbog toga, ako neki drugi proces unese novi red koji zadovoljava datu restrikciju, u slučaju RR nivoa izolovanosti to neće biti moguće, dok će ponovo izvršavanje upita u slučaju RS nivoa izolovanosti proizvesti prikazivanje i tih novih redova.
+U slučaju RR nivoa izolovanosti izvršavanje ovog upita izazvaće zaključavanje svih redova tabele `STUDIJSKIPROGRAM`, a u slučaju RS nivoa izolovanosti zaključavanje se vrši samo nad onim redovima koji ispunjavaju uslov restrikcije `IDNIVOA = 1`. Zbog toga, ako neki drugi proces unese novi red koji zadovoljava datu restrikciju, u slučaju RR nivoa izolovanosti to neće biti moguće, dok će ponovo izvršavanje upita u slučaju RS nivoa izolovanosti proizvesti prikazivanje i tih novih redova.
 
 ### 6.4.3 Stabilni kursor
 
@@ -406,9 +406,9 @@ Ovom naredbom se traži odgovarajući katanac nad tabelom `<IME_TABELE>`. U zavi
 
 - Kluza `EXCLUSIVE` onemogućava konkurentnoj aplikaciji da izvrši bilo koju operaciju nad tabelom. Napomenimo da ovaj režim ne onemogućava da aplikacioni procesi izvršavaju naredbe čitanja podataka iz tabele ukoliko oni rade na nivou izolacije nepotvrđeno čitanje (UR).
 
-{% include lab/exercise.html broj="6.6" tekst="Napisati C/SQL program `shareMode` koji ispisuje identifikator, oznaku, naziv, broj semestara i bodove za svaki smer u bazi podataka. Omogućiti da ostale aplikacije ne mogu da menjaju ove podatke tokom ispisivanja podataka.
+{% include lab/exercise.html broj="6.6" tekst="Napisati C/SQL program `shareMode` koji ispisuje identifikator, oznaku, naziv i broj ESPB bodova za svaki studijski program u bazi podataka. Omogućiti da ostale aplikacije ne mogu da menjaju ove podatke tokom ispisivanja podataka.
 
-Napisati C/SQL program `exclusiveMode` koji ispisuje identifikator, oznaku, naziv, broj semestara i bodove za svaki smer u bazi podataka. Omogućiti da ostale aplikacije ne mogu da menjaju ove podatke tokom ispisivanja podataka, kao ni da ih čitaju." %}
+Napisati C/SQL program `exclusiveMode` koji ispisuje identifikator, oznaku, naziv, broj semestara i broj ESPB bodova za svaki studijski program u bazi podataka. Omogućiti da ostale aplikacije ne mogu da menjaju ove podatke tokom ispisivanja podataka, kao ni da ih čitaju." %}
 
 Rešenje: Isprobati sve kombinacije redosleda izvršavanja programa `exclusiveMode` i `shareMode` i uveriti se da jedino kombinacija `(shareMode, shareMode)` može raditi konkurentno. Primetimo da u ovom zadatku nismo koristili obradu \v cekanja na katance niti smo postavili vreme za istek katanaca, \v sto zna\v ci da \'ce jedna aplikacija \v cekati sve dok druga ne zavr\v si sa radom.
 
@@ -431,14 +431,14 @@ Napraviti tabelu `ISPITNIROKOVIPOLAGANJA` koja sadr\v zi kolone sa podacima o:
 
 Definisati primarni klju\v c na osnovu prvih 5 kolona i strane klju\v ceve ka odgovaraju\'cim tabelama. 
 
-{% include lab/exercise.html broj="6.10" tekst="Napisati C/SQL program koji za sve studente pronalazi informacije o smeru na kojem studiraju i te podatke unosi u tabelu `SMERSTUDENTI`. Nakon jednog unosa podataka ispisati unete podatke odvojene zapetom. Nakon svih unosa podataka, potrebno je odgovaraju\'com SQL naredbom izra\v cunati broj unetih redova u tabeli `SMERSTUDENTI` i ispisati rezultat na standardni izlaz. Napisati program tako da mo\v ze da radi u vi\v sekorisni\v ckom okru\v zenju. Unos podataka za jednog studenta i jedan smer predstavlja jednu transakciju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
+{% include lab/exercise.html broj="6.10" tekst="Napisati C/SQL program koji za sve studente pronalazi informacije o studijskom programu na kojem studiraju i te podatke unosi u tabelu `STUDIJSKIPROGRAMPSTUDENTI`. Nakon jednog unosa podataka ispisati unete podatke odvojene zapetom. Nakon svih unosa podataka, potrebno je odgovaraju\'com SQL naredbom izra\v cunati broj unetih redova u tabeli `STUDIJSKIPROGRAMPSTUDENTI` i ispisati rezultat na standardni izlaz. Napisati program tako da mo\v ze da radi u vi\v sekorisni\v ckom okru\v zenju. Unos podataka za jednog studenta i jedan studijski program predstavlja jednu transakciju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
 
-Napraviti tabelu `SMERSTUDENTI` koja sadr\v zi kolone sa podacima o:
+Napraviti tabelu `STUDIJSKIPROGRAMPSTUDENTI` koja sadr\v zi kolone sa podacima o:
 - indeksu studenta
-- nazivu smera
+- nazivu studijskog programa
 - imenu i prezimenu studenta
 - zvanju
-- broju bodova koji je potrebno ostvariti na smeru
+- broju bodova koji je potrebno ostvariti na studijskom programu
 - broju bodova koje je student trenutno ostvario
 - napomeni: vrednost ove kolone je niska `'Polozeni su svi predmeti'` ukoliko je student ostvario sve potrebne poene, a prazna niska u suprotnom
 

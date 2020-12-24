@@ -307,7 +307,7 @@ CREATE TABLE DA.OBRADJENIPREDMETI (
 );
 ```
 
-{% include lab/exercise.html broj="5.4" tekst="Napisati C/SQL program koji za svaki predmet koji se ne nalazi u tabeli OBRADJENIPREDMETI izlistava njegov naziv i ESPB. Korisniku se nudi opcija da poveća broj bodova za 1. Obrada 5 uzastopnih predmeta predstavlja jednu transakciju. Nakon svakog 5. predmeta pitati korisnika da li želi da nastavi sa daljim izmenama. Ukoliko ne želi, program se prekida. U suprotnom, nastaviti sa daljom obradom predmeta." %}
+{% include lab/exercise.html broj="5.4" tekst="Napisati C/SQL program koji za svaki predmet koji se ne nalazi u tabeli `OBRADJENIPREDMETI` izlistava njegov naziv i ESPB. Korisniku se nudi opcija da poveća broj bodova za 1. Obrada 5 uzastopnih predmeta predstavlja jednu transakciju. Nakon svakog 5. predmeta pitati korisnika da li želi da nastavi sa daljim izmenama. Ukoliko ne želi, program se prekida. U suprotnom, nastaviti sa daljom obradom predmeta." %}
 
 Rešenje: 
 
@@ -404,25 +404,25 @@ Rešenje: Da bismo lak\v se modulirali na\v se re\v senje, implementirajmo nared
 
 Funkcija `int main()` je sada poprili\v cno jednostavna. Nakon povezivanja na bazu podataka i deklarisanja kursora (pozivom funkcija pod 1 i 3 iznad), zapo\v cinje se iterativni proces koji predstavlja jednu transakciju. Svaka transakcija se sastoji od opisanih operacija iz teksta zadatka, tako \v sto se pozivaju odgovaraju\'ce funkcije (pod 2 i 4 iznad). Naravno, da bi svaka iteracija predstavljala jednu transakciju, potrebno je da se na kraju iteracije izvr\v si naredba `COMMIT`.
 
-include_source(vezbe/primeri/poglavlje_5/zadatak_5_6.sqc, c)
+include_source(vezbe/primeri/poglavlje_5/zadatak_5_7.sqc, c)
 
 ## 5.6 Zadaci za vežbu
 
-{% include lab/exercise.html broj="5.7" tekst="Napisati C/SQL program koji redom:
+{% include lab/exercise.html broj="5.8" tekst="Napisati C/SQL program koji redom:
 
 1. Kreira novi ispitni rok u 2020. godini čija je oznaka `'apr'` i naziv `'April 2021'`. Za početak prijavljivanja postaviti današnji datum i postaviti da prijavljivanje traje 15 dana.
 2. Ažurira datum kraja prijavljivanja za prethodno uneti ispitni rok tako \v sto smanjuje trajanje prijavljivanja za 5 dana. 
 
 Obezbediti da se navedene operacije izvrše zasebno." %}
 
-{% include lab/exercise.html broj="5.8" tekst="Napisati C/SQL program koji koji pronalazi indekse i nazive predmeta za sva polaganja koja su bila neuspe\v sna. Sortirati podatke po indeksu rastu\'ce. Obezbediti da aplikacija bri\v se podatke o najvi\v se 10 studenata. Jednu transakciju \v cine brisanja za sve prona\dj ene studente. Prilikom obrade podataka, ispisati informacije o indeksu studenta, a zatim prikazati nazive predmeta za obrisana polaganja tog studenta. Nakon brisanja podataka o jednom studentu, upitati korisnika da li \v zeli da poni\v sti izmene za tog studenta (voditi ra\v cuna da brisanja za sve prethodne studente ostanu nepromenjena)." %}
+{% include lab/exercise.html broj="5.9" tekst="Napisati C/SQL program koji koji pronalazi indekse i nazive predmeta za sva polaganja koja su bila neuspe\v sna. Sortirati podatke po indeksu rastu\'ce. Obezbediti da aplikacija bri\v se podatke o najvi\v se 10 studenata. Jednu transakciju \v cine brisanja za sve prona\dj ene studente. Prilikom obrade podataka, ispisati informacije o indeksu studenta, a zatim prikazati nazive predmeta za obrisana polaganja tog studenta. Nakon brisanja podataka o jednom studentu, upitati korisnika da li \v zeli da poni\v sti izmene za tog studenta (voditi ra\v cuna da brisanja za sve prethodne studente ostanu nepromenjena)." %}
 
-{% include lab/exercise.html broj="5.9" tekst="Napisati C/SQL program koji za svaki predmet koji je obavezan na smeru čiji je identifikator 103, pita korisnika da li želi da poveća broj bodova za 1. Ukoliko je odgovor korisnika 'da', izvršava se odgovarajuća naredba. Obrada jednog predmeta treba da predstavlja jednu transakciju." %}
+{% include lab/exercise.html broj="5.10" tekst="Napisati C/SQL program koji za svaki predmet koji je obavezan na smeru čiji je identifikator 103, pita korisnika da li želi da poveća broj bodova za 1. Ukoliko je odgovor korisnika 'da', izvršava se odgovarajuća naredba. Obrada jednog predmeta treba da predstavlja jednu transakciju." %}
 
-{% include lab/exercise.html broj="5.10" tekst="Napisati C/SQL program koji za svaki predmet koji je obavezan na smeru čiji je identifikator 101 pronalazi i ispisuje uslovne predmete, a zatim pita korisnika da li želi da poveća ukloni uslovnosti za teku\'ci predmet. Ukoliko je odgovor korisnika 'da', aplikacija izvr\v sava brisanje i prikazuje korisniku poruku. Obrada jednog predmeta treba da predstavlja jednu transakciju. " %}
+{% include lab/exercise.html broj="5.11" tekst="Napisati C/SQL program koji za svaki predmet koji je obavezan na smeru čiji je identifikator 101 pronalazi i ispisuje uslovne predmete, a zatim pita korisnika da li želi da poveća ukloni uslovnosti za teku\'ci predmet. Ukoliko je odgovor korisnika 'da', aplikacija izvr\v sava brisanje i prikazuje korisniku poruku. Obrada jednog predmeta treba da predstavlja jednu transakciju. " %}
 
 
-{% include lab/exercise.html broj="5.11" tekst="Napisati C/SQL program koji omogu\'cava studentu prijavu na praksu i redom:\n
+{% include lab/exercise.html broj="5.12" tekst="Napisati C/SQL program koji omogu\'cava studentu prijavu na praksu i redom:\n
 \n
 1. Ispisuje spisak identifikatora i naziva predmeta za koje mo\v ze da se prijavi student sa brojem indeksa koji se unosi sa standardnog ulaza. Studentu se nude samo predmeti koje je polo\v zio sa ocenom ve\'com od prose\v cne ocene sa polo\v zenih ispita iz tog predmeta i oni koji se ne nalaze u tabeli `PRAKSA2020` za odabranog studenta. \n
 2. Omogu\'cava odabir jednog predmeta unosom odgovaraju\'ceg identifikatora sa spiska ili unos 0 za kraj. Odabrani predmet se unosu u tabelu `PRAKSA2020` ukoliko ispunjava uslove. Posle svakog odabranog predmeta, program nudi studentu izmenjeni spisak predmeta na kom se ne nalaze ve\'c odabrani predmeti i postupak se ponavlja. \n
@@ -442,13 +442,10 @@ CREATE TABLE DA.PRAKSA2020 (
 )
 ```
 
-{% include lab/exercise.html broj="5.12" tekst="Napisati C/SQL program koji omogućava korisniku da unese nove ispitne rokove u 2020. godini za svaki mesec od aprila do oktobra, sa odgovarajućim oznakama i nazivima. Za svaki ispitni rok postaviti da je datum početka prijavljivanja današnji datum pomeren za odgovarajući broj meseci, kao i da prijavljivanje traje 20 dana.
+{% include lab/exercise.html broj="5.13" tekst="Napisati C/SQL program koji omogućava korisniku da unese nove ispitne rokove u 2020. godini za svaki mesec od aprila do oktobra, sa odgovarajućim oznakama i nazivima. Za svaki ispitni rok postaviti da je datum početka prijavljivanja današnji datum pomeren za odgovarajući broj meseci, kao i da prijavljivanje traje 20 dana.
 
-Omogućiti da korisnik unese broj ispitnih rokova koji želi da kreira. Minimalni broj ispitnih rokova je 0, a maksimalni broj je 6. U zavisnosti od unetog broja, kreirati odgovarajući broj ispitnih rokova. 
+{% include lab/exercise.html broj="5.14" tekst="Napisati C/SQL program koji omogućava korisniku da obriše informacije o studentima koji su upisani u godini koja se unosi sa standardnog ulaza. Za svakog studenta, program pita korisnika da li želi da obriše informacije. Ako korisnik potvrdi, obrisati podatke iz tabela `ISPIT`, `UPISANKURS`, `UPISGODINE`, `PRIZNATIISPIT`, `DOSIJEEXT` i `DOSIJE` (tim redosledom) za tekućeg studenta i ispisati poruku o uspešnosti brisanja za svaku tabelu ponaosob. Nakon toga, aplikacija pita korisnika da li želi da izvrši potvrđivanje ili poništavanje dotadašnjih izmena. Korisnik može da bira jednu od tri opcije:
 
-Obezbediti da se navedene operacije izvrše zasebno." %}
-
-{% include lab/exercise.html broj="5.13" tekst="Napisati C/SQL program koji omogućava korisniku da obriše informacije o studentima koji su upisani u godini koja se unosi sa standardnog ulaza. Za svakog studenta, program pita korisnika da li želi da obriše informacije. Ako korisnik potvrdi, obrisati podatke iz tabela `ISPIT`, `UPISANKURS`, `UPISGODINE`, `PRIZNATIISPIT`, `DOSIJEEXT` i `DOSIJE` (tim redosledom) za tekućeg studenta i ispisati poruku o uspešnosti brisanja za svaku tabelu ponaosob. Nakon toga, aplikacija pita korisnika da li želi da izvrši potvrđivanje ili poništavanje dotadašnjih izmena. Korisnik može da bira jednu od tri opcije:
 1. Izvršavanje potvrđivanja
 2. Izvršavanje poništavanja
 3. Bez akcije

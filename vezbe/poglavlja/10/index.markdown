@@ -345,7 +345,7 @@ class Main {
     ...
 ```
 
-Sada prelazimo na implementaciju metoda `insertStudijskiProgram` koji treba da unese novi red u tabelu `StudijskiProgram`. 
+Sada prelazimo na implementaciju metoda `insertStudijskiProgram` koji treba da unese novi red u tabelu `STUDIJSKIPROGRAM`. 
 
 Sve akcije nad bazom podataka se izvršavaju u okviru tzv. _sesija_ (engl. _session_). Da bismo mogli da radimo sa bazom podataka, potrebno je da otvorimo novu sesiju, što nam je omogućeno metodom `openSession` iz klase `SessionFactory`.
 
