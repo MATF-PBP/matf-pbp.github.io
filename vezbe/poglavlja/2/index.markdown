@@ -224,7 +224,7 @@ Pri radu sa Db2 SQL bazom podataka, možemo očekivati da će se potencijalno po
 
 DB2 sistem nam nudi razne načine za obradu grešaka. U osnovi svih ovih načina nalazi se zaglavlje `SQLCA.h` i razne promenljive, strukture i funkcije koje ona nudi. Komunikacija sa DB2 sistemom je moguća zato što, prilikom preprocesiranja programa, Db2 preprocesor umeće deklaracije raznih matičnih promenljivih na mesto `INCLUDE` naredbe. Sistem zatim komunicira sa našim programom koristeći promenljive za postavljanje zastavica prilikom upozorenja, kodova za greške i drugih informacija za dijagnozu.
 
-Nakon izvršavanja svake SQL naredbe, sistem daje povratni kod kroz C makroe `SQLCODE` i `SQLSTATE`. `SQLCODE` predstavlja makro koji se razvija celi broj koja na neki način sumira izvršavanje SQL naredbe, dok je `SQLSTATE` makro koji se razvija u nisku od 5 karaktera, koja detaljnije opisuje česte kodove za greške među različitim softverskim rešenjima vezane za relacione baze od strane IBM-a. Mi ćemo se najčešće oslanjati na makro `SQLCODE` prilikom obrade grešaka.
+Nakon izvršavanja svake SQL naredbe, sistem daje povratni kod kroz C makroe `SQLCODE` i `SQLSTATE`. `SQLCODE` predstavlja makro koji se razvija u celi broj koji na neki način sumira izvršavanje SQL naredbe, dok je `SQLSTATE` makro koji se razvija u nisku od 5 karaktera, koja detaljnije opisuje česte kodove za greške među različitim softverskim rešenjima vezane za relacione baze od strane IBM-a. Mi ćemo se najčešće oslanjati na makro `SQLCODE` prilikom obrade grešaka.
 
 U zavisnosti od vrednosti u koju se razvije makro `SQLCODE`, razlikujemo naredna tri slučaja:
 
@@ -234,7 +234,7 @@ U zavisnosti od vrednosti u koju se razvije makro `SQLCODE`, razlikujemo naredna
 
 - `SQLCODE < 0`: Došlo je do nekakve greške i naredba nije izvršena.
 
-Da bismo otkrili šta znaci određena greška, potrebno je da u komandnoj liniji izvršimo komandu:
+Da bismo otkrili šta zna\v ci određena greška, potrebno je da u komandnoj liniji izvršimo komandu:
 
 ```shell
 db2 "? sql<KOD GRESKE>"
