@@ -570,13 +570,13 @@ include_source(vezbe/primeri/poglavlje_8/src/zadatak_8_7/Main.java, java)
 
 ### 8.3.7 Unos redova korišćenjem ResultSet kursora
 
-Ono \v sto nismo imali prilike da vidimo jeste da se pomo\'cu kursora mogu uneti novi slogovi u tabelu. Za unos novog sloga u tabelu koristi se specijalni „slog za unos“. Ovaj specijalni slog zapravo predstavlja bafer za konstruisanje novog sloga koji \'ce biti unet u odgovaraju\'cu tabelu.
+Ono \v sto nismo imali prilike da vidimo jeste da se pomo\'cu kursora mogu uneti novi slogovi u tabelu. Za unos novog sloga u tabelu koristi se specijalni "slog za unos". Ovaj specijalni slog zapravo predstavlja bafer za konstruisanje novog sloga koji \'ce biti unet u odgovaraju\'cu tabelu.
 
 Konstrukcija novog sloga se vrši u dva koraka:
-1. Potrebno je postaviti vrednosti svih kolona rezultujuće tabele u „slogu za unos“ pozivom odgovarajućih metoda iz familije metoda `ResultSet.updateXXX(int columnIndex, XXX x)`
-2. Kada su svim kolonama u „slogu za unos“ dodeljene odgovaraju\'ce vrednosti, tada je potrebno izvr\v siti unos baferisanog „sloga za unos“ u rezultujuću tabelu.
+1. Potrebno je postaviti vrednosti svih kolona rezultujuće tabele u "slogu za unos" pozivom odgovarajućih metoda iz familije metoda `ResultSet.updateXXX(int columnIndex, XXX x)`
+2. Kada su svim kolonama u "slogu za unos" dodeljene odgovaraju\'ce vrednosti, tada je potrebno izvr\v siti unos baferisanog "sloga za unos" u rezultujuću tabelu.
 
-Unos baferisanog „slogu za unos“ se izvr\v sava pozivom metoda `void ResultSet.insertRow()`. Me\dj utim, da bismo zapravo uspeli da konstrui\v semo ovaj specijalni slog, neophodno je da signaliziramo kursoru da \v zelimo da menjamo ba\v s taj red, a ne teku\'ci red kroz koji se iterira u kursoru. Ovo je mogu\'ce uraditi pozivom metoda `void ResultSet.moveToInsertRow()`. Prilikom poziva ovog metoda, kursor se pozicionira na „slog za unos“ i ujedno se pamti redni broj tekućeg sloga koji se obrađuje u kursoru. Nakon \v sto smo zavr\v sili proceduru za unos opisanu prethodnim koracima, potrebno je pozvati metod `void ResultSet.moveToCurrentRow()` koji \'ce ponovo pozicionirati kursor na prethodno zapamćeni tekući slog koji se obrađuje u kursoru.
+Unos baferisanog "slogu za unos" se izvr\v sava pozivom metoda `void ResultSet.insertRow()`. Me\dj utim, da bismo zapravo uspeli da konstrui\v semo ovaj specijalni slog, neophodno je da signaliziramo kursoru da \v zelimo da menjamo ba\v s taj red, a ne teku\'ci red kroz koji se iterira u kursoru. Ovo je mogu\'ce uraditi pozivom metoda `void ResultSet.moveToInsertRow()`. Prilikom poziva ovog metoda, kursor se pozicionira na "slog za unos" i ujedno se pamti redni broj tekućeg sloga koji se obrađuje u kursoru. Nakon \v sto smo zavr\v sili proceduru za unos opisanu prethodnim koracima, potrebno je pozvati metod `void ResultSet.moveToCurrentRow()` koji \'ce ponovo pozicionirati kursor na prethodno zapamćeni tekući slog koji se obrađuje u kursoru.
 
 Dakle, celokupna procedura za unos novog sloga je data narednim koracima:
 
@@ -588,8 +588,8 @@ Statement stmt = con.createStatement(..., ResultSet.CONCUR_UPDATABLE, ...);
 ```java
 ResultSet kursor = stmt.executeQuery(sql);
 ```
-3. Pozicionirati se na „slog za unos“ pozivom metoda `kursor.moveToInsertRow()`
-4. Pozvati odgovarajući metod nad objektom `kursor` iz familije metoda `ResultSet.updateXXX(int columnIndex, XXX x)` za postavljanje vrednosti kolone „sloga za unos“ sa indeksom `columnIndex` novom vrednošću `x`
+3. Pozicionirati se na "slog za unos" pozivom metoda `kursor.moveToInsertRow()`
+4. Pozvati odgovarajući metod nad objektom `kursor` iz familije metoda `ResultSet.updateXXX(int columnIndex, XXX x)` za postavljanje vrednosti kolone "sloga za unos" sa indeksom `columnIndex` novom vrednošću `x`
 5. Ukoliko želimo da zapravo unesemo novi slog u BP, potrebno je da pozovemo metod `kursor.insertRow()`. U suprotnom će, prelaskom na drugi red, sve izmene biti ignorisane
 6. Pozicionirati se na tekući slog u rezultujućoj tabeli kursora pozivom metoda `kursor.moveToCurrentRow()`
 7. Nakon svih iteracija, pozvati metod `kursor.close()` radi zatvaranja kursora
