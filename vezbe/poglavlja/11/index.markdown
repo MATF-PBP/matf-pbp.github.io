@@ -578,7 +578,7 @@ Pretpostavimo da imamo tabelu `KORISNIK` čiji se složeni primarni klju\v c sas
 
 ![Strani ključevi u složenim primarnim ključevima](./Slike/strani1.png)
 
-Problem koji se ovde javlja jeste da postoji strani klju\v c ka vrednosti iz druge tabele (`Odeljenje`) kao deo slo\v zenog primarnog klju\v ca u prvoj tabeli (`Korisnik`). Ovo je o\v cigledno problem dupliciranih podataka i prilikom trajnog \v cuvanja podataka, Hibernate mora da zna koju \'ce vrednost smatrati za "ispravnu". Klasu koja sadr\v zi ovakvu specijalnu situaciju potrebno je anotirani anotacijom `@MapsId`. Njena vrednost je naziv polja u slo\v zenom primarnom klju\v cu te tabele koja \v cuva informaciju o stranom klju\v cu ka drugoj tabeli. Pogledajmo kako bismo razre\v sili ovaj problem na prethodno opisanoj situaciji:
+Problem koji se ovde javlja jeste da postoji strani klju\v c ka vrednosti iz druge tabele (`ODELJENJE`) kao deo slo\v zenog primarnog klju\v ca u prvoj tabeli (`KORISNIK`). Ovo je o\v cigledno problem dupliciranih podataka i prilikom trajnog \v cuvanja podataka, Hibernate mora da zna koju \'ce vrednost smatrati za "ispravnu". Klasu koja sadr\v zi ovakvu specijalnu situaciju potrebno je anotirani anotacijom `@MapsId`. Njena vrednost je naziv polja u slo\v zenom primarnom klju\v cu te tabele koja \v cuva informaciju o stranom klju\v cu ka drugoj tabeli. Pogledajmo kako bismo razre\v sili ovaj problem na prethodno opisanoj situaciji:
 
 ```java
 public class KorisnikId implements Serializable {
@@ -649,7 +649,7 @@ Ova anotacija se još koristi i kada se zbog bidirekcione veze duplicira strani 
 
 {% include lab/exercise.html broj="11.2" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate za sve studente, koji su rođeni u mestu koje se unosi sa standardnog ulaza i upisali su studijski program obima epsb koji se unosi sa standardnog ulaza, ispisuje ime, prezime i naziv studijskog programa." %}
 
-Re\v senje: Tabelu `DOSIJE` do sad nismo koristili pa je potrebno da kreiramo odgovarajuću klasu i definišemo preslikavanje u tabelu `DOSIJE`, a onda i vezu sa klasom `StudijskiProgram`. Vezu definišemo koa više-ka-jedan u klasi `Student` jer više studenata mogu upisati isti studijski program. Pošto tabela dosije sadrži polje `idprograma`, a dodavanjem ove veze dupliciramo podatke (polje `StudijskiProgram studijskiProgram`  takođe sadrži informaciju o identifikatoru) potrebno je dodati i anotaciju `@JoinColumn` za polje `studijskiProgram`:
+Re\v senje: Tabelu `DOSIJE` do sad nismo koristili pa je potrebno da kreiramo odgovarajuću klasu i definišemo preslikavanje u tabelu `DOSIJE`, a onda i vezu sa klasom `StudijskiProgram`. Vezu definišemo koa više-ka-jedan u klasi `Student` jer više studenata mogu upisati isti studijski program. Pošto tabela `DOSIJE` sadrži polje `IDPROGRAMA`, a dodavanjem ove veze dupliciramo podatke (polje `StudijskiProgram studijskiProgram`  takođe sadrži informaciju o identifikatoru) potrebno je dodati i anotaciju `@JoinColumn` za polje `studijskiProgram`:
 
 include_source(vezbe/primeri/poglavlje_11/src/zadatak_11_2/Student.java, java)
 
