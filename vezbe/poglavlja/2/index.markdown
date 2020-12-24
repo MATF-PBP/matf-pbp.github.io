@@ -260,7 +260,7 @@ Pisanje C programa sa ugnežđenim SQL naredbama obično podrazumeva naredne kor
 6. Ostvarivanje transakcija
 7. Prekidanje konekcije sa bazom podataka
 
-{% include lab/exercise.html broj="2.1" tekst="Napisati C/SQL program koji ispisuje maksimalni indeks iz tabele ISPIT." %}
+{% include lab/exercise.html broj="2.1" tekst="Napisati C/SQL program koji ispisuje maksimalni indeks iz tabele `ISPIT`." %}
 
 Rešenje. Potrebno je da pratimo prethodno opisane korake za pisanje C programa. U ovom primeru, ignorisaćemo korak 6. Na njega ćemo posvetiti posebnu pažnju u poglavljima koji slede. Dakle, krenimo redom:
 
