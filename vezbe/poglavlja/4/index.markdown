@@ -109,7 +109,7 @@ Kada se naredba `EXECUTE IMMEDIATE` izvrši, specifikovana naredba se parsira i 
 
 {% include lab/exercise.html broj="4.1" tekst="Napisati: 
 
-- C/SQL program u kojem se naredbe izvršavaju dinamički koji čita SQL naredbu iz datoteke čiji se naziv zadaje kao prvi argument komandne linije. SQL naredba se čita do pojave karaktera `;` ili do kraja datoteke, ispisuje se korisniku, a potom se izvršava. Pretpostaviti da korisnik neće uneti naredbu `SELECT`, kao ni da neće sadržati parametarske oznake. Pretpostaviti da nareda koja se čita iz datoteke nije duža od 255 karaktera.
+- C/SQL program u kojem se naredbe izvršavaju dinamički koji čita SQL naredbu iz datoteke čiji se naziv zadaje kao prvi argument komandne linije. SQL naredba se čita do pojave karaktera `;` ili do kraja datoteke, ispisuje se korisniku, a potom se izvršava. Pretpostaviti da korisnik neće uneti naredbu `SELECT`, kao ni da neće sadržati parametarske oznake. Pretpostaviti da naredba koja se čita iz datoteke nije duža od 255 karaktera.
 
 - Datoteku koja sadr\v zi SQL naredbu koja pove\'cava ESPB bodove svim predmetima za 1. Izvr\v siti naredbu iz ove datoteke napisanim programom." %}
 
