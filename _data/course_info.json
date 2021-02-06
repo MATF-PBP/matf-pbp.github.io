@@ -4,19 +4,19 @@
       "name": "dr Nina Radojičić Matić",
       "website": "http://www.math.rs/~nina",
       "type": "Predavanja",
-      "image": "http://www.racunarstvo.matf.bg.ac.rs/content/zaposleni/nina.jpg"
+      "image": "/resources/images/nina.jpg"
     },
     {
       "name": "Nikola Ajzenhamer",
       "website": "https://matf.nikolaajzenhamer.rs",
       "type": "Vežbe",
-      "image": "http://www.racunarstvo.matf.bg.ac.rs/content/zaposleni/nikola_ajzenhamer.jpg"
+      "image": "/resources/images/nikola_ajzenhamer.jpg"
     },
     {
       "name": "Anja Bukurov",
       "website": "http://www.math.rs/~anja_bukurov",
       "type": "Vežbe",
-      "image": "http://www.racunarstvo.matf.bg.ac.rs/content/zaposleni/anja_bukurov.jpg"
+      "image": "/resources/images/anja_bukurov.jpg"
     }
   ]
 }
