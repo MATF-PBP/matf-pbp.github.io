@@ -1,17 +1,19 @@
 <!DOCTYPE html>
-<html lang="{{ page.lang | default: site.lang | default: "en" }}">
+<html lang="{{ page.lang | default: site.lang | default: " en" }}">
 {% include default/head.html %}
 
 <body>
-    <div class="ui container">
-        <img class="ui centered small image" src="/resources/matf-srb.png">
-        <header class="ui center aligned block header">
-            <h1><a href="/">Programiranje baza podataka</a></h1>
-        </header>
-        
-        <div class="ui divider"></div>
+    <div class="ui grid">
+        <div class="thirteen wide centered column">
+            <img class="ui centered small image" src="/resources/matf-srb.png">
+            <header class="ui center aligned block header">
+                <h1><a href="/">Programiranje baza podataka</a></h1>
+            </header>
 
-        {{ content }}
+            <div class="ui divider"></div>
+
+            {{ content }}
+        </div>
     </div>
 </body>
 
