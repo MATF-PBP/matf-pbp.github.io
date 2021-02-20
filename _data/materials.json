@@ -1,22 +1,46 @@
 {
-  "theory": {
-    "bibliography": [],
-    "classes": []
-  },
-  "lab": {
-    "bibliography": [
-      {
-        "type": "link",
-        "title": "Skripta za vežbe",
-        "link": "/vezbe"
-      },
-      {
-        "type": "link",
-        "title": "YouTube kanal",
-        "link": "https://www.youtube.com/channel/UCQd1lmTRYKoI-qkftLAvVLQ"
-      }
-    ],
-    "classes": [
-    ]
-  }
+    "theory": {
+        "bibliography": [],
+        "classes": [],
+        "webex": []
+    },
+    "lab": {
+        "bibliography": [
+            {
+                "type": "link",
+                "title": "Skripta za vežbe",
+                "link": "/vezbe"
+            },
+            {
+                "type": "link",
+                "title": "YouTube kanal",
+                "link": "https://www.youtube.com/channel/UCQd1lmTRYKoI-qkftLAvVLQ"
+            }
+        ],
+        "classes": [],
+        "webex": [
+            {
+                "teacher": "Nikola Ajzenhamer",
+                "day": "Ponedeljak",
+                "groups": ["3I11"],
+                "time": "8h - 11h",
+                "link": "https://matf.webex.com/meet/nikola_ajzenhamer",
+                "note": "Link je podložan izmeni"
+            },
+            {
+                "teacher": "Nikola Ajzenhamer",
+                "day": "Sreda",
+                "groups": ["4R"],
+                "time": "18h - 20h",
+                "link": "https://matf.webex.com/matf/j.php?MTID=m1ae32c7f1ae313a763705a9771229e67"
+            },
+            {
+                "teacher": "Nikola Ajzenhamer",
+                "day": "Petak",
+                "groups": ["3I12"],
+                "time": "8h - 11h",
+                "link": "https://matf.webex.com/matf/j.php?MTID=m4a304e07dca7d67ea06b96f14f109c7b"
+            }
+        ]
+    }
 }
