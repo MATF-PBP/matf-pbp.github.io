@@ -36,10 +36,11 @@
             },
             {
                 "teacher": "Anja Bukurov",
-                "day": "Ponedeljak (prve nedelje: petak)",
+                "day": "Ponedeljak ",
                 "groups": ["3I21"],
-                "time": "13h - 16h (prve nedelje: 9h - 12h)",
-                "link": "https://matf.webex.com/matf/j.php?MTID=m652b229ca3eda9c39ad8dfb1634bd17c"
+                "time": "13h - 16h ",
+                "link": "https://matf.webex.com/matf/j.php?MTID=m652b229ca3eda9c39ad8dfb1634bd17c",
+                "note": "U prvoj nedelji nastave, čas će biti održan u petak od 9h-12h"
             },
             {
                 "teacher": "Anja Bukurov",
