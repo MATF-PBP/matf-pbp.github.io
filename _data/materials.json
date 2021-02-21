@@ -28,9 +28,30 @@
                 "note": "Link je podložan izmeni"
             },
             {
+                "teacher": "Anja Bukurov",
+                "day": "Ponedeljak",
+                "groups": ["3I22"],
+                "time": "8h - 11h",
+                "link": "https://matf.webex.com/matf/j.php?MTID=mfebd2a48505d95fa26c526b940666270"
+            },
+            {
+                "teacher": "Anja Bukurov",
+                "day": "Ponedeljak (prve nedelje: petak)",
+                "groups": ["3I21"],
+                "time": "13h - 16h (prve nedelje: 9h - 12h)",
+                "link": "https://matf.webex.com/matf/j.php?MTID=m652b229ca3eda9c39ad8dfb1634bd17c"
+            },
+            {
+                "teacher": "Anja Bukurov",
+                "day": "Sreda",
+                "groups": ["4R (GR1)"],
+                "time": "11h - 13h",
+                "link": "https://matf.webex.com/matf/j.php?MTID=m8c8aa898f76b7c53ebfe626dde200578"
+            },
+            {
                 "teacher": "Nikola Ajzenhamer",
                 "day": "Sreda",
-                "groups": ["4R"],
+                "groups": ["4R (GR2)"],
                 "time": "18h - 20h",
                 "link": "https://matf.webex.com/matf/j.php?MTID=m1ae32c7f1ae313a763705a9771229e67"
             },
