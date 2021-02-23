@@ -2,12 +2,12 @@
     "theory": {
         "bibliography": [
 			{
-                "type": "link",
+                "type": "pdf",
                 "title": "Skripta za predavanja (dr Vesna Marinković)",
                 "link": "/predavanja/pbp.pdf"
             },
             {
-                "type": "link",
+                "type": "document",
                 "title": "Knjiga (prof. dr Gordana Pavlović Lažetić)",
                 "link": "knjiga.pdf"
             }
