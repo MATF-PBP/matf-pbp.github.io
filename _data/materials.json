@@ -1,8 +1,24 @@
 {
     "theory": {
-        "bibliography": [],
+        "bibliography": [
+			{
+                "type": "link",
+                "title": "Skripta za predavanja (dr Vesna Marinković)",
+                "link": "/predavanja/pbp.pdf"
+            },
+            {
+                "type": "link",
+                "title": "Knjiga (prof. dr Gordana Pavlović Lažetić)",
+                "link": "knjiga.pdf"
+            }
+		],
         "classes": [],
-        "webex": []
+        "webex": [
+		{
+			"teacher": "Nina Radojičić Matić",
+            "link": "https://matf.webex.com/meet/nina",
+		}
+		]
     },
     "lab": {
         "bibliography": [
