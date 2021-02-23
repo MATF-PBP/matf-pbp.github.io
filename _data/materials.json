@@ -1,7 +1,7 @@
 {
     "theory": {
         "bibliography": [
-			{
+            {
                 "type": "link",
                 "title": "Skripta za predavanja (dr Vesna Marinković)",
                 "link": "http://poincare.matf.bg.ac.rs/~nina/pbpVesna.pdf"
@@ -11,24 +11,24 @@
                 "title": "Knjiga (prof. dr Gordana Pavlović Lažetić)",
                 "link": "http://poincare.matf.bg.ac.rs/~gordana//UvodRBP/FINALE.pdf"
             }
-		],
+        ],
         "classes": [],
         "webex": [
-		{
-			"day": "Ponedeljak",
-            "groups": ["3I"],
-            "time": "14h - 16h",
-			"teacher": "Nina Radojičić Matić",
-            "link": "https://matf.webex.com/meet/nina"
-		},
-		{
-			"day": "Utorak",
-            "groups": ["4R"],
-            "time": "16h - 18h",
-			"teacher": "Nina Radojičić Matić",
-            "link": "https://matf.webex.com/meet/nina"
-		}
-		]
+            {
+                "day": "Ponedeljak",
+                "groups": ["3I"],
+                "time": "14h - 16h",
+                "teacher": "Nina Radojičić Matić",
+                "link": "https://matf.webex.com/meet/nina"
+            },
+            {
+                "day": "Utorak",
+                "groups": ["4R"],
+                "time": "16h - 18h",
+                "teacher": "Nina Radojičić Matić",
+                "link": "https://matf.webex.com/meet/nina"
+            }
+        ]
     },
     "lab": {
         "bibliography": [
@@ -43,7 +43,23 @@
                 "link": "https://www.youtube.com/channel/UCQd1lmTRYKoI-qkftLAvVLQ"
             }
         ],
-        "classes": [],
+        "classes": [
+            {
+                "title": "Čas 1",
+                "materials": [
+                    {
+                        "type": "link",
+                        "title": "Poglavlje 1 u skripti",
+                        "link": "/vezbe/poglavlja/1"
+                    },
+                    {
+                        "type": "link",
+                        "title": "Poglavlje 2 u skripti",
+                        "link": "/vezbe/poglavlja/2"
+                    }
+                ]
+            }
+        ],
         "webex": [
             {
                 "teacher": "Nikola Ajzenhamer",
