@@ -41,6 +41,11 @@
                 "type": "link",
                 "title": "YouTube kanal",
                 "link": "https://www.youtube.com/channel/UCQd1lmTRYKoI-qkftLAvVLQ"
+            },
+            {
+                "type": "link",
+                "title": "Informacije o softveru koji se koristi na kursu",
+                "link": "https://docs.google.com/document/d/1oj8Pwr5T2f_Hx9dnz3NoYbV9hxY_Obru2_oFQNWIxNI/edit?usp=sharing"
             }
         ],
         "classes": [
