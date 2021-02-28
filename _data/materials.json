@@ -67,27 +67,11 @@
         ],
         "webex": [
             {
-                "teacher": "Nikola Ajzenhamer",
-                "day": "Ponedeljak",
-                "groups": ["3I11"],
-                "time": "8h - 11h",
-                "link": "https://matf.webex.com/meet/nikola_ajzenhamer",
-                "note": "Link je podložan izmeni"
-            },
-            {
                 "teacher": "Anja Bukurov",
                 "day": "Ponedeljak",
-                "groups": ["3I22"],
+                "groups": ["3I11", "3I22"],
                 "time": "8h - 11h",
                 "link": "https://matf.webex.com/matf/j.php?MTID=mfebd2a48505d95fa26c526b940666270"
-            },
-            {
-                "teacher": "Anja Bukurov",
-                "day": "Ponedeljak ",
-                "groups": ["3I21"],
-                "time": "13h - 16h ",
-                "link": "https://matf.webex.com/matf/j.php?MTID=m652b229ca3eda9c39ad8dfb1634bd17c",
-                "note": "U prvoj nedelji nastave, čas će biti održan u petak od 9h-12h"
             },
             {
                 "teacher": "Anja Bukurov",
@@ -106,7 +90,7 @@
             {
                 "teacher": "Nikola Ajzenhamer",
                 "day": "Petak",
-                "groups": ["3I12"],
+                "groups": ["3I12", "3I21"],
                 "time": "8h - 11h",
                 "link": "https://matf.webex.com/matf/j.php?MTID=m4a304e07dca7d67ea06b96f14f109c7b"
             }
