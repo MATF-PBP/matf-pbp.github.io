@@ -8,7 +8,17 @@
             <img width="45" height="60" class="ui image" src="{{ teacher.image }}">
             <div class="content">
                 <a class="header" href="{{ teacher.website }}">{{ teacher.name }}</a>
-                <div class="description">{{ teacher.type }}</div>
+                <div class="description">
+                    {{ teacher.type }}
+                    {% if teacher.officeHours %}
+                        <br>
+                        {% if teacher.officeHours.type == "link" %}
+                        <a href="{{ teacher.officeHours.link }}">{{ teacher.officeHours.text }}</a>
+                        {% else %}
+                        Konsultacije: {{ teacher.officeHours.text }}
+                        {% endif %}
+                    {% endif %}
+                </div>
             </div>
         </div>
         {% endfor %}

@@ -10,13 +10,23 @@
             "name": "Nikola Ajzenhamer",
             "website": "https://matf.nikolaajzenhamer.rs",
             "type": "Vežbe",
-            "image": "/resources/images/nikola_ajzenhamer.jpg"
+            "image": "/resources/images/nikola_ajzenhamer.jpg",
+            "officeHours": {
+                "type": "link",
+                "link": "https://matf.nikolaajzenhamer.rs//2021/02/19/nastava-u-letnjem-semestru",
+                "text": "Informacije o konsultacijama"
+            }
         },
         {
             "name": "Anja Bukurov",
             "website": "http://www.math.rs/~anja_bukurov",
             "type": "Vežbe",
-            "image": "/resources/images/anja_bukurov.jpg"
+            "image": "/resources/images/anja_bukurov.jpg",
+            "officeHours": {
+                "type": "link",
+                "link": "https://matf-pbp.github.io//2021/02/28/anja-konsultacije",
+                "text": "Informacije o konsultacijama"
+            }
         }
     ]
 }
