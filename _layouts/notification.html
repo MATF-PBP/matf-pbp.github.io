@@ -5,6 +5,6 @@ layout: default
 <h2 class="ui center aligned header">{{ page.title }}</h2>
 
 <div class="ui piled segment">
-    <h4 class="ui header">{{ page.date | date: '%d.%m.%Y. %H:%M' }}</h4>
+    <h4 class="ui header">{{ page.date | date: '%d.%m.%Y.' }} {{ page.time }}</h4>
     {{ content }}
 </div>
