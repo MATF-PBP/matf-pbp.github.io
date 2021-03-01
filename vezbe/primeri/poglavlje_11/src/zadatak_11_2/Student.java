@@ -63,10 +63,10 @@ public class Student {
     }
 
     public StudijskiProgram getStudijskiProgram() {
-		return studijskiProgram;
-	}
+        return studijskiProgram;
+    }
 
-	public void setStudijskiProgram(StudijskiProgram studijskiProgram) {
-		this.studijskiProgram = studijskiProgram;
-	}
+    public void setStudijskiProgram(StudijskiProgram studijskiProgram) {
+        this.studijskiProgram = studijskiProgram;
+    }
 }

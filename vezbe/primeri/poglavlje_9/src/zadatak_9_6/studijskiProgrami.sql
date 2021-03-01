@@ -3,4 +3,4 @@ SELECT  ID,
         OBIMESPB,
         ZVANJE
 FROM    DA.STUDIJSKIPROGRAM;
-	   
+       

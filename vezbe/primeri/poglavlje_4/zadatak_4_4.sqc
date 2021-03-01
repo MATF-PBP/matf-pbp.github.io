@@ -22,8 +22,8 @@ struct sqlda *hOutputSqldaPtr = NULL;
 
 // Enumerator za tip DESCRIBE naredbe
 enum DescribeType {
-	INPUT,
-	OUTPUT
+    INPUT,
+    OUTPUT
 };
 
 //////////////////////////////////////////////
@@ -67,8 +67,8 @@ int main() {
     
     readAndPrepareStatement();    
     prepareSqlda(&hInputSqldaPtr, INPUT);
-	prepareSqlda(&hOutputSqldaPtr, OUTPUT);
-	prepareDataForExecutingStatement();
+    prepareSqlda(&hOutputSqldaPtr, OUTPUT);
+    prepareDataForExecutingStatement();
     executeStatement();
     
     printf("\n##########################################################\n");
@@ -122,16 +122,16 @@ void prepareSqlda(struct sqlda **sqldaptr, enum DescribeType d_type) {
     (*sqldaptr)->sqln = 0;
 
     // Izvrsiti prvi put naredbu DESCRIBE 
-	if (d_type == INPUT) {
-		EXEC SQL DESCRIBE INPUT pStatement 
-			INTO :**sqldaptr;
-	} else if (d_type == OUTPUT) {
-		EXEC SQL DESCRIBE OUTPUT pStatement 
-			INTO :**sqldaptr;
-	} else {
-		fprintf(stderr, "Nepoznat tip DESCRIBE naredbe\n\n");
+    if (d_type == INPUT) {
+        EXEC SQL DESCRIBE INPUT pStatement 
+            INTO :**sqldaptr;
+    } else if (d_type == OUTPUT) {
+        EXEC SQL DESCRIBE OUTPUT pStatement 
+            INTO :**sqldaptr;
+    } else {
+        fprintf(stderr, "Nepoznat tip DESCRIBE naredbe\n\n");
         exitGracefully();
-	}
+    }
     IS_ERROR_WITH_LINE("Describe - Korak 1");
 
     // Korak 2:
@@ -143,7 +143,7 @@ void prepareSqlda(struct sqlda **sqldaptr, enum DescribeType d_type) {
         numcols = (*sqldaptr)->sqld;
         // Oslobadjamo prethodno alociranu strukturu
         free(*sqldaptr);
-		*sqldaptr = NULL;
+        *sqldaptr = NULL;
         // Alociramo novu strukturu 
         // sa ispravnim brojem SQLVAR promenljivih
         *sqldaptr = (struct sqlda*)malloc(SQLDASIZE(numcols));
@@ -159,23 +159,23 @@ void prepareSqlda(struct sqlda **sqldaptr, enum DescribeType d_type) {
 
     // Izvrsavamo finalnu naredbu DESCRIBE OUTPUT
     if (d_type == INPUT) {
-		EXEC SQL DESCRIBE INPUT pStatement 
-			INTO :**sqldaptr;
-	} else if (d_type == OUTPUT) {
-		EXEC SQL DESCRIBE OUTPUT pStatement 
-			INTO :**sqldaptr;
-	} else {
-		fprintf(stderr, "Nepoznat tip DESCRIBE naredbe\n\n");
+        EXEC SQL DESCRIBE INPUT pStatement 
+            INTO :**sqldaptr;
+    } else if (d_type == OUTPUT) {
+        EXEC SQL DESCRIBE OUTPUT pStatement 
+            INTO :**sqldaptr;
+    } else {
+        fprintf(stderr, "Nepoznat tip DESCRIBE naredbe\n\n");
         exitGracefully();
-	}
+    }
 
     IS_ERROR_WITH_LINE("Describe - Korak 2");
 }
 
 void prepareDataForExecutingStatement() {
-	alocateSpaceForSqlda(hInputSqldaPtr);
+    alocateSpaceForSqlda(hInputSqldaPtr);
     alocateSpaceForSqlda(hOutputSqldaPtr);
-	askForParameterMarkerValues();
+    askForParameterMarkerValues();
 }
 
 void alocateSpaceForSqlda(struct sqlda *sqldaptr) {
@@ -194,19 +194,19 @@ void alocateSpaceForSqlda(struct sqlda *sqldaptr) {
                 sqldaptr->sqlvar[i].sqldata = (char*)calloc(1, sqllen);
                 sqldaptr->sqlvar[i].sqlind = (short*)calloc(1, sizeof(short));
                 break;
-				
+                
             case SQL_TYP_INTEGER:
             case SQL_TYP_NINTEGER:
                 sqldaptr->sqlvar[i].sqldata = (char*)calloc(1, sqllen);
                 sqldaptr->sqlvar[i].sqlind = (short*)calloc(1, sizeof(short));
                 break;
-				
+                
             case SQL_TYP_FLOAT:
             case SQL_TYP_NFLOAT:
                 sqldaptr->sqlvar[i].sqldata = (char*)calloc(1, sqllen);
                 sqldaptr->sqlvar[i].sqlind = (short*)calloc(1, sizeof(short));
                 break;
-				
+                
             case SQL_TYP_DECIMAL:
             case SQL_TYP_NDECIMAL:
                 sqldaptr->sqlvar[i].sqldata = (char*)calloc(1, sqllen);
@@ -270,24 +270,24 @@ void markFirstISqlvarsForDeletion(struct sqlda *sqldaptr, int i) {
 
 void freeSqlda() {
     if (hInputSqldaPtr != NULL) {
-		int i = 0;
-		for(; i < hInputSqldaPtr->sqld; ++i) {
-			free(hInputSqldaPtr->sqlvar[i].sqldata);
-			free(hInputSqldaPtr->sqlvar[i].sqlind);
-		}
+        int i = 0;
+        for(; i < hInputSqldaPtr->sqld; ++i) {
+            free(hInputSqldaPtr->sqlvar[i].sqldata);
+            free(hInputSqldaPtr->sqlvar[i].sqlind);
+        }
 
-		free(hInputSqldaPtr);
-	}
+        free(hInputSqldaPtr);
+    }
 
-	if (hOutputSqldaPtr != NULL) {
-		int i = 0;
-		for(; i < hOutputSqldaPtr->sqld; ++i) {
-			free(hOutputSqldaPtr->sqlvar[i].sqldata);
-			free(hOutputSqldaPtr->sqlvar[i].sqlind);
-		}
+    if (hOutputSqldaPtr != NULL) {
+        int i = 0;
+        for(; i < hOutputSqldaPtr->sqld; ++i) {
+            free(hOutputSqldaPtr->sqlvar[i].sqldata);
+            free(hOutputSqldaPtr->sqlvar[i].sqlind);
+        }
 
-		free(hOutputSqldaPtr);
-	}
+        free(hOutputSqldaPtr);
+    }
 }
 
 void askForParameterMarkerValues() {
@@ -306,17 +306,17 @@ void askForParameterMarkerValues() {
             case SQL_TYP_NSMALL:
                 scanf("%hd", (short *)hInputSqldaPtr->sqlvar[i].sqldata);
                 break;
-				
+                
             case SQL_TYP_INTEGER:
             case SQL_TYP_NINTEGER:
                 scanf("%d", (int *)hInputSqldaPtr->sqlvar[i].sqldata);
                 break;
-				
+                
             case SQL_TYP_FLOAT:
             case SQL_TYP_NFLOAT:
                 scanf("%f", (float *)hInputSqldaPtr->sqlvar[i].sqldata);
                 break;
-				
+                
             case SQL_TYP_DECIMAL:
             case SQL_TYP_NDECIMAL:
                 scanf("%lf", (double *)hInputSqldaPtr->sqlvar[i].sqldata);
@@ -370,14 +370,14 @@ void askForParameterMarkerValues() {
 }
 
 void executeStatement() {
-	// Ukoliko naredba nije SELECT, tj. broj kolona izlaza je 0,
+    // Ukoliko naredba nije SELECT, tj. broj kolona izlaza je 0,
     // mozemo koristiti EXECUTE naredbu.
     if(hOutputSqldaPtr->sqld == 0) {
         executeNotSelectStatement();
-		return;
+        return;
     }
 
-	// U suprotnom, moramo obraditi naredbu SELECT pomocu kursora.
+    // U suprotnom, moramo obraditi naredbu SELECT pomocu kursora.
     executeSelectStatement();
 }
 
@@ -421,7 +421,7 @@ void executeSelectStatement() {
                         printf("%hd \t", *((short*)(hOutputSqldaPtr->sqlvar[i].sqldata)));
                     }
                     break;
-					
+                    
                 case SQL_TYP_INTEGER:
                 case SQL_TYP_NINTEGER:
                     if (*(short*)(hOutputSqldaPtr->sqlvar[i].sqlind) < 0) {
@@ -431,7 +431,7 @@ void executeSelectStatement() {
                         printf("%d \t", *((sqlint32*)(hOutputSqldaPtr->sqlvar[i].sqldata)));
                     }
                     break;
-					
+                    
                 case SQL_TYP_FLOAT:
                 case SQL_TYP_NFLOAT:
                     if (*(short*)(hOutputSqldaPtr->sqlvar[i].sqlind) < 0) {
@@ -441,7 +441,7 @@ void executeSelectStatement() {
                         printf("%f \t", *((float*)(hOutputSqldaPtr->sqlvar[i].sqldata)));
                     }
                     break;
-					
+                    
                 case SQL_TYP_DECIMAL:
                 case SQL_TYP_NDECIMAL:
                     if (*(short*)(hOutputSqldaPtr->sqlvar[i].sqlind) < 0) {
@@ -568,8 +568,8 @@ void checkSQL(const char *str, int linenum) {
 }
 
 void exitGracefully() {
-	freeSqlda();
-	
+    freeSqlda();
+    
     EXEC SQL ROLLBACK;
     exit(EXIT_FAILURE);
 }

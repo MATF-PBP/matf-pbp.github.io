@@ -7,17 +7,17 @@ import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 class Main {
-	
-	public static void main(String[] args) {
-		System.out.println("Pocetak rada...\n");
-		
-		readIspitniRokovi();
-		
-		System.out.println("Zavrsetak rada.\n");
-		HibernateUtil.getSessionFactory().close();
-	}
+    
+    public static void main(String[] args) {
+        System.out.println("Pocetak rada...\n");
+        
+        readIspitniRokovi();
+        
+        System.out.println("Zavrsetak rada.\n");
+        HibernateUtil.getSessionFactory().close();
+    }
 
-	private static void readIspitniRokovi() {
+    private static void readIspitniRokovi() {
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction TR = null;
         

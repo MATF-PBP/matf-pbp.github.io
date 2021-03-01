@@ -66,8 +66,8 @@ class Main {
     }
 
     private static void readStudijskiProgram() {
-		Session session = HibernateUtil.getSessionFactory().openSession();
-		
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        
         // Ucitavanje (dohvatanje) studijskog programa na osnovu primarnog kljuca
         StudijskiProgram s = session.get(StudijskiProgram.class, 102);
 
@@ -82,7 +82,7 @@ class Main {
         // Zatvaramo sesiju
         session.close();
     }
-	
+    
     private static void updateStudijskiProgram() {
         Session session = HibernateUtil.getSessionFactory().openSession();
 

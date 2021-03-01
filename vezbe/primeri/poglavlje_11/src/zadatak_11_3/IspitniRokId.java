@@ -59,6 +59,6 @@ public class IspitniRokId implements Serializable {
     
     @Override
     public String toString() {
-    	return "Skolska godina= " + skGodina + ", Oznaka roka:" + oznakaRoka;
+        return "Skolska godina= " + skGodina + ", Oznaka roka:" + oznakaRoka;
     }
 }

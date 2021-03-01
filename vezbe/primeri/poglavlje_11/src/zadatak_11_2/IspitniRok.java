@@ -58,8 +58,8 @@ class IspitniRok {
         Kraj = kraj;
     }
     
-	@Override
-	public String toString() {
-		return "IspitniRok [" + id + ", Naziv=" + Naziv + ", Pocetak=" + Pocetak + ", Kraj=" + Kraj + "]";
-	}
+    @Override
+    public String toString() {
+        return "IspitniRok [" + id + ", Naziv=" + Naziv + ", Pocetak=" + Pocetak + ", Kraj=" + Kraj + "]";
+    }
 }

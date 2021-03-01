@@ -517,11 +517,11 @@ Iz `CPKBook.java` datoteke:
 // Ovo je klasa koja ima slozeni kljuc ISBN
 @Entity
 public class CPKBook {
-	@Id
-	ISBN id;
-	
-	...
-	
+    @Id
+    ISBN id;
+    
+    ...
+    
 }
 ```
 
@@ -533,40 +533,40 @@ Iz `ISBN.java` datoteke:
 @Embeddable
 // 2. Implementira interfejs java.io.Serializable
 public class ISBN implements Serializable {
-	// Naziv "group" je nevalidan naziv kolone u SQL-u
-	@Column(name="group_number") 
-	int group;
-	int publisher;
-	int title;
-	int checkdigit;
-	
-	// 3. Ima podrazumevani konstruktor
-	public ISBN() {
-	}
-	
-	// Get i set metodi
-	...
+    // Naziv "group" je nevalidan naziv kolone u SQL-u
+    @Column(name="group_number") 
+    int group;
+    int publisher;
+    int title;
+    int checkdigit;
+    
+    // 3. Ima podrazumevani konstruktor
+    public ISBN() {
+    }
+    
+    // Get i set metodi
+    ...
     
     // 4. Prevazilazi metode equals i hashCode
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof ISBN)) return false;
-		
-		ISBN isbn = (ISBN) o;
-	
-		if (checkdigit != isbn.checkdigit) return false;
-		if (group != isbn.group) return false;
-		if (publisher != isbn.publisher) return false;
-		if (title != isbn.title) return false;
-	
-		return true;
-	}
-	
-	@Override
-	public int hashCode() {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ISBN)) return false;
+        
+        ISBN isbn = (ISBN) o;
+    
+        if (checkdigit != isbn.checkdigit) return false;
+        if (group != isbn.group) return false;
+        if (publisher != isbn.publisher) return false;
+        if (title != isbn.title) return false;
+    
+        return true;
+    }
+    
+    @Override
+    public int hashCode() {
         return Objects.hash(this.group, this.publisher, this.title, this.checkdigit);
-	}
+    }
 }
 ```
 
@@ -582,26 +582,26 @@ predstavlja njen deo, tj. ne\'ce se koristiti kao primarni klju\v c neke druge k
 ```java
 @Entity
 public class EmbeddedPKBook {
-	@EmbeddedId
-	EmbeddedISBN id;
+    @EmbeddedId
+    EmbeddedISBN id;
 
-	@Column
-	String name;
-	
-	// Get/set metodi
+    @Column
+    String name;
+    
+    // Get/set metodi
 
-	static class EmbeddedISBN implements Serializable {
-		@Column(name="group_number")
-		int group;
-		int publisher;
-		int title;
-		int checkdigit;
-		
-		public ISBN() {
-		}
-		
-		// Get/set metodi, equals, hashCode...
-	}
+    static class EmbeddedISBN implements Serializable {
+        @Column(name="group_number")
+        int group;
+        int publisher;
+        int title;
+        int checkdigit;
+        
+        public ISBN() {
+        }
+        
+        // Get/set metodi, equals, hashCode...
+    }
 }
 ```
 
@@ -625,33 +625,33 @@ the value of the `@IdClass` annotation.
 @Entity
 @IdClass(IdClassBook.EmbeddedISBN.class)
 public class IdClassBook {
-	@Id
-	int group;
-	@Id
-	int publisher;
-	@Id
-	int title;
-	@Id
-	int checkdigit;
-	String name;
-	
-	public IdClassBook() {
-	}
-	
-	// Get/set metodi
-	
-	static class EmbeddedISBN implements Serializable {
-		@Column(name="group_number")
-		int group;
-		int publisher;
-		int title;
-		int checkdigit;
-		
-		public ISBN() {
-		}
-		
-		// Get/set metodi, equals, hashCode...
-	}
+    @Id
+    int group;
+    @Id
+    int publisher;
+    @Id
+    int title;
+    @Id
+    int checkdigit;
+    String name;
+    
+    public IdClassBook() {
+    }
+    
+    // Get/set metodi
+    
+    static class EmbeddedISBN implements Serializable {
+        @Column(name="group_number")
+        int group;
+        int publisher;
+        int title;
+        int checkdigit;
+        
+        public ISBN() {
+        }
+        
+        // Get/set metodi, equals, hashCode...
+    }
 }
 ```
 

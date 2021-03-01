@@ -11,8 +11,8 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "SMER")
 class Smer {
-	@Id
-	private int id_smera;
+    @Id
+    private int id_smera;
 
     @Column(name = "OZNAKA", nullable = false)
     private String Oznaka;
@@ -34,83 +34,83 @@ class Smer {
 
     @Column(name = "OPIS", nullable = true)
     private String Opis;
-	
-	// Kreiramo dvosmernu asocijativnu vezu izmedju klasa Smer i Student.
+    
+    // Kreiramo dvosmernu asocijativnu vezu izmedju klasa Smer i Student.
     // Posto tabela Dosije sadrzi strani kljuc id_smera koji referise na Smer
     // potrebno je da se u klasi Smer postavljamo opciju mappedBy na naziv polja
     // tipa Smer u klasi Student.
-	@OneToMany(mappedBy="smer")
-	private List<Student> studenti;
+    @OneToMany(mappedBy="smer")
+    private List<Student> studenti;
 
-	public int getId_smera() {
-		return id_smera;
-	}
+    public int getId_smera() {
+        return id_smera;
+    }
 
-	public void setId_smera(int id_smera) {
-		this.id_smera = id_smera;
-	}
+    public void setId_smera(int id_smera) {
+        this.id_smera = id_smera;
+    }
 
-	public String getOznaka() {
-		return Oznaka;
-	}
+    public String getOznaka() {
+        return Oznaka;
+    }
 
-	public void setOznaka(String oznaka) {
-		Oznaka = oznaka;
-	}
+    public void setOznaka(String oznaka) {
+        Oznaka = oznaka;
+    }
 
-	public String getNaziv() {
-		return Naziv;
-	}
+    public String getNaziv() {
+        return Naziv;
+    }
 
-	public void setNaziv(String naziv) {
-		Naziv = naziv;
-	}
+    public void setNaziv(String naziv) {
+        Naziv = naziv;
+    }
 
-	public Integer getSemestara() {
-		return Semestara;
-	}
+    public Integer getSemestara() {
+        return Semestara;
+    }
 
-	public void setSemestara(Integer semestara) {
-		Semestara = semestara;
-	}
+    public void setSemestara(Integer semestara) {
+        Semestara = semestara;
+    }
 
-	public Integer getBodovi() {
-		return Bodovi;
-	}
+    public Integer getBodovi() {
+        return Bodovi;
+    }
 
-	public void setBodovi(Integer bodovi) {
-		Bodovi = bodovi;
-	}
+    public void setBodovi(Integer bodovi) {
+        Bodovi = bodovi;
+    }
 
-	public Integer getNivo() {
-		return Nivo;
-	}
+    public Integer getNivo() {
+        return Nivo;
+    }
 
-	public void setNivo(Integer nivo) {
-		Nivo = nivo;
-	}
+    public void setNivo(Integer nivo) {
+        Nivo = nivo;
+    }
 
-	public String getZvanje() {
-		return Zvanje;
-	}
+    public String getZvanje() {
+        return Zvanje;
+    }
 
-	public void setZvanje(String zvanje) {
-		Zvanje = zvanje;
-	}
+    public void setZvanje(String zvanje) {
+        Zvanje = zvanje;
+    }
 
-	public String getOpis() {
-		return Opis;
-	}
+    public String getOpis() {
+        return Opis;
+    }
 
-	public void setOpis(String opis) {
-		Opis = opis;
-	}
+    public void setOpis(String opis) {
+        Opis = opis;
+    }
 
-	public List<Student> getStudenti() {
-		return studenti;
-	}
+    public List<Student> getStudenti() {
+        return studenti;
+    }
 
-	public void setStudenti(List<Student> studenti) {
-		this.studenti = studenti;
-	}
+    public void setStudenti(List<Student> studenti) {
+        this.studenti = studenti;
+    }
 }

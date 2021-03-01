@@ -18,7 +18,7 @@ public class Main {
         String url = "jdbc:db2://localhost:50000/stud2020";
 
         try (Connection con = DriverManager.getConnection(url, "student", "abcdef")) {
-        	
+            
             ispitiStudenteIIspite(con);
             
         } catch (SQLException e) {

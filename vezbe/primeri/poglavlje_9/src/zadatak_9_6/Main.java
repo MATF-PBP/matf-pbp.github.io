@@ -12,12 +12,12 @@ public class Main {
         }
     }
 
-	public static void main(String[] args) {
-		
-		try (Stud2020 stud2020 = new Stud2020()) {
-			stud2020.izlistajStudentePoStudijskimProgramima();
-			stud2020.commit();
-		} catch (SQLException e) {
+    public static void main(String[] args) {
+        
+        try (Stud2020 stud2020 = new Stud2020()) {
+            stud2020.izlistajStudentePoStudijskimProgramima();
+            stud2020.commit();
+        } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("SQLCODE: " + e.getErrorCode() + "\n" + "SQLSTATE: " + e.getSQLState() + "\n"
                     + "PORUKA: " + e.getMessage());
@@ -31,6 +31,6 @@ public class Main {
         }
 
 
-	}
+    }
 
 }

@@ -295,44 +295,44 @@ DB="vstud"
 # and bind the package to the database.
  if ( [ $# -eq 1 ]  && [ $USER != "NULL" ] && [ $PSWD != "NULL" ] ) || ( [ $# -ge 3 ]  && [ $# -le 6 ] )
  then
-	# Remove .sqlj extension
-	progname=${1%.sqlj}
+    # Remove .sqlj extension
+    progname=${1%.sqlj}
  
-	sqlj "${progname}.sqlj"
+    sqlj "${progname}.sqlj"
  
-	if [ $# -eq 1 ]
-	then
-   	./db2sqljcustomize2 -url jdbc:db2://$SERVER:$PORTNUM/$DB \
-   	-user $USER -password $PSWD "${progname}_SJProfile0"
-	elif [ $# -eq  3 ]
-	then
-   	./db2sqljcustomize2 -url jdbc:db2://$SERVER:$PORTNUM/$DB -user $2 -password $3 \
-   	"${progname}_SJProfile0"
-	elif [ $# -eq 4 ]
-	then
-   	./db2sqljcustomize2 -url jdbc:db2://$4:$PORTNUM/$DB -user $2 -password $3 \
-   	"${progname}_SJProfile0"
-	elif [ $# -eq 5 ]
-	then
-   	./db2sqljcustomize2 -url jdbc:db2://$4:$5/$DB -user $2 -password $3 \
-   	"${progname}_SJProfile0"
-	else
-   	./db2sqljcustomize2 -url jdbc:db2://$4:$5/$6 -user $2 -password $3 \
-   	"${progname}_SJProfile0"
-	fi
+    if [ $# -eq 1 ]
+    then
+       ./db2sqljcustomize2 -url jdbc:db2://$SERVER:$PORTNUM/$DB \
+       -user $USER -password $PSWD "${progname}_SJProfile0"
+    elif [ $# -eq  3 ]
+    then
+       ./db2sqljcustomize2 -url jdbc:db2://$SERVER:$PORTNUM/$DB -user $2 -password $3 \
+       "${progname}_SJProfile0"
+    elif [ $# -eq 4 ]
+    then
+       ./db2sqljcustomize2 -url jdbc:db2://$4:$PORTNUM/$DB -user $2 -password $3 \
+       "${progname}_SJProfile0"
+    elif [ $# -eq 5 ]
+    then
+       ./db2sqljcustomize2 -url jdbc:db2://$4:$5/$DB -user $2 -password $3 \
+       "${progname}_SJProfile0"
+    else
+       ./db2sqljcustomize2 -url jdbc:db2://$4:$5/$6 -user $2 -password $3 \
+       "${progname}_SJProfile0"
+    fi
  else
-	echo 'Usage: bldsqlj prog_name (requires hardcoding user ID and password)'
-	echo '   	bldsqlj prog_name userid password'
-	echo '   	bldsqlj prog_name userid password server_name'
-	echo '   	bldsqlj prog_name userid password server_name port_number'
-	echo '   	bldsqlj prog_name userid password server_name port_number db_name'
-	echo ''
-	echo '   	Defaults:'
-	echo '     	userid  	= '$USER
-	echo '     	password	= '$PSWD
-	echo '     	server_name = '$SERVER
-	echo '     	port_number = '$PORTNUM
-	echo '     	db_name 	= '$DB
+    echo 'Usage: bldsqlj prog_name (requires hardcoding user ID and password)'
+    echo '       bldsqlj prog_name userid password'
+    echo '       bldsqlj prog_name userid password server_name'
+    echo '       bldsqlj prog_name userid password server_name port_number'
+    echo '       bldsqlj prog_name userid password server_name port_number db_name'
+    echo ''
+    echo '       Defaults:'
+    echo '         userid      = '$USER
+    echo '         password    = '$PSWD
+    echo '         server_name = '$SERVER
+    echo '         port_number = '$PORTNUM
+    echo '         db_name     = '$DB
  fi
 ```
 

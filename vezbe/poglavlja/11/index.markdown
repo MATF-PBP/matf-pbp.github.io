@@ -18,9 +18,9 @@ Here’s the syntax of the `UPDATE` statement:
 
 ```sql
 UPDATE [VERSIONED]
-	[FROM] path [[AS] alias] [, ...]
-	SET property = value [, ...]
-	[WHERE logicalExpression]
+    [FROM] path [[AS] alias] [, ...]
+    SET property = value [, ...]
+    [WHERE logicalExpression]
 ```
 
 The fully qualified name of the entity or entities is `path`. The `alias` names may be used
@@ -64,7 +64,7 @@ In practice, deletes might look like this:
 
 ```java
 Query query = session.createQuery(
-	    "DELETE FROM Person WHERE accountstatus = :status");
+        "DELETE FROM Person WHERE accountstatus = :status");
 query.setString("status", "purged");
 int rowsDeleted = query.executeUpdate();
 ```
@@ -90,8 +90,8 @@ a purged table before actually purging them might look like this:
 
 ```java
 Query query = session.createQuery(
-	    "INSERT INTO PURGED_USERS(id, name, status) " +
-	    "SELECT id, name, status FROM User WHERE status = :status");
+        "INSERT INTO PURGED_USERS(id, name, status) " +
+        "SELECT id, name, status FROM User WHERE status = :status");
 query.setString("status", "purged");
 int rowsCopied = query.executeUpdate();
 ```
@@ -208,8 +208,8 @@ MetamodelImplementor metamodelImplementor =
 
 // Izracunavamo tip atributa `caption` u klasi `Photo`.
 Type captionType = metamodelImplementor
-		.entityPersister( Photo.class.getName() )
-		.getPropertyType( "caption" );
+        .entityPersister( Photo.class.getName() )
+        .getPropertyType( "caption" );
 
 // HQL upit kojim dohvatamo sve slike koje imaju odgovarajuci naziv.
 String hql = 

@@ -31,24 +31,24 @@ class StudijskiProgram {
 
 
     public StudijskiProgram() {
-	}
+    }
     
     public StudijskiProgram(int id, String oznaka, String naziv, Integer espb, Integer nivo,
-			String zvanje, String opis) {
-		this.id = id;
-		Oznaka = oznaka;
-		Naziv = naziv;
-		Espb = espb;
-		Nivo = nivo;
-		Zvanje = zvanje;
-		Opis = opis;
-	}
+            String zvanje, String opis) {
+        this.id = id;
+        Oznaka = oznaka;
+        Naziv = naziv;
+        Espb = espb;
+        Nivo = nivo;
+        Zvanje = zvanje;
+        Opis = opis;
+    }
 
     public int getId() {
         return id;
     }
 
-	public void setId(int id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -100,9 +100,9 @@ class StudijskiProgram {
         Opis = opis;
     }
 
-	@Override
-	public String toString() {
-		return "Studijski program [id=" + id + ", Oznaka=" + Oznaka + ", Naziv=" + Naziv
-				+ ", Espb=" + Espb + ", Nivo=" + Nivo + ", Zvanje=" + Zvanje + ", Opis=" + Opis + "]";
-	}
+    @Override
+    public String toString() {
+        return "Studijski program [id=" + id + ", Oznaka=" + Oznaka + ", Naziv=" + Naziv
+                + ", Espb=" + Espb + ", Nivo=" + Nivo + ", Zvanje=" + Zvanje + ", Opis=" + Opis + "]";
+    }
 }

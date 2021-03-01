@@ -14,7 +14,7 @@ import javax.persistence.Table;
 @Entity
 @Table(name = "DA.DOSIJE")
 public class Student {
-	// Primarni kljuc
+    // Primarni kljuc
     @Id
     private Integer indeks;
 
@@ -70,22 +70,22 @@ public class Student {
     }
 
     public StudijskiProgram getStudijskiProgram() {
-		return studijskiProgram;
-	}
+        return studijskiProgram;
+    }
 
-	public void setStudijskiProgram(StudijskiProgram studijskiProgram) {
-		this.studijskiProgram = studijskiProgram;
-	}
+    public void setStudijskiProgram(StudijskiProgram studijskiProgram) {
+        this.studijskiProgram = studijskiProgram;
+    }
 
-	public List<Ispit> getIspiti() {
-		return ispiti;
-	}
+    public List<Ispit> getIspiti() {
+        return ispiti;
+    }
 
-	public void setIspiti(List<Ispit> ispiti) {
-		this.ispiti = ispiti;
-	}
+    public void setIspiti(List<Ispit> ispiti) {
+        this.ispiti = ispiti;
+    }
 
-	// Metod koji racuna prosek studenta
+    // Metod koji racuna prosek studenta
     public double prosek() {
         double ukupno = 0;
         int broj_polozenih = 0;

@@ -19,8 +19,8 @@ public class Stud2020 extends Database {
         ResultSet rs = stmt.executeQuery(sql);
 
         while (rs.next()) {
-        	StudijskiProgram sp = new StudijskiProgram(rs.getInt(1), rs.getString(2), rs.getShort(3), rs.getString(4));
-        	
+            StudijskiProgram sp = new StudijskiProgram(rs.getInt(1), rs.getString(2), rs.getShort(3), rs.getString(4));
+            
             System.out.println("\n" + sp);
             
             izlistajStudenteStudijskogPrograma(sp.getId());
@@ -37,8 +37,8 @@ public class Stud2020 extends Database {
         ResultSet rs = stmt.executeQuery();
         
         while(rs.next()) {
-        	Student student = new Student(rs.getInt(1), rs.getString(2), rs.getString(3));
-        	System.out.println("\t" + student);
+            Student student = new Student(rs.getInt(1), rs.getString(2), rs.getString(3));
+            System.out.println("\t" + student);
         }
 
         rs.close();

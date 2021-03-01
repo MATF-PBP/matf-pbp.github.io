@@ -16,9 +16,9 @@ public class Main {
         String url = "jdbc:db2://localhost:50000/stud2020";
 
         try (
-        		Connection con = DriverManager.getConnection(url, "student", "abcdef");
-        		Scanner ulaz = new Scanner(System.in);
-    		) {
+                Connection con = DriverManager.getConnection(url, "student", "abcdef");
+                Scanner ulaz = new Scanner(System.in);
+            ) {
             // JDBC koristi iskljucivo dinamicke SQL naredbe,
             // tako da se u JDBC ne koriste maticne promenljive.
             // S obzirom da su vrednosti za bodove u klauzama SET i WHERE
