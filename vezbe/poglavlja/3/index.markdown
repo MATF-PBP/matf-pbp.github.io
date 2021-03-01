@@ -32,7 +32,7 @@ Promenljiva `<IME_KURSORA>` mora biti jedinstvena u programu. Vrednost `<UPIT>` 
 
 Ukoliko navedemo klauzu `FOR READ ONLY`, time definišemo kursor koji služi samo za čitanje podataka. Ukoliko želimo da se podaci menjaju pomoću kursora, tada se nakon `<UPIT>` navodi klauza `FOR UPDATE OF` za kojom sledi lista imena kolona u rezultatu upita koji se mogu menjati kursorom, odvojeni zapetama.
 
-Postoje tri tipa kursora:
+Postoje \v cetiri tipa kursora:
 
 - *\v Citaju\'ci*, koji podr\v zava samo operaciju \v citanja podataka. Ovim kursorom nije mogu\'ce vr\v siti operacije brisanja ili a\v zuriranja.
 - *Bri\v su\'ci*, koji podr\v zava operacije \v citanja i brisanja podataka. Ovim kursorom nije mogu\'ce vr\v siti operaciju a\v zuriranja.
