@@ -63,6 +63,16 @@
                         "link": "/vezbe/poglavlja/2"
                     }
                 ]
+            },
+            {
+                "title": "Čas 2",
+                "materials": [
+                    {
+                        "type": "link",
+                        "title": "Poglavlje 3 u skripti (do sekcije 3.4)",
+                        "link": "/vezbe/poglavlja/3"
+                    }
+                ]
             }
         ],
         "webex": [
