@@ -4,19 +4,12 @@
 
 EXEC SQL INCLUDE SQLCA;
 
-typedef struct {
-    sqlint32 schoolYear;
-    char finalsLabel[21];
-    char finalsName[31];
-    char finalsStartDate[11];
-    char finalsEndDate[11];
-} FinalStruct;
-
+// U ovom primeru ilustrujemo kako je moguce smestiti jedan red iz tabele u C strukturu.
+// S obzirom da ova struktura predstavlja jedan ceo red u tabeli DA.ISPITNIROK,
+// neophodno je da redosled polja u strukturi odgovara redosledu kolona u tabeli
+// (iako imena polja i kolona ne moraju da budu identicna).
 EXEC SQL BEGIN DECLARE SECTION;
-// Definisemo strukturu za ispitne rokove.
-// Naredna promenljiva ce se koristiti za dohvatanje jednog ispitnog roka.
-// Nazalost, nije moguce koristiti typedef iznad (zasto?), vec moramo eksplicitno zadati strukturu.
-struct {
+struct final {
     sqlint32 schoolYear;
     char finalsLabel[21];
     char finalsName[31];
@@ -40,10 +33,10 @@ int main() {
     EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
     checkSQL("Connect");
 
-    // Pripremamo niz ispitnih rokova
-    // Naredni niz ce cuvati generisane ispitne rokove za tekucu godinu
-    FinalStruct finalsArr[12];
-    const int n = sizeof(finalsArr)/sizeof(FinalStruct);
+    // Pripremamo niz ispitnih rokova.
+    // Naredni niz ce cuvati generisane ispitne rokove za tekucu godinu.
+    struct final finalsArr[12];
+    const int n = sizeof(finalsArr)/sizeof(struct final);
     const char *monthNames[] = {"Januar", "Februar", "Mart", "April", "Maj", "Jun", "Jul", "Avgust", "Septembar", "Oktobar", "Novembar", "Decembar"};
     int i;
     for (i = 0; i < n; ++i) {
@@ -54,9 +47,15 @@ int main() {
         sprintf(finalsArr[i].finalsEndDate, "%2.2d/10/2021", i+1);
     }
     
+    // S obzirom da se podaci o jednom ispitnom roku smestaju u strukturu struct final,
+    // potrebno je da redosled kolona u projekciji odgovara redosledu polja u strukturi.
     EXEC SQL 
         DECLARE cFinals CURSOR WITH HOLD FOR
-        SELECT  *
+        SELECT  SKGODINA,
+                OZNAKAROKA,
+                NAZIV,
+                DATPOCETKA,
+                DATKRAJA
         FROM    DA.ISPITNIROK;
     checkSQL("Declare");
     
@@ -73,6 +72,7 @@ int main() {
         strcpy(hFinal.finalsStartDate, finalsArr[i].finalsStartDate);
         strcpy(hFinal.finalsEndDate, finalsArr[i].finalsEndDate);
             
+        // Maticna promenljiva tipa struct final se moze koristiti kao i bilo koja druga maticna promenljiva.
         EXEC SQL 
             INSERT  INTO DA.ISPITNIROK
             VALUES  (:hFinal);
@@ -90,9 +90,12 @@ int main() {
         strcpy(hFinal.finalsStartDate, finalsArr[i].finalsStartDate);
         strcpy(hFinal.finalsEndDate, finalsArr[i].finalsEndDate);
         
+        // Maticna promenljiva tipa struct final se moze koristiti i na drugi nacin:
+        // navodjenjem polja te strukture direktno.
+        // INSERT naredba ispod je ekvivalentna INSERT naredbi iznad.
         EXEC SQL 
             INSERT  INTO DA.ISPITNIROK
-            VALUES  (:hFinal);
+            VALUES  (:hFinal.schoolYear, :hFinal.finalsLabel, :hFinal.finalsName, :hFinal.finalsStartDate, :hFinal.finalsEndDate);
         checkSQL("Unosenje ostalih ispitnih rokova");
     }
 
@@ -102,6 +105,7 @@ int main() {
     checkSQL("Open");
 
     for(;;) {
+        // Prva verzija koriscenja strukture, ovoga puta u FETCH naredbi.
         EXEC SQL 
             FETCH   cFinals 
             INTO    :hFinal;
@@ -139,6 +143,7 @@ int main() {
     checkSQL("Open");
 
     for(;;) {
+        // Druga verzija koriscenja strukture, ovoga puta u FETCH naredbi.
         EXEC SQL 
             FETCH   cFinals 
             INTO    :hFinal;
