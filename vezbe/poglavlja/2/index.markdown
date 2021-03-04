@@ -388,11 +388,11 @@ include_source(vezbe/primeri/poglavlje_2/zadatak_2_3.sqc, c)
 
 ### 2.2.8 Naredbe `INSERT`, `UPDATE` i `DELETE`
 
-Do sada smo diskutovali o programima u kojima smo dohvatali tačno jedan red u tabeli (ili, eventualno, nijedan), korišćenjem naredbe `SELECT INTO`. U nastavku slede zadatak u kojem ćemo demonstrirati upotrebu naredbe `INSERT`, zatim pretražujućih varijanti naredbi `UPDATE` i `DELETE`. 
+Do sada smo diskutovali o programima u kojima smo dohvatali tačno jedan red u tabeli (ili, eventualno, nijedan), korišćenjem naredbe `SELECT INTO`. U nastavku sledi zadatak u kojem ćemo demonstrirati upotrebu naredbe `INSERT`, zatim pretražujućih varijanti naredbi `UPDATE` i `DELETE`. 
 
 Naredbe `UPDATE` ili `DELETE` zovemo *pretražujućim* ukoliko se podaci koji se ažuriraju, odnosno, brišu pronalaze na osnovu nekih uslova restrikcije u klauzi `WHERE`.
 
-Ove naredbe se jednostavno implementiraju njihovim navođenjem nakon `EXEC SQL`.
+Ove naredbe se jednostavno implementiraju njihovim navođenjem nakon `EXEC SQL`. Za razliku od `SELECT INTO` naredbe, nije va\v zno koliko redova \'ce biti dodato, a\v zurirano ili obrisano naredbama `INSERT`, `UPDATE` i `DELETE`, redom. Dakle, ovim naredbama mo\v zemo promeniti proizvoljan broj redova.
 
 {% include lab/exercise.html broj="2.4" tekst="Napisati naredne funkcije:
 
@@ -404,7 +404,7 @@ Ove naredbe se jednostavno implementiraju njihovim navođenjem nakon `EXEC SQL`.
 
 Napisati i C/SQL program koji testira napisane funkcije."%}
 
-Rešenje:
+Rešenje: S obzirom da se operacija ispisivanja podataka ponavlja u prve dve funkcije, onda \'cemo pretragu i ispis podataka o novom predmetu izdvojiti u pomo\'cnu funkciju `printNewCourseInfo`, koja \'ce biti pozvana u tim funkcijama.
 
 include_source(vezbe/primeri/poglavlje_2/zadatak_2_4.sqc, c)
 
