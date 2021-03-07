@@ -68,6 +68,7 @@ void checkSQL(const char *str)
 
         printf("Greska %d: %s\n", sqlca.sqlcode, str);
         printf("%s\n", Buffer);
+        EXEC SQL CONNECT RESET;
         exit(EXIT_FAILURE);
     }
 }

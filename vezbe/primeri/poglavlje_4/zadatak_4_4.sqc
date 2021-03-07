@@ -571,5 +571,6 @@ void exitGracefully() {
     freeSqlda();
     
     EXEC SQL ROLLBACK;
+    EXEC SQL CONNECT RESET;
     exit(EXIT_FAILURE);
 }

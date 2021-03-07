@@ -23,6 +23,7 @@ void checkSQL(const char *str) {
 
         fprintf(stderr, "Greska %d: %s\n", sqlca.sqlcode, str);
         fprintf(stderr, "%s\n", buffer);
+        EXEC SQL CONNECT RESET;
         exit(EXIT_FAILURE);
     }
 }
