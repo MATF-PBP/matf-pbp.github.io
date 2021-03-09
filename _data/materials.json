@@ -50,7 +50,7 @@
         ],
         "classes": [
             {
-                "title": "Čas 1",
+                "title": "Čas 1 (Osnove razvoja C/SQL aplikacija. SELECT INTO, INSERT, UPDATE i DELETE.)",
                 "materials": [
                     {
                         "type": "link",
@@ -65,13 +65,33 @@
                 ]
             },
             {
-                "title": "Čas 2",
+                "title": "Čas 2 (Kursori. SELECT.)",
                 "materials": [
                     {
                         "type": "link",
                         "title": "Poglavlje 3 u skripti (do sekcije 3.4)",
                         "link": "/vezbe/poglavlja/3"
                     }
+                ]
+            },
+            {
+                "title": "Čas 3 (Ugnežđeni kursori. Dinamički SQL. EXECUTE IMMEDIATE.)",
+                "materials": [
+                    {
+                        "type": "link",
+                        "title": "Poglavlje 3 u skripti (od sekcije 3.4)",
+                        "link": "/vezbe/poglavlja/3"
+                    },
+                    {
+                        "type": "link",
+                        "title": "Poglavlje 4 u skripti (do sekcije 4.3)",
+                        "link": "/vezbe/poglavlja/4"
+                    }
+                ]
+            },
+            {
+                "title": "Čas 4 (Dinamički SQL. PREPARE. EXECUTE. Dinamički kursori)",
+                "materials": [
                 ]
             }
         ],
