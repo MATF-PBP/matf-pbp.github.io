@@ -31,7 +31,7 @@ Sada je validno postaviti pitanje - u kom trenutku se informacije o izmenama zai
 
 *Potvrđivanje* (engl *commit*) predstavlja trajno upisivanje izmena u bazu podataka koje su do tada bile izvršene nad tom bazom podataka. Sve načinjene izmene se trajno pamte u bazi podataka i svi ostali procesi dobijaju mogućnost da vide načinjene izmene.
 
-*Poništavanje* (engl *rollback*) predstavlja vraćanje stanje baze podataka u ono u kojem se baza podataka našla pre izvršavanja izmena koje su do tada bile izvršene nad tom bazom podataka. Izvršavanjem ove naredbe možemo poništiti sve one akcije koje do trenutka poništavanja nisu prethodno bile potvrđene.
+*Poništavanje* (engl *rollback*) predstavlja vraćanje stanja baze podataka u ono u kojem se baza podataka našla pre izvršavanja izmena koje su do tada bile izvršene nad tom bazom podataka. Izvršavanjem ove naredbe možemo poništiti sve one akcije koje do trenutka poništavanja nisu prethodno bile potvrđene.
 
 Da bismo dodatno razumeli koje su to izmene u bazi podataka koje se potvrđuju, odnosno, poništavaju ovim operacijama, potrebno je da definišemo pojam jedinice posla.
 
