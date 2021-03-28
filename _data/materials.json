@@ -92,6 +92,31 @@
             {
                 "title": "Čas 4 (Dinamički SQL. PREPARE. EXECUTE. Dinamički kursori)",
                 "materials": [
+                    {
+                        "type": "link",
+                        "title": "Poglavlje 4 u skripti (do sekcije 4.6)",
+                        "link": "/vezbe/poglavlja/4"
+                    }
+                ]
+            },
+            {
+                "title": "Čas 5 (Transakcije)",
+                "materials": [
+                    {
+                        "type": "link",
+                        "title": "Poglavlje 5 u skripti",
+                        "link": "/vezbe/poglavlja/5"
+                    }
+                ]
+            },
+            {
+                "title": "Čas 6 (Višekorisničko okruženje)",
+                "materials": [
+                    {
+                        "type": "link",
+                        "title": "Poglavlje 6 u skripti (do sekcije 6.4)",
+                        "link": "/vezbe/poglavlja/6"
+                    }
                 ]
             }
         ],
