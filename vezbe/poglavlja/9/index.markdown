@@ -205,7 +205,9 @@ S obzirom da se u programskom jeziku Java greške prijavljuju kroz objekte klase
 proveru da li je došlo do nekog problema konkurentnog okruženja možemo izvršiti proverom
 koda greške, pozivom metoda `getErrorCode()` nad objektom klase `SQLException` koji
 smo uhvatili. Zašto nam je ova informacija važna? Prisetimo se da, ukoliko dođe do nekog
-problema konkurentnog okruženja, DB2 SUBP šalje grešku -911 ili -913. U tom slučaju,
+problema konkurentnog okruženja, DB2 SUBP šalje grešku -911 ili -913. Dodatno, u slučaju da 
+aplikacija zahteva ekskalaciju katanaca, ali menadžer baze podataka ne uspe da izvrši tu
+operaciju, onda će aplikaciji biti prijavljena greška -912. U tom slučaju,
 potrebno je izvršiti obradu isteka vremena ili pojave mrtve petlje, i poništiti eventualne
 izmene. Evo jednog primera:
 
@@ -229,7 +231,7 @@ while(true) {
     }
     catch (SQLException e) {
         // Ako je doslo do izuzetka zbog katanaca...
-        if (e.getErrorCode() == -911 || e.getErrorCode() == -913) {
+        if (e.getErrorCode() >= -911 && e.getErrorCode() <= -913) {
             // ... onda ih je potrebno obraditi
             kursor.close();
             kursor = obradiCekanje("FETCH, UPDATE, ...", con, stmt, sql);

@@ -138,7 +138,7 @@ void checkSQL(const char *str) {
 }
 
 int waitForLock() {
-    if (SQLCODE == -911 || SQLCODE == -913) {
+    if (SQLCODE >= -911 || SQLCODE <= -913) {
         printf("Objekat je zakljucan od strane druge transakcije. "
             "Sacekati neko vreme...\n");
 

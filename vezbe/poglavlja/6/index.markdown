@@ -60,7 +60,7 @@ U slučaju da katanci nisu kompatibilni, nije moguće dodeliti traženi katanac 
 
 !["Tabela kompatibilnosti katanaca."](./Slike/tabela-kompatibilnosti-katanaca.png){:class="ui centered large image"}
 
-### 6.2.1 Konverzija katanaca
+### 6.2.1 Konverzija i ekskalacija katanaca
 
 Konverzija katanca se ostvaruje u situacijama kada aplikacioni proces pristupa objektu nad kojim već drži katanac, a taj pristup zahteva restriktivniji katanac od onog koji se već drži. Proces nad objektom može da drži najviše jedan katanac u nekom trenutku, ali može da traži različite katance nad istim objektom indirektno kroz izvršavanje naredbi.
 
@@ -71,6 +71,20 @@ Neki režimi katanaca se primenjuju samo za tabele, neki samo za redove, blokove
 Katanci *IX* i *S* imaju specijalan odnos — nijedan od ova dva katanca se smatra restriktivnijim u odnosu na drugi. Ukoliko aplikacioni proces drži jedan od ova dva katanca i zahteva drugi, onda će se izvršiti konverzija u katanac *SIX*. Sve ostale konverzije se vrše po narednom principu: **Ukoliko je katanac koji se zahteva restriktivniji u odnosu na katanac koji se drži, onda se katanac koji se drži konvertuje u katanac koji se zahteva.**
 
 Naravno, da bi se uspešno izvršila konverzija katanca, nad objektom nad kojim se zahteva novi katanac ne sme postojati neki drugi katanac koji je nekompatibilan sa njim.
+
+Da bi se uslužio što veci broj aplikacija, menadžer baza podataka omogucava funkciju _ekskalacije katanaca_. Ovaj proces objedinjuje proces dobijanja katanca na tabeli i oslobađanja katanaca na redovima. Željeni efekat  je da se smanje ukupni zahtevi skladištenja za katance od strane menadžera baza podataka. Ovo ́ce omoguciti drugim aplikacijama da dobiju željene katance. Dva konfiguraciona parametra baze podataka imaju direktan uticaj na proces ekskalacije katanaca:
+
+- `locklist`: to je prostor u globalnoj memoriji baze podataka koji se koristi za skladištenje katanaca,
+- `maxlocks`: to je procenat ukupne liste katanaca koji je dozvoljeno da drži jedna aplikacija. 
+
+Oba parametra su konfigurabilna.
+
+Ekskalacija katanaca se dešava u dva slučaja:
+
+- Aplikacija zahteva katanac koji bi proizveo da ona prevaziđe procenat ukupne veličine liste katanaca, koji je definisan parametrom `maxlocks`. U ovoj situaciji menadžer baze podataka ́ce pokušati da oslobodi memorijski prostor dobijanjem jednog katanca na tabelu, a oslobađanjem katanaca na redove te tabele.
+- Aplikacija ne može da dobije katanac jer je lista katanaca puna. Menadžer baze podataka ́ce pokušati da oslobodi memorijski prostor tako što ́ce dobiti katanac na tabelu, a osloboditi katance na redove te tabele. Primetimo da aplikacija koja pokrece ekskalaciju katanaca može, ali i ne mora da drži značajan broj katanaca.
+
+Ekskalacija katanaca može da ne uspe. Ako se desi greška, aplikacija koja je pokrenula ekskalaciju dobiće vrednost `SQLCODE` -912. Ovaj kod bi trebaloda bude obrađen programski od strane aplikacije.
 
 ### 6.2.2 Istek vremena i mrtva petlja
 
