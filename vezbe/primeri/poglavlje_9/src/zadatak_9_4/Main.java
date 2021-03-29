@@ -80,7 +80,7 @@ public class Main {
                 }
                 catch (SQLException e) {
                     // Obrada katanaca
-                    if (e.getErrorCode() >= -911 || e.getErrorCode() <= -913) {
+                    if (e.getErrorCode() >= -911 && e.getErrorCode() <= -913) {
                         kursor.close();
                         kursor = obradiCekanje("FETCH", con, stmt, sql);
                         continue;
@@ -117,7 +117,7 @@ public class Main {
                         kursor.updateRow();
                     }
                     catch (SQLException e) {
-                        if (e.getErrorCode() >= -911 || e.getErrorCode() <= -913) {
+                        if (e.getErrorCode() >= -911 && e.getErrorCode() <= -913) {
                             kursor.close();
                             kursor = obradiCekanje("UPDATE", con, stmt, sql);
                             continue;
