@@ -231,7 +231,7 @@ while(true) {
     }
     catch (SQLException e) {
         // Ako je doslo do izuzetka zbog katanaca...
-        if (e.getErrorCode() >= -911 && e.getErrorCode() <= -913) {
+        if (-913 <= e.getErrorCode() && e.getErrorCode() <= -911) {
             // ... onda ih je potrebno obraditi
             kursor.close();
             kursor = obradiCekanje("FETCH, UPDATE, ...", con, stmt, sql);
