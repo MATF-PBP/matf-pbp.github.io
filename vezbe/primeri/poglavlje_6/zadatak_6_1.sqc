@@ -28,7 +28,7 @@ int main() {
     checkSQL("Set current lock timeout 5");
     
     EXEC SQL 
-        DECLARE cStudyPrograms CURSOR FOR 
+        DECLARE cStudyPrograms CURSOR WITH HOLD FOR 
         SELECT  TRIM(NAZIV), 
                 OBIMESPB
         FROM    DA.STUDIJSKIPROGRAM
@@ -56,9 +56,6 @@ int main() {
             break;
         }
             
-        EXEC SQL COMMIT;
-        checkSQL("Commit fetch");
-            
         printf("%s (%hd)\n", hStudyProgramName, hStudyProgramESPB);
 
         printf("Da li zelite da promenite bodove za ovaj studijski program? [d/n] ");
@@ -81,6 +78,9 @@ int main() {
             continue;
         }
         checkSQL("Update");
+            
+        EXEC SQL COMMIT;
+        checkSQL("COMMIT");
 
         printf("Bodovi su azurirani!\n\n");
     }
