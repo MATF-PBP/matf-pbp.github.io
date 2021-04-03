@@ -50,7 +50,8 @@ int main() {
                     D.PREZIME
         HAVING      COUNT(*) >= 12 AND
                     SUM(P.ESPB) >= 120
-        FOR         READ ONLY;
+        FOR         READ ONLY
+        WITH        RR;
     checkSQL("DECLARE");
         
     EXEC SQL OPEN cStudents;
@@ -88,43 +89,36 @@ int main() {
         
         printf("Unosim Vas glas za drzavu sa identifikatorom %d...\n", hCountryId);
         
-        for (;;) {
-            EXEC SQL
-                INSERT  INTO DA.EKSKURZIJA
-                VALUES  (:hIndex, :hCountryId, CURRENT_DATE);
-            if (waitForLock("INSERT INTO")) {
+        
+        EXEC SQL
+            INSERT  INTO DA.EKSKURZIJA
+            VALUES  (:hIndex, :hCountryId, CURRENT_DATE);
+        if (waitForLock("INSERT INTO")) {
+            continue;
+        }
+        
+        // Ako je neka druga aplikacija vec unela red za datog studenta...
+        if (SQLCODE != -803) {
+            checkSQL("INSERT INTO");
+        }
+        else {
+            // ...onda cemo pitati korisnika da li zeli da radi azuriranje glasa.
+            printf("Postoji glas za tekuceg studenta. Da li zelite da azurirate glas? [d/n] ");
+            char odgovor = getchar();
+            getchar();
+            
+            if (odgovor == 'n') {
+                break;
+            }
+            
+            EXEC SQL 
+                UPDATE  DA.EKSKURZIJA
+                SET     IDDRZAVE = :hCountryId
+                WHERE   INDEKS = :hIndex;
+            if (waitForLock("UPDATE")) {
                 continue;
             }
-            
-            // Ako je neka druga aplikacija vec unela red za datog studenta...
-            if (SQLCODE != -803) {
-                checkSQL("INSERT INTO");
-            }
-            else {
-                // ...onda cemo pitati korisnika da li zeli da radi azuriranje glasa.
-                printf("Postoji glas za tekuceg studenta. Da li zelite da azurirate glas? [d/n] ");
-                char odgovor = getchar();
-                getchar();
-                
-                if (odgovor == 'n') {
-                    break;
-                }
-                
-                for (;;) {
-                    EXEC SQL 
-                        UPDATE  DA.EKSKURZIJA
-                        SET     IDDRZAVE = :hCountryId
-                        WHERE   INDEKS = :hIndex;
-                    if (waitForLock("UPDATE")) {
-                        continue;
-                    }
-                    checkSQL("UPDATE");
-                    
-                    break;
-                }
-            }
-            
-            break;
+            checkSQL("UPDATE");
         }
         
         printf("Vas glas je uspesno zabelezen!\n");
