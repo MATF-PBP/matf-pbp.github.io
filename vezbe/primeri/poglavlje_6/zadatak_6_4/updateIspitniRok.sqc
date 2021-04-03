@@ -36,10 +36,11 @@ int main() {
     
     for (;;) {
         EXEC SQL 
-            INSERT  INTO DA.ISPITNIROK
-            VALUES  (2021, 'Mar21', 'Mart 2021', '03/01/2022', '03/11/2022');
+            UPDATE  DA.ISPITNIROK
+            SET     DATKRAJA = DATKRAJA + 3 DAYS
+            WHERE   SKGODINA = 2021;
             
-        if (waitForLock("INSERT")) {
+        if (waitForLock("UPDATE")) {
             continue;
         }
         
@@ -52,9 +53,6 @@ int main() {
 
     EXEC SQL SET CURRENT LOCK TIMEOUT NULL;
     checkSQL("Set timeout");
-    
-    printf("\nPritisnuti enter za potvrdjivanje izmena: ");
-    getchar();
     
     EXEC SQL COMMIT;
     checkSQL("Potvrdjivanje izmena");

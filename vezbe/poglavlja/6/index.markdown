@@ -190,40 +190,6 @@ Tako\dj e, primetimo da aplikacija \v cuva niz obra\dj enih predmeta tokom svog 
 
 include_source(vezbe/primeri/poglavlje_6/zadatak_6_2.sqc, c)
 
-Sledi jo\v s jedan zadatak koji ilustruje koncept konkurentnih transakcija u vi\v sekorisni\v ckom okru\v zenju. Za potrebe ovog zadatka je neophodno izvr\v siti naredne SQL naredbe:
-
-```sql
-CREATE TABLE DA.DRZAVA (
-    IDDRZAVE INTEGER NOT NULL PRIMARY KEY,
-    NAZIV VARCHAR(50) NOT NULL
-);
-
-CREATE TABLE DA.EKSKURZIJA (
-    INDEKS INTEGER NOT NULL,
-    IDDRZAVE INTEGER NOT NULL,
-    TRENUTAKPRIJAVE TIMESTAMP NOT NULL,
-    PRIMARY KEY (INDEKS),
-    FOREIGN KEY (INDEKS) REFERENCES DA.DOSIJE,
-    FOREIGN KEY (IDDRZAVE) REFERENCES DA.DRZAVA
-);
-
-INSERT  INTO DA.DRZAVA
-VALUES  (1, 'Spanija'),
-        (2, 'Italija'),
-        (3, 'Grcka'),
-        (4, 'Nemacka'),
-        (5, 'Rusija'),
-        (6, 'Francuska');
-```
-
-{% include lab/exercise.html broj="6.3" tekst="Napisati C/SQL program koji od korisnika zahteva da unese identifikator studijskog programa sa osnovnih studija. Program na osnovu unetog podatka pronalazi naredne informacije o studentima sa datog studijskog programa: (1) broj indeksa, (2) ime, (3) prezime, (4) broj položenih ispita tog studenta, (5) broj položenih ESPB bodova, ali samo ukoliko student ima položeno bar 12 predmeta, ima skupljeno bar 120 bodova i ako se studentov indeks već ne nalazi u tabeli `EKSKURZIJA`.
-
-Za svakog pronađenog studenta, korisnik unosi ceo broj koji predstavlja jedan od identifikatora država iz tabele `DRZAVA` ili 0 (pretpostaviti da je ispravan unos). Ukoliko korisnik unese identifikator, aplikacija unosi informacije u tabelu `EKSKURZIJA`, a ukoliko unese 0, prelazi se na sledećeg studenta. Nakon svaka 3 uneta glasa, ponuditi korisniku mogućnost da prekine sa daljom obradom i napusti program, unošenjem odgovora `'da'`.
-
-Napomene: Obrada jednog studenta predstavlja jednu transakciju. Proveravati greške koje se javljaju prilikom izvršavanja aplikacije u višekorisničkom okruženju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
-
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_3.sqc, c)
-
 ## 6.4 Nivoi izolovanosti
 
 U najosnovnijem slučaju, svaka transakcija je u potpunosti izolovana od svih drugih transakcija. Međutim, videli smo da ovakva, potpuna izolovanost, može brzo dovesti do problema poput mrtve petlje u konkurentnom sistemu izvršavanja. Zbog toga, da bi se povećala konkurentnost između aplikacionih procesa, DB2 SUBP definiše različite nivoe izolovanosti na kojima aplikacija može da se izvršava.
@@ -331,26 +297,26 @@ Ukoliko se ne specifikuje nivo izolacije, DB2 će podrazumevano koristiti nivo C
 
 Naredni primeri ilustruju različite efekte iste aplikacije pri različitim nivoima izolovanosti. Primetimo da smo u narednim primerima koristili klauzu `WITH` za postavljanje nivoa izolovanosti.
 
-{% include lab/exercise.html broj="6.4" tekst="Napisati: 
+{% include lab/exercise.html broj="6.3" tekst="Napisati: 
 
 - C/SQL program `repeatableRead` koji dva puta ispisuje informacije o godini, oznaci, nazivu i periodu prijavljivanja za svaki ispitni rok u 2021. godini. Omogućiti da se prilikom oba ispisivanja dobijaju iste informacije.
 - C/SQL program `insertIspitniRok` koji unosi novi ispitni rok za mesec mart u 2021. godini. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
 
 Rešenje: Za potrebe prevo\dj enja i pripremanja podataka u bazi, napravljena je `Makefile` datoteka čiji je sadržaj: 
 
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_4/Makefile, makefile)
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_3/Makefile, makefile)
 
 Prevo\dj enje programa se vr\v si pozivom alata `make`, a mogu\'ce je i o\v cistiti artefakte prevo\dj enja pozivom `make clean`. Pre ilustracije rada programa `repeatableRead`, potrebno je pozvati `make db` koji će pripremiti informacije o ispitnim rokovima u bazu podataka na osnovu skripta `pripremaBaze.sql` čiji je sadržaj:
 
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_4/pripremaBaze.sql, sql)
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_3/pripremaBaze.sql, sql)
 
 Pokrenuti program `repeatableRead` i započeti prvo ispisivanje. U toku prvog ispisivanja ili nakon njega, pokrenuti program `insertIspitniRok`, pa nastaviti sa daljim ispisivanjem ispitnih rokova u programu `repeatableRead`. Uveriti se da program `insertIspitniRok` ne može da izvrši unos sve dok program `repeatableRead` ne završi sa svim ispisivanjima i, takođe, da oba ispisivanja u tom programu imaju iste vrednosti.
 
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_4/repeatableRead.sqc, c)
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_3/repeatableRead.sqc, c)
 
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_4/insertIspitniRok.sqc, c)
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_3/insertIspitniRok.sqc, c)
 
-{% include lab/exercise.html broj="6.5" tekst="Napisati: 
+{% include lab/exercise.html broj="6.4" tekst="Napisati: 
 
 - C/SQL program `readStability` koji dva puta ispisuje informacije o godini, oznaci, nazivu i periodu prijavljivanja za svaki ispitni rok u 2021. godini. Dozvoljeno je da se prilikom drugog ispisivanja pojave novi redovi, ali ne i da budu vidljive izmene pročitanih redova. 
 - C/SQL program `insertIspitniRok` koji unosi novi ispitni rok za mesec mart u 2021. godini. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi.
@@ -360,13 +326,13 @@ Rešenje: Kao i u prethodnom zadatku, napravljena je `Makefile` koja slu\v zi za
 
 Pokrenuti program `readStability` i započeti prvo ispisivanje. U toku ispisivanja ili nakon njega, pokrenuti program `insertIspitniRok`, pa nastaviti sa daljim ispisivanjem ispitnih rokova. Uveriti se da program `insertIspitniRok` može da izvrši unos novog ispitnog roka tokom rada programa `readStability` i da se novi rok vidi prilikom drugog ispisivanja. Zatim, ponovo pokrenuti program `readStability` (nakon ponovnog pripremanja baze podataka pozivom `make db`), pa u toku prvog ispisivanja ili nakon njega, pokrenuti program `updateIspitniRok`. Uveriti se da program `updateIspitniRok` ne može da promeni informacije o ispitnim rokovima dok program `readStability` radi.
 
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_5/readStability.sqc, c)
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_4/readStability.sqc, c)
 
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_5/insertIspitniRok.sqc, c)
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_4/insertIspitniRok.sqc, c)
 
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_5/updateIspitniRok.sqc, c)
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_4/updateIspitniRok.sqc, c)
 
-{% include lab/exercise.html broj="6.6" tekst="Napisati: 
+{% include lab/exercise.html broj="6.5" tekst="Napisati: 
 
 - C/SQL program `cursorStability` koji dva puta ispisuje informacije o godini, oznaci, nazivu i periodu prijavljivanja za svaki ispitni rok u 2021. godini. Dozvoljeno je da se prilikom drugog ispisivanja pojave novi redovi i da budu vidljive izmene pročitanih redova, ali ne i nepotvr\dj ene izmene. 
 - C/SQL program `insertIspitniRok` koji unosi novi ispitni rok za mesec mart u 2021. godini. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi.
@@ -376,13 +342,13 @@ Rešenje: Kao i u prethodnom zadatku, napravljena je `Makefile` koja slu\v zi za
 
 Pokrenuti program `cursorStability` i započeti prvo ispisivanje. U toku ispisivanja ili nakon njega, pokrenuti program `insertIspitniRok`, pa nastaviti sa daljim ispisivanjem ispitnih rokova. Uveriti se da program `insertIspitniRok` može da izvrši unos novog ispitnog roka tokom rada programa `readStability` i da se novi rok vidi prilikom drugog ispisivanja. Zatim, ponovo pokrenuti program `readStability` (nakon ponovnog pripremanja baze podataka pozivom `make db`), pa u toku prvog ispisivanja ili nakon njega, pokrenuti program `updateIspitniRok`. Uveriti se da program `updateIspitniRok` ovoga puta može da promeni informacije o ispitnim rokovima, \v cak i dok program `cursorStability` radi, kao i da \'ce ovoga puta program `cursorStability` videti te izmene prilikom drugog ispisivanja, \v sto nije bio slu\v caj za nivo izolovanosti RS ili stro\v zijim od njega.
 
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_6/cursorStability.sqc, c)
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_5/cursorStability.sqc, c)
 
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_6/insertIspitniRok.sqc, c)
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_5/insertIspitniRok.sqc, c)
 
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_6/updateIspitniRok.sqc, c)
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_5/updateIspitniRok.sqc, c)
 
-{% include lab/exercise.html broj="6.7" tekst="Napisati: 
+{% include lab/exercise.html broj="6.6" tekst="Napisati: 
 
 - C/SQL program `uncommittedRead` koji dva puta ispisuje informacije o godini, oznaci, nazivu i periodu prijavljivanja za svaki ispitni rok u 2021. godini. Dozvoljeno je da se prilikom drugog ispisivanja pojave novi redovi, da budu vidljive izmene pročitanih redova, bilo one potvr\dj ene ili ne. 
 - C/SQL program `insertIspitniRok` koji unosi novi ispitni rok za mesec mart u 2021. godini. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi. Zahtevati od korisnika eksplicitno potvr\dj ivanje izmena nakon unosa.
@@ -392,11 +358,45 @@ Rešenje: Kao i u prethodnom zadatku, napravljena je `Makefile` koja slu\v zi za
 
 Pokrenuti program `uncommittedRead` i započeti prvo ispisivanje. U toku ispisivanja ili nakon njega, pokrenuti program `insertIspitniRok`, ali ne potvrditi izmene jo\v s uvek. Zatim, nastaviti sa daljim ispisivanjem ispitnih rokova u programu `uncommittedRead`. Uveriti se da program `insertIspitniRok` može da izvrši unos novog ispitnog roka tokom rada programa `uncommittedRead` i da se novi rok vidi prilikom drugog ispisivanja, bez obzira \v sto izmene u programu `insertIspitniRok` nisu potvr\dj ene. Zatim, ponovo pokrenuti program `readStability` (nakon ponovnog pripremanja baze podataka pozivom `make db`) i uraditi isti postupak sa programom `updateIspitniRok` umesto `insertIspitniRok`. Uveriti se \'ce i ovoga puta program `uncommittedRead` videti nepotvr\dj ene izmene od strane programa `updateIspitniRok`, sli\v cno kao i u slu\v caju programa `insertIspitniRok`. Ovo je pona\v sanje koje se ne\'ce javiti u slu\v caju nivoa izolovanosti CS ili stro\v zijim od njega.
 
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_7/uncommittedRead.sqc, c)
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_6/uncommittedRead.sqc, c)
 
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_7/insertIspitniRok.sqc, c)
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_6/insertIspitniRok.sqc, c)
 
-include_source(vezbe/primeri/poglavlje_6/zadatak_6_7/updateIspitniRok.sqc, c)
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_6/updateIspitniRok.sqc, c)
+
+Sledi jo\v s jedan zadatak koji ilustruje koncept konkurentnih transakcija u vi\v sekorisni\v ckom okru\v zenju. Za potrebe ovog zadatka je neophodno izvr\v siti naredne SQL naredbe:
+
+```sql
+CREATE TABLE DA.DRZAVA (
+    IDDRZAVE INTEGER NOT NULL PRIMARY KEY,
+    NAZIV VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE DA.EKSKURZIJA (
+    INDEKS INTEGER NOT NULL,
+    IDDRZAVE INTEGER NOT NULL,
+    TRENUTAKPRIJAVE TIMESTAMP NOT NULL,
+    PRIMARY KEY (INDEKS),
+    FOREIGN KEY (INDEKS) REFERENCES DA.DOSIJE,
+    FOREIGN KEY (IDDRZAVE) REFERENCES DA.DRZAVA
+);
+
+INSERT  INTO DA.DRZAVA
+VALUES  (1, 'Spanija'),
+        (2, 'Italija'),
+        (3, 'Grcka'),
+        (4, 'Nemacka'),
+        (5, 'Rusija'),
+        (6, 'Francuska');
+```
+
+{% include lab/exercise.html broj="6.7" tekst="Napisati C/SQL program koji od korisnika zahteva da unese identifikator studijskog programa sa osnovnih studija. Program na osnovu unetog podatka pronalazi naredne informacije o studentima sa datog studijskog programa: (1) broj indeksa, (2) ime, (3) prezime, (4) broj položenih ispita tog studenta, (5) broj položenih ESPB bodova, ali samo ukoliko student ima položeno bar 12 predmeta, ima skupljeno bar 120 bodova i ako se studentov indeks već ne nalazi u tabeli `EKSKURZIJA`.
+
+Za svakog pronađenog studenta, korisnik unosi ceo broj koji predstavlja jedan od identifikatora država iz tabele `DRZAVA` ili 0 (pretpostaviti da je ispravan unos). Ukoliko korisnik unese identifikator, aplikacija unosi informacije u tabelu `EKSKURZIJA`, a ukoliko unese 0, prelazi se na sledećeg studenta. Nakon svaka 3 uneta glasa, ponuditi korisniku mogućnost da prekine sa daljom obradom i napusti program, unošenjem odgovora `'da'`.
+
+Napomene: Obrada jednog studenta predstavlja jednu transakciju. Proveravati greške koje se javljaju prilikom izvršavanja aplikacije u višekorisničkom okruženju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
+
+include_source(vezbe/primeri/poglavlje_6/zadatak_6_7.sqc, c)
 
 ## 6.5 Programersko zaključavanje tabela
 
