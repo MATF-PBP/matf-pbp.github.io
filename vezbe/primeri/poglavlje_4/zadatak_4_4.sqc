@@ -179,40 +179,31 @@ void prepareDataForExecutingStatement() {
 }
 
 void alocateSpaceForSqlda(struct sqlda *sqldaptr) {
-    int i = 0;
+    int i;
     short sqltype, sqllen;
-    for( ; i < sqldaptr->sqld; ++i) {
+    for(i = 0; i < sqldaptr->sqld; ++i) {
         sqltype = sqldaptr->sqlvar[i].sqltype;
         sqllen = sqldaptr->sqlvar[i].sqllen;
         
-        // Alociramo prostor na osnovu informacije o tipu.
-        // Za svaku kolonu alociramo maticnu promenljivu 
-        // kao i indikatorsku promenljivu
+        // Za svaku kolonu alociramo maticnu promenljivu kao i indikatorsku promenljivu.
+        sqldaptr->sqlvar[i].sqldata = (char*)calloc(1, sqllen);
+        sqldaptr->sqlvar[i].sqlind = (short*)calloc(1, sizeof(short));
+        
+        // Proveravamo da li smo dohvatili tip koji je podrzan ovom implementacijom
         switch (sqltype) {
+            // Brojevni tipovi su podrzani.
             case SQL_TYP_SMALL:
             case SQL_TYP_NSMALL:
-                sqldaptr->sqlvar[i].sqldata = (char*)calloc(1, sqllen);
-                sqldaptr->sqlvar[i].sqlind = (short*)calloc(1, sizeof(short));
-                break;
-                
             case SQL_TYP_INTEGER:
             case SQL_TYP_NINTEGER:
-                sqldaptr->sqlvar[i].sqldata = (char*)calloc(1, sqllen);
-                sqldaptr->sqlvar[i].sqlind = (short*)calloc(1, sizeof(short));
-                break;
-                
             case SQL_TYP_FLOAT:
             case SQL_TYP_NFLOAT:
-                sqldaptr->sqlvar[i].sqldata = (char*)calloc(1, sqllen);
-                sqldaptr->sqlvar[i].sqlind = (short*)calloc(1, sizeof(short));
-                break;
-                
             case SQL_TYP_DECIMAL:
             case SQL_TYP_NDECIMAL:
-                sqldaptr->sqlvar[i].sqldata = (char*)calloc(1, sqllen);
-                sqldaptr->sqlvar[i].sqlind = (short*)calloc(1, sizeof(short));
                 break;
             
+            // Posebno, sve "tekstualne" kolone cemo procesirati na isti nacin:
+            // 1) Ako ne mogu imati NULL vrednost, koristicemo tip SQL_TYP_CSTR.
             case SQL_TYP_DATE:
             case SQL_TYP_TIME:
             case SQL_TYP_STAMP:
@@ -220,11 +211,10 @@ void alocateSpaceForSqlda(struct sqlda *sqldaptr) {
             case SQL_TYP_CHAR:
             case SQL_TYP_CSTR:
             case SQL_TYP_LONG:
-                sqldaptr->sqlvar[i].sqldata = (char*)calloc(1, sqllen);
-                sqldaptr->sqlvar[i].sqlind = (short*)calloc(1, sizeof(short));
                 sqldaptr->sqlvar[i].sqltype = SQL_TYP_CSTR;
                 break;
                 
+            // 2) Ako mogu imati NULL vrednost, koristicemo tip SQL_TYP_NCSTR.
             case SQL_TYP_NDATE:
             case SQL_TYP_NTIME:
             case SQL_TYP_NSTAMP:
@@ -232,11 +222,10 @@ void alocateSpaceForSqlda(struct sqlda *sqldaptr) {
             case SQL_TYP_NCHAR:
             case SQL_TYP_NCSTR:
             case SQL_TYP_NLONG:
-                sqldaptr->sqlvar[i].sqldata = (char*)calloc(1, sqllen);
-                sqldaptr->sqlvar[i].sqlind = (short*)calloc(1, sizeof(short));
                 sqldaptr->sqlvar[i].sqltype = SQL_TYP_NCSTR;
                 break;
                 
+            // XML, LOB, GRAPHIC i slicne tipove ne podrzavamo.
             default:
                 printf("Nepoznat tip: %hd\n", sqltype);
                 break;

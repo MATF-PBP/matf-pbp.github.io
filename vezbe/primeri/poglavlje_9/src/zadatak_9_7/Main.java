@@ -174,7 +174,7 @@ public class Main {
                     con.commit();
                     // END visekorisnicko
                 } catch (SQLException e) {
-                    if (e.getErrorCode() == -911 || e.getErrorCode() == -913) {
+                    if (-913 <= e.getErrorCode() && e.getErrorCode() <= -911) {
                         kursor.close();
                         kursor = obradiCekanje(con, stmt, sql);
                         continue;
