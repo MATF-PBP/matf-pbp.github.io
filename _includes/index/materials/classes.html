@@ -3,14 +3,15 @@
     Primer jednog casa u materials.json:
 
     {
-        "title": "Čas 1",
-        "materials": [
-            {
-                "type": "link",
-                "title": "Poglavlje 1 u skripti",
-                "link": "/vezbe/poglavlja/1",
-                "description": "Ovaj opis je opciona stavka"
-            }
+        "studyprogram": "I",
+        "lectures": [
+            "Čas 1: Osnove razvoja C/SQL aplikacija. SELECT INTO, INSERT, UPDATE i DELETE.",
+            "Čas 2: Kursori. SELECT.",
+            "Čas 3: Ugnežđeni kursori. Dinamički SQL. EXECUTE IMMEDIATE.",
+            "Čas 4: Dinamički SQL (nastavak). PREPARE. EXECUTE. Dinamički kursori.",
+            "Čas 5: Transakcije.",
+            "Čas 6: Višekorisničko okruženje.",
+            "Čas 7: JDBC. Kursori."
         ]
     }
 
@@ -24,25 +25,15 @@
     <div class="item">
         <i class="folder icon"></i>
         <div class="content">
-            <div class="header">{{ class.title }}</div>
-            {% assign materials = class.materials %}
-            {% if materials.size > 0 %}
+            <div class="header">{{ class.studyprogram }} smer</div>
+            {% assign lectures = class.lectures %}
+            {% if lectures.size > 0 %}
             <div class="list">
-                {% for material in materials %}
+                {% for lecture in lectures %}
                 <div class="item">
                     <i class="file icon"></i>
                     <div class="content">
-                        {% if material.type == "link" %}
-                        <a class="header" href="{{ material.link }}">{{ material.title }}</a>
-                        {% else %}
-                        <div class="header">{{ material.title }}</div>
-                        {% endif %}
-
-                        {% if material.description %}
-                        <div class="description">
-                            {{ material.description }}
-                        </div>
-                        {% endif %}
+                        <div class="header">{{ lecture }}</div>
                     </div>
                 </div>
                 {% endfor %}
@@ -57,3 +48,16 @@
     Nema časova
 </div>
 {% endif %}
+
+<h4>Napomena za praktični deo završnog ispita</h4>
+
+Teme iz literature koje neće biti proveravane na praktičnim zadacima:
+
+<ul class="ui list">
+    <li class="item">Sekcija 4.6. SQL prostor za opisivanje (SQLDA)</li>
+    <li class="item">Sekcija 4.7. Naredba DESCRIBE</li>
+    <li class="item">Sekcija 5.2. Složena SQL naredba</li>
+    <li class="item">Sekcija 6.5. Programersko zaključavanje tabela</li>
+    <li class="item">Poglavlje 7. Povezivanje aplikacija na više baza podataka</li>
+    <li class="item">...</li>
+</ul>
