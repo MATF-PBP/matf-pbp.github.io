@@ -49,15 +49,15 @@
 </div>
 {% endif %}
 
+{% if include.exceptions %}
 <h4>Napomena za praktični deo završnog ispita</h4>
 
 Teme iz literature koje neće biti proveravane na praktičnim zadacima:
 
 <ul class="ui list">
-    <li class="item">Sekcija 4.6. SQL prostor za opisivanje (SQLDA)</li>
-    <li class="item">Sekcija 4.7. Naredba DESCRIBE</li>
-    <li class="item">Sekcija 5.2. Složena SQL naredba</li>
-    <li class="item">Sekcija 6.5. Programersko zaključavanje tabela</li>
-    <li class="item">Poglavlje 7. Povezivanje aplikacija na više baza podataka</li>
-    <li class="item">...</li>
+    {% for exception in include.exceptions %}
+    <li class="item">{{ exception }}</li>
+    {% endfor %}
 </ul>
+{% endif %}
+

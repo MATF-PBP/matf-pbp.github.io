@@ -74,6 +74,14 @@
                 ]
             }
         ],
+        "exceptions": [
+            "Sekcija 4.6. SQL prostor za opisivanje (SQLDA)",
+            "Sekcija 4.7. Naredba DESCRIBE",
+            "Sekcija 5.2. Složena SQL naredba",
+            "Sekcija 6.5. Programersko zaključavanje tabela",
+            "Poglavlje 7. Povezivanje aplikacija na više baza podataka",
+            "..."
+        ],
         "webex": [
             {
                 "teacher": "Anja Bukurov",
