@@ -180,7 +180,7 @@ Problem sa pristupom obrade gre\v saka u prethodnom zadatku je taj \v sto se pod
 
 Naredni zadatak ilustruje obradu transakcija u višekorisničkom okruženju korišćenjem znanja iz ovog poglavlja.
 
-{% include lab/exercise.html broj="6.2" tekst="Napisati C/SQL program koji za svaki predmet omogućuje korisniku da poveća broj semestra u kome se taj predmet sluša za 1. Nakon svakog ažuriranja, proveriti da li je odgovarajuci red u tabeli izmenjen ponovnim dohvatanjem informacija.
+{% include lab/exercise.html broj="6.2" tekst="Napisati C/SQL program koji za svaki predmet omogućava korisniku da poveća broj ESPB za 1. Nakon svakog ažuriranja, proveriti da li je odgovarajuci red u tabeli izmenjen ponovnim dohvatanjem informacija.
 
 Napisati program tako da može da radi u višekorisničkom okruženju. Obrada jednog predmeta predstavlja jednu transakciju. Postaviti istek vremena za zahtevanje katanaca na 10 sekundi." %}
 
