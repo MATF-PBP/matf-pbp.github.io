@@ -66,9 +66,13 @@ OPEN <IME_KURSORA>
 [USING <LISTA_MATICNIH_PROMENLJIVIH>]
 ```
 
-Naredbom `OPEN` se vrši otvaranje kursora i njegovo izvršavanje, zarad dohvatanja redova iz rezultujuće tabele. Promenljiva `<IME_KURSORA>` mora biti deklarisana naredbom `DECLARE` pre samog otvaranja kursora. Kada se izvrši naredba `OPEN`, kursor naziva `<IME_KURSORA>` mora biti u zatvorenom stanju (bilo da je eksplicitno zatvoren ili da je samo deklarisan pre otvaranja).
+Naredbom `OPEN` se vrši otvaranje kursora i njegovo izvršavanje, zarad dohvatanja redova iz rezultujuće tabele. U trenutku otvaranja kursora, upit koji je naveden prilikom deklaracije kursora se izvr\v sava. Ukoliko je taj upit sadr\v zao mati\v cne promenljive, onda se pretpostavlja da je programer postavio vrednosti tih mati\v cnih promenljivih pre otvaranja kursora. Drugim re\v cima, vrednosti tih mati\v cnih promenljivih \'ce biti iskori\v s\'cene tek prilikom otvaranja kursora.
 
-Ukoliko se kursor otvara za pripremljenu SQL naredbu, navođenjem klauze `USING` možemo uvesti vrednosti koje se koriste za zamenu parametarskih oznaka. U slučaju statičke SQL naredbe, pri deklaraciji kursora, klauza `USING` se može koristiti, upravo iz razloga što statičke SQL naredbe ne mogu imati parametarske oznake.
+Promenljiva `<IME_KURSORA>` mora biti deklarisana naredbom `DECLARE` pre samog otvaranja kursora. Kada se izvrši naredba `OPEN`, kursor naziva `<IME_KURSORA>` mora biti u zatvorenom stanju (bilo da je eksplicitno zatvoren ili da je samo deklarisan pre otvaranja).
+
+Ukoliko se kursor otvara za pripremljenu (dinami\v cku) SQL naredbu, navođenjem klauze `USING` možemo navesti vrednosti koje se koriste za zamenu parametarskih oznaka. 
+
+<!-- U slučaju statičke SQL naredbe, klauza `USING` se može koristiti za zamenu vrednosti mati\v cnih promenljivih koje su navedene u `SELECT` naredbi prilikom deklaracije kursora, pri \v cemu va\v zi da redosled navo\dj enja mati\v cnih promenljivih u `LISTA_MATICNIH_PROMENLJIVIH` mora odgovarati redosledu mati\v cnih promenljivih u `SELECT` naredbi koje te promenljive zamenjuju. -->
 
 Nakon otvaranja kursor je pozicioniran ispred prvog reda rezultujuće tabele.
 
