@@ -55,7 +55,7 @@ implementiraju nad poznatom bazom podataka `STUD2020`):
 | Oznaka | MATF_2020 |
 | Naziv | Novi MATF studijski program u 2020. godini |
 | ESPB  | 240 | 
-| Nivo  | 110 | 
+| Nivo  | 1 | 
 | Zvanje |  Diplomirani informaticar | 
 | Opis  | Novi studijski program na Matematickom fakultetu | 
 
@@ -228,7 +228,7 @@ name, make sure you pass that as an argument — like `configure("my-hib-cfg.xml
 | Oznaka | MATF_2020 |
 | Naziv | Novi MATF studijski program u 2020. godini |
 | ESPB  | 240 | 
-| Nivo  | 110 | 
+| Nivo  | 1 | 
 | Zvanje |  Diplomirani informaticar | 
 | Opis  | Novi studijski program na Matematickom fakultetu | 
 
@@ -362,7 +362,7 @@ private static void insertStudijskiProgram() {
     studijskiProgram.setOznaka("MATF_2020");
     studijskiProgram.setNaziv("Novi MATF studijski program u 2020. godini");
     studijskiProgram.setESPB(240);
-    studijskiProgram.setNivo(110);
+    studijskiProgram.setNivo(1);
     studijskiProgram.setZvanje("Diplomirani informaticar");
     studijskiProgram.setOpis("Novi studijski program na Matematickom fakultetu");
     
