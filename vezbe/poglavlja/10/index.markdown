@@ -55,6 +55,7 @@ implementiraju nad poznatom bazom podataka `STUD2020`):
 | Oznaka | MATF_2020 |
 | Naziv | Novi MATF studijski program u 2020. godini |
 | ESPB  | 240 | 
+| Nivo  | 110 | 
 | Zvanje |  Diplomirani informaticar | 
 | Opis  | Novi studijski program na Matematickom fakultetu | 
 
@@ -227,6 +228,7 @@ name, make sure you pass that as an argument — like `configure("my-hib-cfg.xml
 | Oznaka | MATF_2020 |
 | Naziv | Novi MATF studijski program u 2020. godini |
 | ESPB  | 240 | 
+| Nivo  | 110 | 
 | Zvanje |  Diplomirani informaticar | 
 | Opis  | Novi studijski program na Matematickom fakultetu | 
 
