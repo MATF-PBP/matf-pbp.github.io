@@ -266,7 +266,7 @@ Each persistent object is tagged (at a class level) with an `@Entity` annotation
 
 ```java
 @Entity
-@Table(name = "STUDIJSKIPROGRAM")
+@Table(name = "DA.STUDIJSKIPROGRAM")
 class StudijskiProgram {
     ...
 ```
@@ -275,7 +275,7 @@ Sada je potrebno da definišemo preslikavanje kolona. All persistent entities mu
 
 ```java
 @Entity
-@Table(name = "STUDIJSKIPROGRAM")
+@Table(name = "DA.STUDIJSKIPROGRAM")
 class StudijskiProgram {
     @Id
     private int id;
@@ -286,7 +286,7 @@ If your variable doesn’t match the column name, you must specify the column na
 
 ```java
 @Entity
-@Table(name = "STUDIJSKIPROGRAM")
+@Table(name = "DA.STUDIJSKIPROGRAM")
 class StudijskiProgram {
     @Id
     private int id;
@@ -709,7 +709,7 @@ Svaki zahtev implementirati kao posebnu transakciju." %}
 | Identifikator | 42 |
 | Naziv | Novi nivo |
 
-{% include lab/exercise.html broj="10.5" tekst="Napisati Java aplikaciju koja kori\v s'cenjem biblioteke Hibernate redom:\n
+{% include lab/exercise.html broj="10.5" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate redom:\n
   1. Unosi podatak o novom predmetu u tabelu `PREDMET` sa identifikatorom predmeta `id` i ostalim podacima koji se unose sa standardnog ulaza.\n
   2. Ispisuje podatake o predmetu sa identifikatorom `id` iz tabele `PREDMET`.\n
   3. Proverava da li korisnik želi da ažurira broj ESPB bodova za predmet sa identifikatorom `id` u tabeli `PREDMET`. Ukoliko korisnik odgovori potvrdno, izvršava odgovarajuće ažuriranje. Novi broj bodova unosi se sa standardnog ulaza.\n
