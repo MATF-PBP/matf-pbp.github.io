@@ -1,8 +1,8 @@
 package zadatak_11_3;
 
 import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
@@ -16,7 +16,7 @@ public class Ispit {
     // U ovom slucaju cemo koristiti drugi pristup kreiranju primarnog kljuca,
     // tj. koriscenjem @EmbeddedId anotacije.
     // Pogledati skriptu za vise detalja.
-    @EmbeddedId
+    @Id
     private IspitId idIspita;
 
     // Ostale kolone
