@@ -213,13 +213,13 @@ name, make sure you pass that as an argument — like `configure("my-hib-cfg.xml
 
 ## 10.4 Objektno-relaciono preslikavanje jedne klase
 
-{% include lab/exercise.html broj="10.1" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate redom: \n
-\n
-1. unosi podatak o novom studijskom programu u tabeli `STUDIJSKIPROGRAM` sa podacima iz naredne tabele,\n
-2. čita podatke o studijskom programu sa identifikatorom `102` iz tabele `STUDIJSKIPROGRAM`,\n
-3. ažurira podatke o studijskom programu sa identifikatorom `102` iz tabele `STUDIJSKIPROGRAM`,\n
-4. čita podatke o studijskom programu sa identifikatorom `102` iz tabele `STUDIJSKIPROGRAM`, \n
-5. briše podatke o studijskom programu sa identifikatorom `102` iz tabele `STUDIJSKIPROGRAM`,\n
+{% include lab/exercise.html broj="10.1" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate redom: 
+
+1. unosi podatak o novom studijskom programu u tabeli `STUDIJSKIPROGRAM` sa podacima iz naredne tabele,
+2. čita podatke o studijskom programu sa identifikatorom `102` iz tabele `STUDIJSKIPROGRAM`,
+3. ažurira podatke o studijskom programu sa identifikatorom `102` iz tabele `STUDIJSKIPROGRAM`,
+4. čita podatke o studijskom programu sa identifikatorom `102` iz tabele `STUDIJSKIPROGRAM`, 
+5. briše podatke o studijskom programu sa identifikatorom `102` iz tabele `STUDIJSKIPROGRAM`,
 6. čita podatke o studijskom programu sa identifikatorom `102` iz tabele `STUDIJSKIPROGRAM`." %}
 
 | Kolona | Vrednost |
@@ -657,7 +657,7 @@ public class IdClassBook {
 }
 ```
 
-{% include lab/exercise.html broj="10.3" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate implementira unos podataka o novom ispitnom roku (jun 2020. godine) u tabelu `ISPITNIROK`, a zatim briše podatke o unetom ispitnom roku iz tabele `ISPITNIROK`." %}
+{% include lab/exercise.html broj="10.2" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate implementira unos podataka o novom ispitnom roku (jun 2020. godine) u tabelu `ISPITNIROK`, a zatim briše podatke o unetom ispitnom roku iz tabele `ISPITNIROK`." %}
 
 Re\v senje: Potrebno je da prvo napravimo klasu
 koja će predstavljati složeni ključ. Nazovimo je `IspitniRokId`. U nastavku je data njena
@@ -694,14 +694,14 @@ include_source(vezbe/primeri/poglavlje_10/src/zadatak_10_2/Main.java, java)
 
 ## 10.10 Zadaci za vežbu
 
-{% include lab/exercise.html broj="10.4" tekst="Napisati Java aplikaciju koja kori\v s'cenjem biblioteke Hibernate redom:\n
-  1. Unosi podatak o novom novou kvalifikacije u tabelu `NIVOKVALIFIKACIJE` sa podacima iz naredne tabele. \n
-  2. Ispisuje podatake o novou kvalifikacije sa identifikatorom `42` iz tabele `NIVOKVALIFIKACIJE`.\n
-  3. Ažurira stepen za nivo kvalifikacije sa identifikatorom `42` iz tabele `NIVOKVALIFIKACIJE`. Naziv postaviti na vrednost `Novi nivo kvalifikacije`. \n
-  4. Ispisuje podatake o novou kvalifikacije sa identifikatorom `42` iz tabele `NIVOKVALIFIKACIJE`.\n
-  5. Briše podatake o novou kvalifikacije sa identifikatorom `42` iz tabele `NIVOKVALIFIKACIJE`.\n
-  6. Ispisuje podatake o novou kvalifikacije sa identifikatorom `42` iz tabele `NIVOKVALIFIKACIJE`.\n
-\n
+{% include lab/exercise.html broj="10.3" tekst="Napisati Java aplikaciju koja kori\v s'cenjem biblioteke Hibernate redom:
+  1. Unosi podatak o novom novou kvalifikacije u tabelu `NIVOKVALIFIKACIJE` sa podacima iz naredne tabele. 
+  2. Ispisuje podatake o novou kvalifikacije sa identifikatorom `42` iz tabele `NIVOKVALIFIKACIJE`.
+  3. Ažurira stepen za nivo kvalifikacije sa identifikatorom `42` iz tabele `NIVOKVALIFIKACIJE`. Naziv postaviti na vrednost `Novi nivo kvalifikacije`. 
+  4. Ispisuje podatake o novou kvalifikacije sa identifikatorom `42` iz tabele `NIVOKVALIFIKACIJE`.
+  5. Briše podatake o novou kvalifikacije sa identifikatorom `42` iz tabele `NIVOKVALIFIKACIJE`.
+  6. Ispisuje podatake o novou kvalifikacije sa identifikatorom `42` iz tabele `NIVOKVALIFIKACIJE`.
+
 Svaki zahtev implementirati kao posebnu transakciju." %}
 
 | Kolona | Vrednost |
@@ -709,13 +709,13 @@ Svaki zahtev implementirati kao posebnu transakciju." %}
 | Identifikator | 42 |
 | Naziv | Novi nivo |
 
-{% include lab/exercise.html broj="10.5" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate redom:\n
-  1. Unosi podatak o novom predmetu u tabelu `PREDMET` sa identifikatorom predmeta `id` i ostalim podacima koji se unose sa standardnog ulaza.\n
-  2. Ispisuje podatake o predmetu sa identifikatorom `id` iz tabele `PREDMET`.\n
-  3. Proverava da li korisnik želi da ažurira broj ESPB bodova za predmet sa identifikatorom `id` u tabeli `PREDMET`. Ukoliko korisnik odgovori potvrdno, izvršava odgovarajuće ažuriranje. Novi broj bodova unosi se sa standardnog ulaza.\n
-  4. Ispisuje podatake o predmetu sa identifikatorom `id` iz tabele `PREDMET`.\n
-  5. Briše podatake o predmetu sa identifikatorom `id` iz tabele `PREDMET`.\n
+{% include lab/exercise.html broj="10.4" tekst="Napisati Java aplikaciju koja kori\v s\'cenjem biblioteke Hibernate redom:
+  1. Unosi podatak o novom predmetu u tabelu `PREDMET` sa identifikatorom predmeta `id` i ostalim podacima koji se unose sa standardnog ulaza.
+  2. Ispisuje podatake o predmetu sa identifikatorom `id` iz tabele `PREDMET`.
+  3. Proverava da li korisnik želi da ažurira broj ESPB bodova za predmet sa identifikatorom `id` u tabeli `PREDMET`. Ukoliko korisnik odgovori potvrdno, izvršava odgovarajuće ažuriranje. Novi broj bodova unosi se sa standardnog ulaza.
+  4. Ispisuje podatake o predmetu sa identifikatorom `id` iz tabele `PREDMET`.
+  5. Briše podatake o predmetu sa identifikatorom `id` iz tabele `PREDMET`.
   6. Ispisuje podatake o predmetu sa identifikatorom `id` iz tabele `PREDMET`.
-\n\n
+
 Svaki zahtev implementirati kao posebnu transakciju. " %}
 
