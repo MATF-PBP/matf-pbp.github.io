@@ -78,9 +78,6 @@ int main() {
             continue;
         }
         checkSQL("Update");
-            
-        EXEC SQL COMMIT;
-        checkSQL("COMMIT");
 
         printf("Bodovi su azurirani!\n\n");
     }
