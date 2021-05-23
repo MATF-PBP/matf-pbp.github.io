@@ -46,6 +46,11 @@
                 "type": "link",
                 "title": "Informacije o softveru koji se koristi na kursu",
                 "link": "https://docs.google.com/document/d/1oj8Pwr5T2f_Hx9dnz3NoYbV9hxY_Obru2_oFQNWIxNI/edit?usp=sharing"
+            },
+            {
+                "type": "link",
+                "title": "Primer praktičnog dela završnog ispita (okačene su postavke, uskoro će biti dodato i rešenje)",
+                "link": "/ispiti/primer-ispita.zip"
             }
         ],
         "classes": [
