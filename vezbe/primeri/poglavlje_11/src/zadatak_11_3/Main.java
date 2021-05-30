@@ -34,7 +34,7 @@ public class Main {
             List<StudijskiProgram> studijskiProgrami = Collections.checkedList(upit.list(), StudijskiProgram.class);
 
             // Kreiramo HQL upit koji izdvaja sve studente
-            // na studijskom programuu ciji ce identifikator biti postavljen
+            // na studijskom programu ciji ce identifikator biti postavljen
             // na mesto imenovane parametarske oznake "id".
             // S obzirom da ovo radimo za svaki studijski program,
             // dohvatanje rezultata moramo da ugnezdimo unutar petlje

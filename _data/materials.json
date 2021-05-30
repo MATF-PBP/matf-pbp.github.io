@@ -46,54 +46,61 @@
                 "type": "link",
                 "title": "Informacije o softveru koji se koristi na kursu",
                 "link": "https://docs.google.com/document/d/1oj8Pwr5T2f_Hx9dnz3NoYbV9hxY_Obru2_oFQNWIxNI/edit?usp=sharing"
+            },
+            {
+                "type": "link",
+                "title": "Primer praktičnog dela završnog ispita",
+                "link": "/ispiti/primer-ispita.zip"
             }
         ],
         "classes": [
             {
-                "title": "Čas 1 (Osnove razvoja C/SQL aplikacija. SELECT INTO, INSERT, UPDATE i DELETE.)",
-                "materials": [
-                    {
-                        "type": "link",
-                        "title": "Poglavlje 1 u skripti",
-                        "link": "/vezbe/poglavlja/1"
-                    },
-                    {
-                        "type": "link",
-                        "title": "Poglavlje 2 u skripti",
-                        "link": "/vezbe/poglavlja/2"
-                    }
+                "studyprogram": "I",
+                "lectures": [
+                    "Čas 1: (C/SQL) Osnove razvoja C/SQL aplikacija. SELECT INTO, INSERT, UPDATE i DELETE.",
+                    "Čas 2: (C/SQL) Kursori. SELECT.",
+                    "Čas 3: (C/SQL) Ugnežđeni kursori. Dinamički SQL. EXECUTE IMMEDIATE.",
+                    "Čas 4: (C/SQL) Dinamički SQL (nastavak). PREPARE. EXECUTE. Dinamički kursori.",
+                    "Čas 5: (C/SQL) Transakcije.",
+                    "Čas 6: (C/SQL) Višekorisničko okruženje.",
+                    "Čas 7: (JDBC) Osnove razvoja JDBC aplikacija. Kursori.",
+                    "Čas 8: (JDBC) Vrste kursora. Ugnežđeni kursori. Osnove transakcionog rada.",
+                    "Cas 9: (JDBC) Nivoi izolovanosti, tačke čuvanja i višekorisničko okruženje.",
+                    "Čas 10: (Hibernate) Uvod u objektno-relaciono preslikavanje (ORP).",
+                    "Čas 11: (Hibernate) Napredni ORP. HQL. Strani ključevi.",
+                    "Čas 12: (Hibernate) JPA Criteria API.",
+                    "Čas 13: Priprema za ispit."
                 ]
             },
             {
-                "title": "Čas 2 (Kursori. SELECT.)",
-                "materials": [
-                    {
-                        "type": "link",
-                        "title": "Poglavlje 3 u skripti (do sekcije 3.4)",
-                        "link": "/vezbe/poglavlja/3"
-                    }
-                ]
-            },
-            {
-                "title": "Čas 3 (Ugnežđeni kursori. Dinamički SQL. EXECUTE IMMEDIATE.)",
-                "materials": [
-                    {
-                        "type": "link",
-                        "title": "Poglavlje 3 u skripti (od sekcije 3.4)",
-                        "link": "/vezbe/poglavlja/3"
-                    },
-                    {
-                        "type": "link",
-                        "title": "Poglavlje 4 u skripti (do sekcije 4.3)",
-                        "link": "/vezbe/poglavlja/4"
-                    }
-                ]
-            },
-            {
-                "title": "Čas 4 (Dinamički SQL. PREPARE. EXECUTE. Dinamički kursori)",
-                "materials": [
+                "studyprogram": "R",
+                "lectures": [
+                    "Čas 1: (C/SQL) Osnove razvoja C/SQL aplikacija. SELECT INTO, INSERT, UPDATE i DELETE.",
+                    "Čas 2: (C/SQL) Kursori. SELECT.",
+                    "Čas 3: (C/SQL) Ugnežđeni kursori. Dinamički SQL. EXECUTE IMMEDIATE.",
+                    "Čas 4: (C/SQL) Dinamički SQL (nastavak). PREPARE. EXECUTE. Dinamički kursori.",
+                    "Čas 5: (C/SQL) Transakcije.",
+                    "Čas 6: (C/SQL) Transakcije (nastavak). Višekorisničko okruženje.",
+                    "Čas 7: (C/SQL) Višekorisničko okruženje (nastavak).",
+                    "Čas 8: (JDBC) Osnove razvoja JDBC aplikacija. Kursori.",
+                    "Čas 9: (JDBC) Vrste kursora. Ugnežđeni kursori. Osnove transakcionog rada.",
+                    "Čas 10: (JDBC) Nivoi izolovanosti, tačke čuvanja i višekorisničko okruženje.",
+                    "Čas 11: (Hibernate) Uvod u objektno-relaciono preslikavanje (ORP).",
+                    "Čas 12: (Hibernate) Napredni ORP. HQL.",
+                    "Čas 13: (Hibernate) Strani ključevi."
                 ]
             }
+        ],
+        "exceptions": [
+            "Sekcija 4.6. SQL prostor za opisivanje (SQLDA)",
+            "Sekcija 4.7. Naredba DESCRIBE",
+            "Sekcija 5.2. Složena SQL naredba",
+            "Sekcija 6.5. Programersko zaključavanje tabela",
+            "Poglavlje 7. Povezivanje aplikacija na više baza podataka",
+            "Sekcija 9.3. Povezivanje na više baza podataka",
+            "Sekcija 9.4. Objektno-orijentisani pristup kreiranju JDBC aplikacija",
+            "Poglavlje 12. Napredno kreiranje upita pomoću JPA Criteria API",
+            "..."
         ],
         "webex": [
             {

@@ -400,86 +400,58 @@ include_source(vezbe/primeri/poglavlje_8/src/zadatak_8_5/Main.java, java)
 
 ### 8.3.5 Podešavanje kursora
 
-A `ResultSet` maintains a cursor, which points to a row in the result set. It works like a
-cursor in database programs. You can scroll the cursor to a specific row in the result set
-to access or manipulate the column values for that row. The cursor can point to only one
-row at a time. The row to which it points at a point in time is called the current row.
-There are different ways to move the cursor of a `ResultSet` to a row in the result set. 
+Objekat interfejsa `ResultSet` održava kursor koji pokazuje na red u rezultujućoj tabeli. Moguće je pomerati kursor na specifičan red kako bismo dohvatili podatke o tom redu ili izmenili vrednosti kolona. Kursor može da pokazuje na tačno jedan red u nekom trenutku. Red na koji kursor pokazuje se naziva _tekući red_ kursora. U zavisnosti od podešavanja kursora, moguće je pomerati kursor na različite načine.
 
-The following three properties of a `ResultSet` need to be discussed before you can look at
-an example:
+Pre nego što se upustimo u konkretne primere, važno je da prodiskutujemo o narednim svojstvima svakog kursora:
 
-- Scrollability
-- Concurrency
-- Holdability
+- Usmerenost (eng. _scrollability_)
+- Tipiziranost (eng. _concurrency_)
+- Zadrživost (eng. _holdability_)
 
-Scrollability determines the ability of the `ResultSet` to scroll through the rows. By default,
-a `ResultSet` is scrollable only in the forward direction. When you have a forward-only
-scrollable `ResultSet`, you can move the cursor starting from the first row to the last row.
-Once you move to the last row, you cannot reuse the ResultSet because you cannot scroll
-back in a forward-only scrollable `ResultSet`. You can also create a `ResultSet` that can scroll
-in the forward as well as the backward direction. We call this `ResultSet` a bidirectional
-scrollable `ResultSet`.
+#### Usmerenost kursora
 
-A bidirectional scrollable `ResultSet` has another property called update sensitivity. It
-determines whether the changes in the underlying database will be reflected in the result
-set while you are scrolling through its rows. A scroll sensitive `ResultSet` shows you changes
-made in the database, whereas a scroll insensitive one would not show you the changes
-made in the database after you have opened the `ResultSet`. The following three constants
-in the `ResultSet` interface are used to specify the scrollability of a `ResultSet`:
+Usmerenost definiše operacije kojima kursor prolazi kroz redove. Podrazumevano, kursor je usmeren samo unapred, odnosno, kursorom je moguće prolaziti samo od prvog do poslednjeg reda. Kada dođemo do poslednjeg reda, onda se ne možemo vratiti unazad, već je potrebno ponovo da otvorimo kursor. Ipak, moguće je definisati kursor koji je usmeren unapred i unazad, odnosno, moguće je kretati se proizvoljno kroz redove rezultujuće tabele. Ovakav kursor se često naziva _dvosmerni kursor_.
 
-- `TYPE_FORWARD_ONLY`: Allows a `ResultSet` to scroll only in the forward direction.
-- `TYPE_SCROLL_SENSITIVE`: Allows a `ResultSet` to scroll in the forward and backward
-directions. It makes the changes in the underlying database made by other transactions or statements in the same transaction visible to the `ResultSet`. This type of
-`ResultSet` is aware of the changes made to its data by other means.
-- `TYPE_SCROLL_INSENSITIVE`: Allows a `ResultSet` to scroll in the forward and backward
-directions. It does not make the changes in the underlying database made by other
-transactions or statements in the same transaction visible to the `ResultSet` while
-scrolling. This type of `ResultSet` determines its data set when it is open and the
-data set does not change if it is updated through any other means except through
-this `ResultSet` itself. If you want to get up-to-date data, you must re-execute the
-query.
+Dvosmerni kursor ima još jedno svojstvo koje se naziva _osetljivost na izmene_ (eng. update sensitivity). Ovim svojstvom se definiše da li će se izmene u bazi podataka odraziti na redove rezultujuće tabele kroz koji se prolazi (otvorenim) dvosmernim kursorom. Kursor koji je osetljiv na izmene će prikazati izmene napravljene u bazi podataka, dok kursor koji nije osetljiv na izmene neće prikazati takve izmene. Naredne tri konstante interfejsa `ResultSet` se koriste za definisanje usmerenosti kursora:
 
-Concurrency refers to the ability of a `ResultSet` to update data. By default, a `ResultSet` is
-read-only and it does not let you update its data. If you want to update data in a database
-through a `ResultSet`, you need to request an updatable result set from the JDBC driver.
-The following two constants in the `ResultSet` interface are used to specify the concurrency
-of a `ResultSet`:
+- `ResultSet.TYPE_FORWARD_ONLY`: Dozvoljava kursoru da prolazi samo unapred kroz redove.
+- `ResultSet.TYPE_SCROLL_SENSITIVE`: Kreira dvosmerni kursor koji je osetljiv na izmene.
+- `ResultSet.TYPE_SCROLL_INSENSITIVE`: Kreira dvosmerni kursor koji nije osetljiv na izmene. Kada se kursor otvori, skup redova rezultujuće tabele neće biti promenjen dok ovakav kursor prolazi kroz te redove. Ako želimo da dohvatimo izmenjen skup redova, potrebno je da ponovo izvršimo upit (tj. da ponovo otvorimo kursor).
 
-- `CONCUR_READ_ONLY`: Makes a result set read-only.
-- `CONCUR_UPDATABLE`: Makes a result set updatable.
+#### Tipiziranost kursora
 
-Holdability refers to the state of a `ResultSet` after a transaction that it is associated with
-has been committed. A `ResultSet` may be closed or kept open when the transaction is
-committed. The default value of the holdability of a `ResultSet` is dependent on the JDBC
-driver. For DB2 driver, the holdability is set to `false`. It is specified using one of the
-following two constants defined in the `ResultSet` interface:
+Tipiziranost se odnosi na sposobnost kursora da ažurira podatke kroz koje prolazi. Podrazumevano, kursor koji se napravi je ograničen samo za čitanje i ne dozvoljava nam da ažuriramo redove rezultujuće tabele. Ako želimo da koristimo kursor da ažuriramo podatke nad bazom podataka, potrebno je da upit koji je pridružen kursoru vrati skup podataka koji se može ažurirati od strane JDBC drajvera. Naredne dve konstante interfejsa `ResultSet` se koriste za definisanje tipiziranosti kursora.
 
-- `HOLD_CURSORS_OVER_COMMIT`: Keeps the `ResultSet` open after the transaction is committed.
-- `CLOSE_CURSORS_AT_COMMIT`: Closes the `ResultSet` after the transaction is committed.
+- `ResultSet.CONCUR_READ_ONLY`: Ograničava kursor samo za čitanje.
+- `ResultSet.CONCUR_UPDATABLE`: Omogućava da kursor ažurira podatke. 
 
-Da bismo definisali ponašanje `ResultSet` objekta, potrebno je da prosledimo odgovarajuće
-opcije metodima `createStatement`, odnosno, `prepareStatement`, koji su definisani nad
-objektom interfejsa `Connection`, u zavisnosti od toga da li želimo da naredbu izvršimo kroz
-interfejse `Statement` ili `PreparedStatement`, redom.
+Važno je napomenuti da, ako pokušamo da napravimo kursor koji je ažurirajući, ali nije osetljiv na izmene (tj. koristimo kombinaciju konstanti `ResultSet.TYPE_SCROLL_INSENSITIVE` i `ResultSet.CONCUR_UPDATABLE`), JDBC drajver će implicitno ograničiti takav kursor samo za čitanje, tako da neće podržavati operacije unosa, brisanja i izmene. Pokušaj da se ovakve operacije izvrše nad takvim kursorom rezultovaće ispaljivanjem `SQLException` izuzetka.
+
+#### Zadrživost kursora
+
+Zadrživost kursora se odnosi na stanje kursora nakon potvrđivanja izmena transakcije u kojoj je taj kursor otvoren. Kursor se može ili zatvoriti ili otvoriti u trenutku potvrđivanja izmena transakcije. Podrazumevano ponašanje zavisi od JDBC drajvera i može se proveriti pozivom metoda `getHoldability()` nad objektom interfejsa `Connection`. Metod vraća jednu od naredne dve konstante, koje se takođe mogu koristiti i za eksplicitno definisanje zadrživosti na nivou pojedinačnih kursora:
+
+- `ResultSet.HOLD_CURSORS_OVER_COMMIT`: Ostavlja kursor u otvorenom stanju nakon što se izmene potvrde u transakciji.
+- `ResultSet.CLOSE_CURSORS_AT_COMMIT`: Zatvara kursor nakon što se izmene potvrde u transakciji.
+
+#### Definisanje svojstava kursora
+
+Da bismo definisali ponašanje `ResultSet` objekta, potrebno je da prosledimo odgovarajuće opcije metodima `createStatement`, odnosno, `prepareStatement`, koji su definisani nad objektom interfejsa `Connection`, u zavisnosti od toga da li želimo da naredbu izvršimo kroz interfejse `Statement` ili `PreparedStatement`, redom.
 
 U slučaju kreiranja objekta `Statement`, na raspolaganju su nam naredna dva preopterećenja metoda `createStatement`:
 
 - Metod sa dva argumenta:
-   - `int resultSetType` — Tip skupa rezultata.
-   - `int resultSetConcurrency` — Tip konkurentnosti.
+   - `int resultSetType` — Usmerenost kursora.
+   - `int resultSetConcurrency` — Tipiziranost kursora.
 - Metod sa tri argumenta:
-   - `int resultSetType`
-   - `int resultSetConcurrency`
-   - `int resultSetHoldability` — Tip zadrživosti kursora prilikom izvršavanja operacije pohranjivanja.
+   - `int resultSetType` — Usmerenost kursora.
+   - `int resultSetConcurrency` — Tipiziranost kursora.
+   - `int resultSetHoldability` — Zadrživost kursora.
 
-U slučaju kreiranja objekta `PreparedStatement`, na raspolaganju su nam naredna dva
-preopterećenja metoda `prepareStatement`, sa istim značenjima parametara kao i u slučaju
-metoda `createStatement`:
+U slučaju kreiranja objekta `PreparedStatement`, na raspolaganju su nam naredna dva preopterećenja metoda `prepareStatement`, sa istim značenjima parametara kao i u slučaju metoda `createStatement`:
 
 - Metod sa tri argumenta:
-   - `String sql` — Niska koja sadrži tekstualni oblik SQL naredbe. Može sadržati
-nula ili više parametarskih oznaka.
+   - `String sql` — Niska koja sadrži tekstualni oblik SQL naredbe. Može sadržati nula ili više parametarskih oznaka.
    - `int resultSetType`
    - `int resultSetConcurrency`
 - Metod sa četiri argumenta:
@@ -496,17 +468,12 @@ include_source(vezbe/primeri/poglavlje_8/src/zadatak_8_6/Main.java, java)
 
 ### 8.3.6 Ažuriranje redova korišćenjem ResultSet kursora
 
-Postoje dve procedure za ažuriranje informacija u bazi podataka na osnovu `ResultSet`
-kursora:
+Postoje dve procedure za ažuriranje informacija u bazi podataka na osnovu `ResultSet` kursora:
 
 - Korišćenjem pozicionirajuće `UPDATE` naredbe.
 - Korišćenjem JDBC metoda `updateXXX` i `updateRow`.
 
-Kao što znamo, možemo koristiti pozicionirajuću `UPDATE` naredbu za menjanje podataka
-u bazi podataka, na osnovu tekućeg reda kursora, tako što se na kursor referiše u `WHERE CURRENT OF` 
-klauzi naredbe. Da bismo dohvatili naziv `ResultSet` kursora, možemo iskoristiti
-metod `ResultSet.getCursorName`, koji vraća nisku sa nazivom kursora koji je vezan
-za taj `ResultSet`. Na primer, naredni fragment koda ilustruje kako možemo ažurirati broj bodova za sve predmete iz tabele `PREDMET` korišćenjem pozicionirajuće `UPDATE` naredbe:
+Kao što znamo, možemo koristiti pozicionirajuću `UPDATE` naredbu za menjanje podataka u bazi podataka, na osnovu tekućeg reda kursora, tako što se na kursor referiše u `WHERE CURRENT OF` klauzi naredbe. Da bismo dohvatili naziv `ResultSet` kursora, možemo iskoristiti metod `ResultSet.getCursorName`, koji vraća nisku sa nazivom kursora koji je vezan za taj `ResultSet`. Na primer, naredni fragment koda ilustruje kako možemo ažurirati broj bodova za sve predmete iz tabele `PREDMET` korišćenjem pozicionirajuće `UPDATE` naredbe:
 
 ```java
 String upit =
@@ -595,9 +562,9 @@ ResultSet kursor = stmt.executeQuery(sql);
 7. Nakon svih iteracija, pozvati metod `kursor.close()` radi zatvaranja kursora
 8. Nakon zatvaranja kursora, pozvati metod `stmt.close()` radi zatvaranja objekta naredbe
 
-{% include lab/exercise.html broj="8.8" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji:\n
-1. Kreira tabelu `UNETIPREDMETI` \v cije su kolone: (1) identifikator predmeta i (2) broj polo\v zenih ispita za taj predmet. Postaviti odgovaraju\'ce primarne i strane klju\v ceve.\n
-2. Za svaki predmet koji nije prethodno obra\dj en (tj. koji se ne nalazi u tabeli `UNETIPREDMETI`) pronalazi statistiku koja se sastoji od njegovog identifikator i broj polo\v zenih ispita.\n
+{% include lab/exercise.html broj="8.8" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji:
+1. Kreira tabelu `UNETIPREDMETI` \v cije su kolone: (1) identifikator predmeta i (2) broj polo\v zenih ispita za taj predmet. Postaviti odgovaraju\'ce primarne i strane klju\v ceve.
+2. Za svaki predmet koji nije prethodno obra\dj en (tj. koji se ne nalazi u tabeli `UNETIPREDMETI`) pronalazi statistiku koja se sastoji od njegovog identifikator i broj polo\v zenih ispita.
 3. Za svaku prona\dj enu statistiku ispisuje podatke na standardni izlaz i pita korisnika da li \v zeli da unete statistiku u tabelu `UNETIPREDMETI`. Ukoliko korisnik potvrdi, potrebno je uneti statistiku u datu tabelu i ispisati poruku o uspehu. U suprotnom, ispisati poruku da je korisnik poni\v stio unos." %}
 
 Rešenje:

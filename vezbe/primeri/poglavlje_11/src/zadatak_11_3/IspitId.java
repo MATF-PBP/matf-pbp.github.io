@@ -4,10 +4,11 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
 
 // Klasa predstavlja slozeni kljuc za Ispit.
-// Primetimo da ovaj put nismo anotirali klasu anotacijom @Embeddable,
-// kao u prvom pristupu kreiranja slozenih kljuceva.
+// Anotiralmo je anotacijom @Embeddable
+@Embeddable
 public class IspitId implements Serializable {
 
     private static final long serialVersionUID = 1L;

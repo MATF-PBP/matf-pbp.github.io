@@ -28,7 +28,7 @@ int main() {
     checkSQL("Set current lock timeout 5");
     
     EXEC SQL 
-        DECLARE cStudyPrograms CURSOR FOR 
+        DECLARE cStudyPrograms CURSOR WITH HOLD FOR 
         SELECT  TRIM(NAZIV), 
                 OBIMESPB
         FROM    DA.STUDIJSKIPROGRAM
@@ -55,9 +55,6 @@ int main() {
             printf("Nema vise studijskih programa za obradjivanje!\n");
             break;
         }
-            
-        EXEC SQL COMMIT;
-        checkSQL("Commit fetch");
             
         printf("%s (%hd)\n", hStudyProgramName, hStudyProgramESPB);
 
@@ -113,7 +110,7 @@ void checkSQL(const char *str) {
 }
 
 int waitForLock() {
-    if (SQLCODE == -911 || SQLCODE == -913) {
+    if (-913 <= SQLCODE && SQLCODE <= -911) {
         printf("Objekat je zakljucan od strane druge transakcije. "
             "Sacekati neko vreme...\n");
         

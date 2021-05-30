@@ -1,8 +1,8 @@
 package zadatak_12_2;
 
 import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
@@ -13,7 +13,7 @@ import javax.persistence.Table;
 @Table(name = "DA.ISPIT")
 public class Ispit {
     // Primarni kljuc
-    @EmbeddedId
+    @Id
     private IspitId idIspita;
 
     // Ostale kolone
