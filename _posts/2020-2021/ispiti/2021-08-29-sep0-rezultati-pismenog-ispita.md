@@ -1,7 +1,7 @@
 ---
 layout: notification
 title: "Rezultati teorijskog dela ispita u roku JUN 2"
-time: "11:15"
+time: "11:30"
 ---
 
 Rezultate teorijskog dela ispita u roku SEP 0 možete pogledati [ovde](../../../ispiti/rezultati/teorija/sep0.pdf).
