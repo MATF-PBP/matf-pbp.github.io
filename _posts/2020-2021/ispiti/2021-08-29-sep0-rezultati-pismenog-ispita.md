@@ -1,6 +1,6 @@
 ---
 layout: notification
-title: "Rezultati teorijskog dela ispita u roku JUN 2"
+title: "Rezultati teorijskog dela ispita u roku SEP 0"
 time: "11:30"
 ---
 
