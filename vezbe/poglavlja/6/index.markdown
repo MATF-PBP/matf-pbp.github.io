@@ -394,7 +394,7 @@ VALUES  (1, 'Spanija'),
 
 Za svakog pronađenog studenta, korisnik unosi ceo broj koji predstavlja jedan od identifikatora država iz tabele `DRZAVA` ili 0 (pretpostaviti da je ispravan unos). Ukoliko korisnik unese identifikator, aplikacija unosi informacije u tabelu `EKSKURZIJA`, a ukoliko unese 0, prelazi se na sledećeg studenta. Nakon svaka 3 uneta glasa, ponuditi korisniku mogućnost da prekine sa daljom obradom i napusti program, unošenjem odgovora `'da'`.
 
-Napomene: Obrada jednog studenta predstavlja jednu transakciju. Proveravati greške koje se javljaju prilikom izvršavanja aplikacije u višekorisničkom okruženju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi." %}
+Napomene: Obrada jednog studenta predstavlja jednu transakciju. Proveravati greške koje se javljaju prilikom izvršavanja aplikacije u višekorisničkom okruženju. Postaviti istek vremena za zahtevanje katanaca na 5 sekundi. Voditi računa da aplikacija ne sme da vidi bilo kakve vrste izmena od strane drugih aplikacija." %}
 
 include_source(vezbe/primeri/poglavlje_6/zadatak_6_7.sqc, c)
 
