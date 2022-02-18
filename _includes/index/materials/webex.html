@@ -13,7 +13,7 @@
 
  -->
 
- <h4>Informacije za pristupanje časovima onlajn</h4>
+ <h4>Termini časova</h4>
 
  {% if include.webex.size > 0 %}
  <div class="ui list">
@@ -25,9 +25,13 @@
             <ul>
                 <li>Grupe: {{ webexData.groups | join: ', ' }}</li>
                 <li>Nastavnik: {{ webexData.teacher }}</li>
+<!--
+    Kada svi dodamo linkove za časove (ako uopšte bude online nastave) izdvojićemo naredni kod iz komentara:
+
                 <li>Link: <a href="{{ webexData.link }}">{{ webexData.link }}</a></li>
                 {% if webexData.note %}
                 <li>Napomena: {{ webexData.note }}</li>
+-->
                 {% endif %}
             </ul>
          </div>
