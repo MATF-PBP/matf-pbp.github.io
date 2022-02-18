@@ -1,0 +1,63 @@
+<!-- 
+
+    Primer jednog casa u materials.json:
+
+    {
+        "studyprogram": "I",
+        "lectures": [
+            "Čas 1: Osnove razvoja C/SQL aplikacija. SELECT INTO, INSERT, UPDATE i DELETE.",
+            "Čas 2: Kursori. SELECT.",
+            "Čas 3: Ugnežđeni kursori. Dinamički SQL. EXECUTE IMMEDIATE.",
+            "Čas 4: Dinamički SQL (nastavak). PREPARE. EXECUTE. Dinamički kursori.",
+            "Čas 5: Transakcije.",
+            "Čas 6: Višekorisničko okruženje.",
+            "Čas 7: JDBC. Kursori."
+        ]
+    }
+
+ -->
+
+<h4>Materijali sa časova</h4>
+
+{% if include.classes.size > 0 %}
+<div class="ui list">
+    {% for class in include.classes %}
+    <div class="item">
+        <i class="folder icon"></i>
+        <div class="content">
+            <div class="header">{{ class.studyprogram }} smer</div>
+            {% assign lectures = class.lectures %}
+            {% if lectures.size > 0 %}
+            <div class="list">
+                {% for lecture in lectures %}
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">{{ lecture }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text">
+    Nema časova
+</div>
+{% endif %}
+
+{% if include.exceptions %}
+<h4>Napomena za praktični deo završnog ispita</h4>
+
+Teme iz literature koje neće biti proveravane na praktičnim zadacima:
+
+<ul class="ui list">
+    {% for exception in include.exceptions %}
+    <li class="item">{{ exception }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+

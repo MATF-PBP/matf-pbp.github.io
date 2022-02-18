@@ -1,0 +1,51 @@
+<h2 class="ui center aligned header">Informacije o kursu</h2>
+
+<h3 class="ui top attached header">Nastavno osoblje</h3>
+<div class="ui attached segment">
+    <div class="ui list">
+        {% for teacher in site.data.course_info.teachers %}
+        <div class="item">
+            <img width="45" height="60" class="ui image" src="{{ teacher.image }}">
+            <div class="content">
+                <a class="header" href="{{ teacher.website }}">{{ teacher.name }}</a>
+                <div class="description">
+                    {{ teacher.type }}
+                    {% if teacher.officeHours %}
+                        <br>
+                        {% if teacher.officeHours.type == "link" %}
+                        <a href="{{ teacher.officeHours.link }}">{{ teacher.officeHours.text }}</a>
+                        {% else %}
+                        Konsultacije: {{ teacher.officeHours.text }}
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<h3 class="ui top attached header">Pravila polaganja (2020/2021.)</h3>
+<div class="ui attached segment">
+    <p>Završni ispit nosi 100 poena i sastoji se od narednih delova:</p>
+    <div class="ui relaxed list">
+        <div class="item">
+            <i class="large desktop middle aligned icon"></i>
+            <div class="content">
+                <p class="header">Praktični deo (50 poena)</p>
+                <div class="description">Prag za prolaz je 17 poena.</div>
+            </div>
+        </div>
+        <div class="item">
+            <i class="large edit middle aligned icon"></i>
+            <div class="content">
+                <p class="header">Pismeni deo (50 poena)</p>
+                <div class="description">Prag za prolaz je 17 poena.</div>
+            </div>
+        </div>
+    </div>
+    <p>
+        Delovi ispita se mogu polagati odvojeno po ispitnim rokovima u bilo kom redosledu. Kada se jedan deo ispita položi, bodovi se mogu preneti u druge ispitne rokove 
+        do kraja školske 2020/2021. godine bez obzira na ishod polaganja drugog dela ispita.
+    </p>
+</div>

@@ -1,0 +1,41 @@
+<!-- 
+
+    Primer jednog webex podatka u materials.json:
+
+    {
+      "teacher": "Nikola Ajzenhamer",
+      "day": "Ponedeljak",
+      "groups": ["3I11"],
+      "time": "8h - 11h",
+      "link": "https://matf.webex.com/meet/nikola_ajzenhamer",
+      "note": "Ovde moze ici neka napomena, ali ovo polje ne mora da postoji"
+    }
+
+ -->
+
+ <h4>Informacije za pristupanje časovima onlajn</h4>
+
+ {% if include.webex.size > 0 %}
+ <div class="ui list">
+     {% for webexData in include.webex %}
+     <div class="item">
+         <i class="calendar alternate icon"></i>
+         <div class="content">
+            {{ webexData.day }}, {{ webexData.time }}
+            <ul>
+                <li>Grupe: {{ webexData.groups | join: ', ' }}</li>
+                <li>Nastavnik: {{ webexData.teacher }}</li>
+                <li>Link: <a href="{{ webexData.link }}">{{ webexData.link }}</a></li>
+                {% if webexData.note %}
+                <li>Napomena: {{ webexData.note }}</li>
+                {% endif %}
+            </ul>
+         </div>
+     </div>
+     {% endfor %}
+ </div>
+ {% else %}
+ <div class="text">
+     Nema časova
+ </div>
+ {% endif %}
