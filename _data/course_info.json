@@ -17,6 +17,12 @@
             "website": "http://www.math.rs/~anja_bukurov",
             "type": "Vežbe",
             "image": "/resources/images/anja_bukurov.jpg"
+        },
+        {
+            "name": "Boris Cvitak",
+            "website": "/",
+            "type": "Vežbe",
+            "image": "/resources/images/boris_cvitak.jpg"
         }
     ]
 }

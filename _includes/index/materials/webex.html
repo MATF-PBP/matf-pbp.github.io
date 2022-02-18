@@ -25,7 +25,14 @@
             <ul>
                 <li>Grupe: {{ webexData.groups | join: ', ' }}</li>
                 <li>Nastavnik: {{ webexData.teacher }}</li>
+<!--
+    Kada svi dodamo linkove za časove (ako uopšte bude online nastave) izdvojićemo naredni kod iz
+
+                <li>Link: <a href="{{ webexData.link }}">{{ webexData.link }}</a></li>
+                {% if webexData.note %}
+                <li>Napomena: {{ webexData.note }}</li>
                 {% endif %}
+-->
             </ul>
          </div>
      </div>
