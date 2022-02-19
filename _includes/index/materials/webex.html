@@ -8,12 +8,13 @@
       "groups": ["3I11"],
       "time": "8h - 11h",
       "link": "https://matf.webex.com/meet/nikola_ajzenhamer",
+      "password": "pbp1",
       "note": "Ovde moze ici neka napomena, ali ovo polje ne mora da postoji"
     }
 
  -->
 
- <h4>Termini časova</h4>
+ <h4>Informacije za pristupanje časovima onlajn</h4>
 
  {% if include.webex.size > 0 %}
  <div class="ui list">
@@ -25,14 +26,13 @@
             <ul>
                 <li>Grupe: {{ webexData.groups | join: ', ' }}</li>
                 <li>Nastavnik: {{ webexData.teacher }}</li>
-<!--
-    Kada svi dodamo linkove za časove (ako uopšte bude online nastave) izdvojićemo naredni kod iz komentara:
-
                 <li>Link: <a href="{{ webexData.link }}">{{ webexData.link }}</a></li>
+                {% if webexData.password %}
+                <li>Šifra: {{ webexData.note }}</li>
+                {% endif %}
                 {% if webexData.note %}
                 <li>Napomena: {{ webexData.note }}</li>
                 {% endif %}
--->
             </ul>
          </div>
      </div>

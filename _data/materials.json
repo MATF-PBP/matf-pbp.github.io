@@ -18,19 +18,22 @@
                 "day": "Ponedeljak",
                 "groups": ["4R"],
                 "time": "11h - 11h",
-                "teacher": "Nina Radojičić Matić"
+                "teacher": "Nina Radojičić Matić",
+                "link": "https://matf.webex.com/meet/nina"
             },
             {
                 "day": "Sreda",
                 "groups": ["3I1"],
                 "time": "13h - 15h",
-                "teacher": "Nina Radojičić Matić"
+                "teacher": "Nina Radojičić Matić",
+                "link": "https://matf.webex.com/meet/nina"
             },
             {
                 "day": "Petak",
                 "groups": ["3I2"],
                 "time": "14h - 16h",
-                "teacher": "Nina Radojičić Matić"
+                "teacher": "Nina Radojičić Matić",
+                "link": "https://matf.webex.com/meet/nina"
             }
         ]
     },
@@ -106,37 +109,47 @@
                 "teacher": "Boris Cvitak",
                 "day": "Ponedeljak",
                 "groups": ["3I11"],
-                "time": "8h - 11h"
+                "time": "8h - 11h",
+                "link": "https://matf.webex.com/matf/j.php?MTID=mf3c4881f1edcf818c5414525b8c9047a",
+                "password": "pbp1"
             },
             {
                 "teacher": "Anja Bukurov",
                 "day": "Sreda",
                 "groups": ["4R (GR1)"],
-                "time": "15h - 17h"
+                "time": "15h - 17h",
+                "link": "https://matf.webex.com/matf/j.php?MTID=m4a0f6b15da77410483964d3b922486b8"
             },
             {
                 "teacher": "Nikola Ajzenhamer",
                 "day": "Sreda",
                 "groups": ["4R (GR2)"],
-                "time": "16h - 18h"
+                "time": "16h - 18h",
+                "link": "https://matf.webex.com/matf/j.php?MTID=m8b0fa9062b9c55602a519d13b17bb84b",
+                "password": "pbp1"
+
             },
             {
                 "teacher": "Boris Cvitak",
                 "day": "Četvrtak",
                 "groups": ["3I12"],
-                "time": "8h - 11h"
+                "time": "8h - 11h",
+                "link": "https://matf.webex.com/matf/j.php?MTID=m10bb957314b032d66c5f2532e83047f5",
+                "password": "pbp1"
             },
             {
                 "teacher": "Anja Bukurov",
                 "day": "Četvrtak",
                 "groups": ["3I22"],
-                "time": "8h - 11h"
+                "time": "8h - 11h",
+                "link": "https://matf.webex.com/matf/j.php?MTID=maaea150221753e195032715d47f8d406"
             },
             {
                 "teacher": "Anja Bukurov",
                 "day": "Četvrtak",
                 "groups": ["3I21"],
-                "time": "13h - 16h"
+                "time": "13h - 16h",
+                "link": "https://matf.webex.com/matf/j.php?MTID=m3f4fb471f3da862827e021baa1692f7b"
             }
         ]
     }
