@@ -114,17 +114,10 @@
                 "password": "pbp1"
             },
             {
-                "teacher": "Anja Bukurov",
+                "teacher": "Nikola Ajzenhamer/Anja Bukurov",
                 "day": "Sreda",
-                "groups": ["4R (GR1)"],
+                "groups": ["4R (GR1)", "4R (GR2)"],
                 "time": "15h - 17h",
-                "link": "https://matf.webex.com/matf/j.php?MTID=m4a0f6b15da77410483964d3b922486b8"
-            },
-            {
-                "teacher": "Nikola Ajzenhamer",
-                "day": "Sreda",
-                "groups": ["4R (GR2)"],
-                "time": "16h - 18h",
                 "link": "https://matf.webex.com/matf/j.php?MTID=m8b0fa9062b9c55602a519d13b17bb84b",
                 "password": "pbp1"
             },
