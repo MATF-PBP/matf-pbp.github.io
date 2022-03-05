@@ -15,22 +15,8 @@
         "classes": [],
         "webex": [
             {
-                "day": "Ponedeljak",
-                "groups": ["4R"],
-                "time": "11h - 13h",
-                "teacher": "Nina Radojičić Matić",
-                "link": "https://matf.webex.com/meet/nina"
-            },
-            {
                 "day": "Sreda",
-                "groups": ["3I1"],
-                "time": "15h - 17h",
-                "teacher": "Nina Radojičić Matić",
-                "link": "https://matf.webex.com/meet/nina"
-            },
-            {
-                "day": "Sreda",
-                "groups": ["3I2"],
+                "groups": ["3I", "4R"],
                 "time": "15h - 17h",
                 "teacher": "Nina Radojičić Matić",
                 "link": "https://matf.webex.com/meet/nina"
@@ -67,7 +53,7 @@
                     "Čas 6: (C/SQL) Višekorisničko okruženje.",
                     "Čas 7: (JDBC) Osnove razvoja JDBC aplikacija. Kursori.",
                     "Čas 8: (JDBC) Vrste kursora. Ugnežđeni kursori. Osnove transakcionog rada.",
-                    "Cas 9: (JDBC) Nivoi izolovanosti, tačke čuvanja i višekorisničko okruženje.",
+                    "Cas 9: (JDBC) Tačke čuvanja i višekorisničko okruženje.",
                     "Čas 10: (Hibernate) Uvod u objektno-relaciono preslikavanje (ORP).",
                     "Čas 11: (Hibernate) Napredni ORP. HQL. Strani ključevi.",
                     "Čas 12: (Hibernate) JPA Criteria API.",
@@ -77,16 +63,16 @@
             {
                 "studyprogram": "R",
                 "lectures": [
-                    "Čas 1: (C/SQL) Osnove razvoja C/SQL aplikacija. SELECT INTO, INSERT, UPDATE i DELETE.",
-                    "Čas 2: (C/SQL) Kursori. SELECT.",
-                    "Čas 3: (C/SQL) Ugnežđeni kursori. Dinamički SQL. EXECUTE IMMEDIATE.",
-                    "Čas 4: (C/SQL) Dinamički SQL (nastavak). PREPARE. EXECUTE. Dinamički kursori.",
+                    "Čas 1: (C/SQL) Osnove razvoja C/SQL aplikacija. SELECT INTO. ",
+                    "Čas 2: (C/SQL) INSERT, UPDATE i DELETE. Kursori. SELECT.",
+                    "Čas 3: (C/SQL) Kursori (nastavak). Ugnežđeni kursori.",
+                    "Čas 4: (C/SQL) Dinamički SQL. EXECUTE IMMEDIATE. PREPARE. EXECUTE. Dinamički kursori.",
                     "Čas 5: (C/SQL) Transakcije.",
                     "Čas 6: (C/SQL) Transakcije (nastavak). Višekorisničko okruženje.",
                     "Čas 7: (C/SQL) Višekorisničko okruženje (nastavak).",
                     "Čas 8: (JDBC) Osnove razvoja JDBC aplikacija. Kursori.",
                     "Čas 9: (JDBC) Vrste kursora. Ugnežđeni kursori. Osnove transakcionog rada.",
-                    "Čas 10: (JDBC) Nivoi izolovanosti, tačke čuvanja i višekorisničko okruženje.",
+                    "Čas 10: (JDBC) Tačke čuvanja i višekorisničko okruženje.",
                     "Čas 11: (Hibernate) Uvod u objektno-relaciono preslikavanje (ORP).",
                     "Čas 12: (Hibernate) Napredni ORP. HQL.",
                     "Čas 13: (Hibernate) Strani ključevi."
@@ -108,39 +94,23 @@
             {
                 "teacher": "Boris Cvitak",
                 "day": "Ponedeljak",
-                "groups": ["3I11"],
+                "groups": ["3I11", "3I12"],
                 "time": "8h - 11h",
                 "link": "https://matf.webex.com/matf/j.php?MTID=mf3c4881f1edcf818c5414525b8c9047a",
                 "password": "pbp1"
             },
             {
-                "teacher": "Nikola Ajzenhamer/Anja Bukurov",
-                "day": "Sreda",
-                "groups": ["4R (GR1)", "4R (GR2)"],
-                "time": "15h - 17h",
+                "teacher": "Nikola Ajzenhamer",
+                "day": "Ponedeljak",
+                "groups": ["4R1", "4R2"],
+                "time": "11h - 13h",
                 "link": "https://matf.webex.com/matf/j.php?MTID=m8b0fa9062b9c55602a519d13b17bb84b",
                 "password": "pbp1"
             },
             {
-                "teacher": "Boris Cvitak",
-                "day": "Četvrtak",
-                "groups": ["3I12"],
-                "time": "8h - 11h",
-                "link": "https://matf.webex.com/matf/j.php?MTID=m10bb957314b032d66c5f2532e83047f5",
-                "password": "pbp1"
-            },
-            {
                 "teacher": "Anja Bukurov",
                 "day": "Četvrtak",
-                "groups": ["3I22"],
-                "time": "8h - 11h",
-                "link": "https://matf.webex.com/matf/j.php?MTID=maaea150221753e195032715d47f8d406",
-                "note": "03.03. čas će biti održan u terminu za grupu 3I21, od 13h. Link za pristup: https://matf.webex.com/matf/j.php?MTID=m3f4fb471f3da862827e021baa1692f7b"
-            },
-            {
-                "teacher": "Anja Bukurov",
-                "day": "Četvrtak",
-                "groups": ["3I21"],
+                "groups": ["3I21", "3I22"],
                 "time": "13h - 16h",
                 "link": "https://matf.webex.com/matf/j.php?MTID=m3f4fb471f3da862827e021baa1692f7b"
             }
