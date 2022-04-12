@@ -29,5 +29,5 @@ end
 gem "wdm", "~> 0.1.1", :install_if => Gem.win_platform?
 
 # Security fixes
-gem "nokogiri", ">= 1.11.0"
+gem "nokogiri", ">= 1.13.4"
 gem "kramdown", ">= 2.3.1"
