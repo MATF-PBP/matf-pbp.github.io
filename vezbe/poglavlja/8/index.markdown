@@ -4,51 +4,50 @@ title: 8. Osnovni koncepti programiranja Java/SQL aplikacija sa dinamičkim SQL 
 under_construction: true
 ---
 
-Java Database Connectivity (JDBC) is a Java programming API that standardizes the
-means to work and access databases. In JDBC the code is easily portable between several
-RDBMS vendors. The only changes required to the code are normally which JDBC driver
-to load and the connection string. JDBC uses only dynamic SQL and it is very popular.
+Java Database Connectivity (JDBC) predstavlja Java interfejs za programiranje aplikacija (API) koji standardizuje
+na\v cine za pristup i upravljanje bazama podataka. JDBC kod je jednostavno portabilizan izme\dj u nekoliko
+RSUBP proizvo\dj a\v ca. Jedina promena u kodu koja se o\v cekuje kada se JDBC kod portuje za neki drugi RSUBP
+u odnosu na onaj za koji je prvobitno napisan jeste koji JDBC drajver se u\v citava i niska za konekciju na bazu 
+podataka. JDBC koristi isklju\v civo dinami\v cko izvr\v savanje SQL naredbi i veoma je popularan u praksi.
 
-Before you can execute SQL statements in any SQL program, you must be connected to a data source.
+Pre nego \v sto se izvr\v savaju SQL naredbe u bilo kom JDBC programu, aplikacija se mora povezati na bazu podataka.
 
 ![](./Slike/jdbc.png)
 
-Though there are several types of JDBC drivers such as type 1, 2, 3 and 4; type 1 and 3
-are not commonly used, and DB2’s support of these types has been deprecated. For type
-2, there are two drivers as we will describe shortly, but one of them is also deprecated.
+Iako postoji nekoliko tipova JDBC drajvera kao \v sto su tipovi 1, 2, 3 i 4, tipovi 1 i 3 nisu \v cesto kori\v s\'ceni,
+i Db2 podr\v ska za ove tipove je uklonjena iz novijih verzija ovog SUBP. Za tip 2 postoje dva drajvera, kao \v sto \'cemo videti,
+ali jedan od njih je tako\dj e zastareo, te bi ga trebalo izbegavati.
 
-Type 2 and type 4 are supported with DB2 software, as shown in Table 9.1. Type 2 drivers
-need to have a DB2 client installed, as the driver uses it to establish communication to
-the database. Type 4 is a pure Java client, so there is no need for a DB2 client, but the
-driver must be installed on the machine where the JDBC application is running.
+Kao \v sto je vidljivo iz naredne tabele, tipovi 2 i 4 JDBC drajvera su podr\v zani Db2 SUBP. Tip 2 drajver zahteva 
+instalaciju Db2 klijenta, s obzirom da se on koristi kako bi drajver kreirao komunikacioni kanal ka bazi podataka.
+Sa druge strane, tip 4 je \v cist Java klijent, te nije potrebno instalirati Db2 klijent, ali sam drajver mora biti
+instaliran na ma\v sini gde se JDBC aplikacija pokre\v ce. 
 
-| Driver Type | Driver Name | Packaged as | Supports | Minimum level of SDK for Java required |
+| Tip drajvera | Ime drajvera | Datoteka | Podr\v zava | Najmanja verzija Java SDK |
 | ----------- | ----------- | ----------- | -------- | -------------------------------------- |
-| Type 2 | DB2 JDBC Type 2 Driver for Linux, UNIX® and Windows (Deprecated) | db2java.zip | JDBC 1.2 and JDBC 2.0 | 1.4.2 |
-| Type 2 and Type 4 | IBM Data Server Driver for JDBC and SQLJ | db2jcc.jar and sqlj.zip | JDBC 3.0 compliant | 1.4.2 |
-| Type 2 and Type 4 | IBM Data Server Driver for JDBC and SQLJ | db2jcc4.jar and sqlj4.zip | JDBC 4.0 and earlier | 6 |
+| Tip 2 | DB2 JDBC Type 2 Driver for Linux, UNIX® and Windows (Deprecated) | `db2java.zip` | JDBC 1.2, JDBC 2.0 | 1.4.2 |
+| Tip 2, Tip 4 | IBM Data Server Driver for JDBC and SQLJ | `db2jcc.jar` i `sqlj.zip` | JDBC 3.0 saglasni | 1.4.2 |
+| Tip 2, Tip 4 | IBM Data Server Driver for JDBC and SQLJ | `db2jcc4.jar` i `sqlj4.zip` | JDBC 4.0 i ranije | 6 |
 
-As mentioned earlier and shown also in Table 9.1, Type 2 is provided with two different
-drivers; however the DB2 JDBC Type 2 Driver for Linux, UNIX and Windows, with
-filename db2java.zip is deprecated.
+Kao \v sto je pomenuto ranije, a tako\dj e je prikazano u tabeli iznad, JDBC drajver tipa 2 je dostupan u dva razli\v cita
+drajvera. Ipak, Db2 JDBC Type 2 Driver for Linux, UNIX and Windows, \v cija je implementacija data datotekom `db2java.zip` je zastareo.
 
-When you install a DB2 server, a DB2 client or the IBM Data Server Driver for JDBC and
-SQLJ, the db2jcc.jar and sqlj.zip files compliant with JDBC 3.0 are automatically added
-to your classpath.
+Kada se instalira Db2 server, Db2 klijent ili IBM Data Server Driver za JDBC i SQLJ, tj. datoteke `db2jcc.jar` i `sqlj.zip` 
+koje su saglasne sa JDBC 3.0 automatski su dodate u "classpath".
 
 ## 8.1 Kreiranje konekcije
 
-A connection to a database can be obtained using the DriverManager class of the java.sql
-package.
+Kolekcija ka bazi podataka se mo\v ze dobiti kori\v s\'cenjem klase `DriverManager` iz `java.sql` paketa.
 
-Java.sql package defines the classes and interfaces required for the JDBC program to access
-the relation data stored in a database. These APIs can be used to connect to the relational
-database and manipulate the data (insert, update, delete, and so on) stored in tabular
-form using the SQL standard. The interfaces defined in this package are implemented by
-the driver specific classes and the definition can differ from vendor to vendor.
+Paket `java.sql` defini\v se klase i interfejse koji su neophodni kako bi JDBC program pristupio
+podacima koji su skladi\v steni u relacionim bazama podataka. Ovaj API se mo\v ze koristiti za 
+povezivanje na relacionu bazu podataka i upravljanje podacima (\v citanje, unos, a\v zuriranje, brisanje i dr.)
+koji su skladi\v steni u formi tabela prema SQL standardu. Interfejsi koji su definisani u ovom paketu
+implementirani su u klasa odgovaraju\'cih drajvera i njihova definicija se mo\v ze razlikovati izme\dj u
+proizvo\dj aca.
 
-Before getting connection, the driver specific classes must be loaded and registered to the
-`DriverManager`. Any number of drivers can be loaded and registered with the `DriverManager` using the `forName` method:
+Pre ostvarivanja konekcije, potrebno je u\v citati klase iz drajvera i registrovati ih za upotrebu kori\v s\'cenjem klase
+`DriverManager`. Proizvoljan broj drajvera se mo\v ze u\v citati u registrovati klasom `DriverManager` kori\v s\'cenjem metoda `forName`:
 
 ```java
 class ProgramName {
@@ -58,97 +57,85 @@ class ProgramName {
         }
         catch (Exception e) {
             e.printStackTrace();
+
+            System.exit(1);
         }
     }
     // ...
 }
 ```
 
-Java supports a special block, called static block (also called static clause) which can be
-used for static initializations of a class. This code inside static block is executed only
-once: the first time you make an object of that class or the first time you access a static
-member of that class (even if you never make an object of that class). We will be using
-static blocks in our programs to load and register DB2 JDBC driver, as shown in the code
-example above.
+Java podržava poseban blok, nazvan statički blok (koji se takođe naziva statička klauzula) 
+koji se može koristiti za statičke inicijalizacije klase. Ovaj kod unutar statičkog bloka 
+se izvršava samo jednom: prvi put kada napravite objekat te klase ili prvi put kada 
+pristupite statičkom članu te klase (čak i ako nikada ne napravite objekat te klase). 
+Koristićemo statičke blokove u našim programima za učitavanje i registraciju DB2 JDBC drajvera, 
+kao što je prikazano u gornjem primeru koda.
 
-The `forName` method take a string argument whose value is the name of the package which
-implements the interfaces defined in `java.sql` package.
+Metod `forName` kao argument o\v cekuje nisku \v cija vrednost je naziv paketa koji implementira
+interfejse definisane paketom `java.sql`.
 
-The connection to a database can be obtained by calling the `getConnection` method of
-`DriverManager` class. This method takes a string value (URL) as an input, which gives
-the information required to connect to the database. A typical URL format for Type 4
-driver is:
+Konekcija ka bazi podataka se mo\v ze ostvariti pozivom metoda `getConnection` klase `DriverManager`. 
+Ovaj metod prihvata nisku (URL) kao ulaz, koji sadr\v zi informacije potrebne za povezivanje sa bazom podataka. 
+Metod vraca objekat interfejsa `Connection`, koji se mo\v ze koristiti za upravljanje konekcijom ka bazi podataka. 
+Tipičan format URL-a za drajver tipa 4 je:
 
 ```
-jdbc:db2://<servername>:<port number>/<database name>
+jdbc:db2://<naziv servera>:<broj porta>/<ime baze podataka>
 ```
 
-The connection to a database is closed by calling `close` method of `Connection` class.
-
-The code in the following example returns the connection as `Connection` class object:
+Konekcija ka bazi podataka se raskida pozivom metoda `close` nad objektom interfejsa `Connection`:
 
 ```java
 public static void main(String argv[]) {
     Connection con = null;
     String url = "jdbc:db2://localhost:50000/stud2020";
     
-    // Open database connection
+    // Povezivanje na bazu podataka
     con = DriverManager.getConnection(url, "student", "abcdef");
 
-    // Do something...
+    // Kod programa...
 
-    // Close database connection
+    // Raskidanje konekcije sa bazom podataka
     con.close();
-}
-```
-
-Možemo koristiti i try-with-resources naredbu u okviru koje ćemo otvoriti konekciju. Naredba se stara o otvorenim resursima i na kraju ih automatski zatvara. Neophodno je da deklarisani resursi implementiraju interfejs `AutoClosable`. 
-
-```java
-public static void main(String argv[]) {
-    String url = "jdbc:db2://localhost:50000/stud2020";
-    try (Connection con = DriverManager.getConnection(url, "student", "abcdef")) {
-
-        // Do something...
-    }
 }
 ```
 
 ## 8.2 Obrada SQL grešaka
 
-Just like any Java program, in JDBC, exception handling is done using the try-catch
-block. A DB2 application throws a `SQLException` whenever it encounters a SQL error or
-a `SQLWarning` whenever it encounters a SQL warning when executing SQL statements.
+Kao \v sto znamo iz ranijih poglavlja, naredbe za povezivanje i raskidanje konekcije
+(kao i druge SQL naredbe), mogu proizvesti SQL gre\v ske. U JDBC aplikacijama,
+kao i u svim drugim Java aplikacijama, obrada gre\v saka se vr\v si pomo\'cu izuzetaka i
+`try-catch` blokovima. JDBC aplikacija ispaljuje objekat klase `SQLException` svaki put
+kada do\dj e do SQL gre\v ske ili `SQLWarning` svaki put kada do\dj e do SQL upozorenja
+prilikom izvr\v savanja SQL naredbi. Tako\dj e, svi metodi JDBC API-ja koji mogu dovesti
+do SQL gre\v saka u svom potpisu sadr\v ze klauzulu `throws SQLException`, \v sto zna\v ci
+da je pozive ovakvih metoda neophodno obuhvatiti nekim `try-catch` blokom u programu.
 
-An object of `SQLException` is created and thrown whenever an error occurs while accessing
-the database. The `SQLException` object provides the information listed in Table 11.1.
+Objekat klase `SQLException` sadr\v zi razne korisne informacije o SQL gre\v sci koja je
+podignuta u SUBP, a neke od njih su navedene u narednoj tabeli:
 
-| SQLException information | Description | Method to retrieve this information |
+| Informacija | Opis | Metod koji se koristi za dohvatanje informacije |
 | --- | --- | --- |
-| Message | Textual representation of the error code. | getMessage |
-| SQLState | The SQLState string. | getSQLState |
-| ErrorCode | An integer value that indicates the error which caused the exception to be thrown. | getErrorCode |
+| Poruka | Tekstualna reprezentacija SQL gre\v ske. | `getMessage` |
+| SQLSTATE | SQLState niska. | `getSQLState` |
+| SQLCODE | Celobrojna vrednost koja indikuje vrstu gre\v ske koja je podignuta u SUBP. | `getErrorCode` |
 
-Apart from the above information, the DB2 JCC driver provides an extra interface
-`com.ibm.db2.jcc.DB2Diagnosable`. This interface gives more information regarding the
-error that occurred while accessing the DB2 database.
+Pored navedenih informacija, Db2 JCC drajver pruža dodatni interfejs `com.ibm.db2.jcc.DB2Diagnosable`. 
+Ovaj interfejs daje više informacija u vezi sa greškom koja se dogodila prilikom pristupanja Db2 bazi podataka.
 
-If multiple `SQLExceptions` are thrown, they are chained. The next exception information
-can be retrieved by calling the getNextException method of the current `SQLException`
-object. This method will return null if the current `SQLException` object is last in the
-chain. A while loop in the catch block of the program can be used to retrieve all the
-`SQLException` objects one by one.
+Primer obrade `SQLExpection` izuzetaka dat je narednim kodom:
 
 ```java
 Connection con = null;
 
 try {
-    // Open database connection
-    con = DriverManager.getConnection(url, username, password);
+    // Povezivanje na bazu podataka
+    con = DriverManager.getConnection(url, "student", "abcdef");
 
-    // Do something...
+    // Kod programa...
 
-    // Close database connection
+    // Raskidanje konekcije sa bazom podataka
     con.close();
 }
 catch (SQLException e) {
@@ -159,24 +146,9 @@ catch (SQLException e) {
         "SQLSTATE: " + e.getSQLState() + "\n" +
         "PORUKA: " + e.getMessage());
 
-    // We need to close the database connection,
-    // even if error occures.
-    // Since the close method can also throw SQLException,
-    // we need to catch it,
-    // but not deal with it.
-    try {
-        if (null != con) {
-            con.close();
-        }
-    } catch (SQLException e2) {
-    }
-
-    System.exit(1);
-}
-catch (Exception e) {
-    e.printStackTrace();
-
-    // Same as in above catch clause.
+    // Treba da zatvorimo konekciju ka bazi podataka i u slučaju greške.
+    // S obzirom da metod close takođe može ispaliti SQLException,
+    // potrebno ga je uhvatiti, ali biramo da ga ne obrađujemo dalje.
     try {
         if (null != con) {
             con.close();
@@ -186,27 +158,74 @@ catch (Exception e) {
 
     System.exit(2);
 }
+catch (Exception e) {
+    e.printStackTrace();
+
+    // Isto kao u catch bloku iznad.
+    try {
+        if (null != con) {
+            con.close();
+        }
+    } catch (SQLException e2) {
+    }
+
+    System.exit(3);
+}
 ```
+
+S obzirom da objekti interfejsa `Connection` implementiraju interfejs `AutoCloseable`, možemo koristiti i `try-with-resources` naredbu u okviru koje ćemo otvoriti konekciju. Naredba se stara o otvorenim resursima i na kraju ih automatski zatvara. 
+
+```java
+public static void main(String argv[]) {
+    String url = "jdbc:db2://localhost:50000/stud2020";
+
+    try (
+        Connection con = DriverManager.getConnection(url, "student", "abcdef");
+    ) {
+        // Kod programa...
+    } catch (SQLException e) {
+        e.printStackTrace();
+
+        System.out.println(
+            "SQLCODE: " + e.getErrorCode() + "\n" +
+            "SQLSTATE: " + e.getSQLState() + "\n" +
+            "PORUKA: " + e.getMessage());
+
+        System.exit(2);
+    }
+    catch (Exception e) {
+        e.printStackTrace();
+
+        System.exit(3);
+    }
+}
+```
+
+U slu\v caju da se vi\v se izuzetaka tipa `SQLExceptions` ispali, oni su ulan\v cani.
+Informacija o narednom izuzetku se mo\v ze dobiti pozivom metoda `getNextException` nad
+trenutnim `SQLException` objektom koji se obra\dj uje. Ovaj metod vra\'ca `null` ako je
+teku\'ci `SQLException` objekat poslednji u lancu izuzetaka. Zbog toga se mo\v ze
+koristiti `while` petlja u `catch` bloku programa kako bi se obradili `SQLException` objekti
+jedan-po-jedan.
 
 ## 8.3 Upravljanje podacima
 
-After getting the connection, data can be selected, inserted, updated, or deleted from the
-relational tables using SQL statements. JDBC driver implements two interfaces `Statement`
-and `PreparedStatement` for this purpose. An object of any of these classes is required for
-running an SQL statement.
-
+Nakon ostvarivanja konekcije ka bazi podataka, podaci se mogu dohvatiti, unositi, a\v zurirati
+ili obrisati iz relacionih tabela kori\v s\'cenjem SQL naredbi. JDBC drajver implementira dva 
+interfejsa, `Statement` i `PreparedStatement` za ove potrebe. Objekti jednog od ova dva interfejsa
+su neophodni kako bi se SQL naredbe izvr\v sile nad bazom podataka. U nastavku govorimo o 
+slu\v cajevima upotrebe ovih interfejsa, ali pre toga \'cemo re\'ci ne\v sto o tipovima podataka.
 
 ### 8.3.1 Tipovi podataka
 
-To write efficient JDBC and SQLJ programs, you need to use the best mappings between
-Java™ data types and table column data types.
+Da bismo napisali efikasne JDBC programe, potrebno je da koristimo najbolja preslikavanja između 
+Java tipova podataka i tipova kolona tabela.
 
-Table 9.2 summarizes the mappings of Db2 or IBM Informix data types to Java data types
-for ResultSet.getXXX methods in JDBC programs, and for iterators in SQLJ programs.
-This table does not list Java numeric wrapper object types, which are retrieved using
-ResultSet.getObject.
+Naredna tabela sumira mapiranja Db2 tipova podataka u Java tipove podataka za familiju metoda 
+`ResultSet.getXXX` u JDBC programima. Ova tabela ne navodi tipove Java numeričkih omotača, 
+koji se dohvataju pomoću metoda `ResultSet.getObject`.
 
-| SQL data type | Recommended Java data type or Java object type | Other supported Java data types |
+| SQL tip podataka | Preporu\v ceni Java tip podataka | Drugi podr\v zani Java tipovi podataka |
 | --- | --- | --- |
 | SMALLINT | short | byte, int, long, float, double, java.math.BigDecimal, boolean, java.lang.String |
 | INTEGER | int | short, byte, long, float, double, java.math.BigDecimal, boolean, java.lang.String |
@@ -221,11 +240,9 @@ ResultSet.getObject.
 | TIME | java.sql.Time | java.sql.String, java.sql.Timestamp |
 | TIMESTAMP, TIMESTAMP(p), TIMESTAMP WITH TIME ZONE, TIMESTAMP(p) WITH TIME ZONE | java.sql.Timestamp | java.sql.String, java.sql.Date, java.sql.Time, java.sql.Timestamp |
 
-Table 9.3 summarizes the mappings of Java data types to database data types for PreparedStatement.setXXX or ResultSet.updateXXX methods in JDBC programs, and for
-input host expressions in SQLJ programs. When more than one Java data type is listed,
-the first data type is the recommended data type.
+Naredna tabela sumira preslikavanja Java tipova podataka u Db2 tipove podataka za familije metoda `PreparedStatement.setXXX` i `ResultSet.updateXXX` u JDBC programima. Kada je navedeno više od jednog Java tipa podataka, prvi tip podataka je preporučeni tip podataka.
 
-| Java data type | Database data type |
+| Java tip podataka | Db2 tip podataka |
 | --- | --- |
 | short, java.lang.Short | SMALLINT |
 | boolean, byte, java.lang.Boolean, java.lang.Byte | SMALLINT |
@@ -248,70 +265,87 @@ the first data type is the recommended data type.
 | java.util.Date | TIME |
 | java.util.Date | TIMESTAMP, TIMESTAMP(p), TIMESTAMP WITH TIME ZONE, TIMESTAMP(p) WITH TIME ZONE |
 
-### 8.3.2 Interfejs Statement
+### 8.3.2 Interfejs `Statement`
 
-An object of `Statement` (or class implementing the `Statement` interface) can be used to
-execute the SQL statement which does not contain parameter markers. An object can be
-created from the `Connection` object using `createStatement` method.
+Objekti interfejsa `Statement` mogu se iskoristiti za izvr\v savanje SQL naredbi koji ne 
+sadr\v ze parametarske oznake. Ovi objekti se kreiraju pozivom metoda `createStatement` nad 
+objektima interfejsa `Connection`. Mogu\'ce je kreirati proizvoljan broj objekata `Statement`
+nad jednim objektom `Connection` i svi ti objekti \'ce biti vezani za konekciju koja je
+opisana istim objektom `Connection` (drugim re\v cima, sve te SQL naredbe \'ce biti izvr\v sene
+nad istom bazom podataka).
 
-Any number of statements can be created for a particular connection object.
+Interfejs `Statement` defini\v se dve vrste metoda za izvr\v savanje SQL naredbi. Oba metoda 
+kao prvi parametar o\v cekuju nisku koja sadr\v zi validnu SQL naredbu. U zavisnosti od vrste 
+SQL naredbe, koriste se naredni metodi:
 
-`Statement` interface defines `executeQuery` and `executeUpdate` methods to execute a query
-statement. The `executeQuery` method is used when the result set is expected (for example, for the `SELECT` statement) as output of the query. Alternatively, `executeUpdate`
-method is used for updating the database contents (for example, `INSERT`, `UPDATE`, and
-`DELETE` statements). The `executeQuery` method returns the `ResultSet` object, which represents a set of rows returned by the `SELECT` query. This `ResultSet` object can be used
-to fetch the result row by row. Method `executeUpdate` returns an integer value, which
-indicates the number of rows updated, inserted, or deleted from the database based on
-the type of SQL statement.
+- Metod `executeQuery` se koristi kada se kao rezultat izvr\v savanja SQL naredbe o\v cekuje kursor (na primer, prilikom izvr\v savanja naredbe `SELECT`). Metod `executeQuery` vra\'ca objekat interfejsa `ResultSet`, koji predstavlja skup rezultata koji se vra\'ca naredbom `SELECT`. Objekti interfejsa `ResultSet` mogu se koristiti za prolazak kroz redove rezultuju\'ce tabele.
+- Metod `executeUpdate` se koristi za a\v zuriranje podataka (na primer, `INSERT`, `UPDATE`, `DELETE` i `MERGE` naredbama). Metod `executeUpdate` vra\'ca celobrojnu vrednost, koja indikuje broj redova koji je unet, a\v zuriran ili obrisan u bazi podataka, u zavisnosti od tipa SQL naredbi. Ovaj metod se koristi i u slu\v caju izvr\v savanja DDL naredbi, kao \v sto su `CREATE`, `ALTER`, `DROP`, `GRANT`, `REVOKE` i dr.
 
-The following example illustrates the retrieval of data using the `Statement.executeQuery`
-method. This method returns a result table in a `ResultSet object`. After you obtain the
-result table, you need to use `ResultSet` methods to move through the result table and
-obtain the individual column values from each row.
+U nastavku dajemo dve procedure koje opisuju upotrebu opisanih metoda.
+
+{% include lab/begin-recipe.html naziv="Obrada kursora u JDBC aplikacijama (slu\v caj bez parametarskih oznaka)" %}
 
 Da bismo iterirali kroz rezultuju\'cu tabelu naredbe `SELECT` koja ne sadr\v zi parametarske oznake, potrebno je da ispratimo naredne korake:
 
-1. Kreirati objekat interfejsa `Statement` pozivom metoda
+1. Napisati SQL naredbu kao nisku.
 ```java
-Statement stmt = con.createStatement(...);
+String sql = "SELECT ...";
 ```
-2. Kreirati objekat interfejsa `ResultSet` pozivom metoda
+2. Kreirati objekat interfejsa `Statement` pozivom metoda `Connection.createStatement()`.
+```java
+Statement stmt = con.createStatement();
+```
+3. Kreirati objekat interfejsa `ResultSet` pozivom metoda `Statement.executeQuery(String sql)`.
 ```java
 ResultSet kursor = stmt.executeQuery(sql);
 ```
-3. Pozicionirati se na red koji je potrebno pročitati metodima za prolazak kroz kursor. Na primer:
+4. Pozicionirati se na red koji je potrebno pročitati metodima za prolazak kroz kursor. Na primer:
 ```java
 while (kursor.next()) {
     // ...
 }
 ```
-4. Pozvati odgovarajući metod nad objektom `kursor` iz familije metoda `ResultSet.getXXX(int columnIndex)` za dohvatanje vrednosti iz kolone rezultujuće tabele sa indeksom `columnIndex` 
-5. Eventualno proveriti da li je dohvaćena `NULL` vrednost pozivom `kursor.wasNull()`
-6. Nakon svih iteracija, pozvati metod `kursor.close()` radi zatvaranja kursora
-7. Nakon zatvaranja kursora, pozvati metod `stmt.close()` radi zatvaranja objekta naredbe
+5. Pozvati odgovarajući metod nad objektom interfejsa `ResultSet` iz familije metoda `ResultSet.getXXX(int columnIndex)` za dohvatanje vrednosti iz kolone rezultujuće tabele sa indeksom `columnIndex`. Na primer:
+```java
+while (kursor.next()) {
+    int indeks = kursor.getInt(1);
+    String ime = kursor.getString(2);
+    // ...
+}
+```
+   1. Eventualno proveriti da li je dohvaćena `NULL` vrednost (videti [sekciju o nedostaju\'cim vrednostima](#834-rukovanje-nedostajućim-vrednostima)).
+6. Nakon svih iteracija, pozvati metod `kursor.close()` radi zatvaranja kursora.
+7. Nakon zatvaranja kursora, pozvati metod `stmt.close()` radi zatvaranja objekta naredbe.
+
+{% include lab/end-recipe.html %}
+
+{% include lab/begin-recipe.html naziv="Obrada a\v zuriraju\'cih SQL naredbi u JDBC aplikacijama (slu\v caj bez parametarskih oznaka)" %}
+
+Da bismo izmenili podatke u bazi podataka nekom SQL naredbom bez parametarskih oznaka, potrebno je da ispratimo naredne korake:
+
+1. Napisati SQL naredbu kao nisku.
+```java
+String sql = "DELETE ...";
+```
+2. Kreirati objekat interfejsa `Statement` pozivom metoda `Connection.createStatement()`.
+```java
+Statement stmt = con.createStatement();
+```
+3. Pozvati metod `stmt.executeUpdate(String sql)`.
+```java
+int brojRedova = stmt.executeUpdate(sql);
+```
+4. Pozvati metod `stmt.close()` radi zatvaranja objekta naredbe.
+
+{% include lab/end-recipe.html %}
+
+Naredni zadaci ilustruju opisane procedure na konkretnim primerima.
 
 {% include lab/exercise.html broj="8.1" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji izlistava oznake i nazive svih predmeta koji imaju više od 20 ESPB bodova." %}
 
 Rešenje:
 
 include_source(vezbe/primeri/poglavlje_8/src/zadatak_8_1/Main.java, java)
-
-The `Statement.executeUpdate` is one of the JDBC methods that you can use to update
-tables. You can use the `Statement.executeUpdate` method to do the following things:
-
-- Execute data definition statements, such as `CREATE`, `ALTER`, `DROP`, `GRANT`, `REVOKE`.
-- Execute `INSERT`, `UPDATE`, `DELETE`, and `MERGE` statements that do not contain parameter markers.
-
-Da bismo izvr\v sili ove SQL naredbe bez parametarskih oznaka, potrebno je da ispratimo naredne korake:
-
-1. Kreirati objekat interfejsa `Statement` pozivom metoda
-```java
-Statement stmt = con.createStatement();
-```
-2. Pozvati metod `stmt.executeUpdate(String sql)`
-3. Pozvati metod `stmt.close()` radi zatvaranja objekta naredbe
-
-Method `Statement.executeUpdate` returns an integer which represents the number of updated rows.
 
 {% include lab/exercise.html broj="8.2" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji u tabelu `PREDMET` unosi podatak o predmetu čiji je identifikator 2001, oznaka Pred1, naziv Predmet 1 i nosi `5` ESPB bodova." %}
 
@@ -321,27 +355,104 @@ include_source(vezbe/primeri/poglavlje_8/src/zadatak_8_2/Main.java, java)
 
 ### 8.3.3 Interfejs `PreparedStatement`
 
-An object of `PreparedStatement` (or a class implementing the `PreparedStatement` interface)
-can be used to run the queries, which can contain parameter markers. A `PreparedStatement` object can be created using the `prepareStatement` method of `Connection` object.
-`PreparedStatement` extends the `Statement` interface.
+Objekti interfejsa `PreparedStatement` obavezno se koriste u slu\v caju kada SQL naredbe sadr\v ze
+parametarske oznake. `PreparedStatement` objekti se kreiraju pozivom metoda `prepareStatement` nad objektima `Connection`.
+Za razliku od metoda `createStatement`, metod `prepareStatement` o\v cekuje jedan parametar,
+a to je niska koja predstavlja SQL naredbu sa parametarskim oznakama, za koju \'ce biti izvr\v sena priprema.
+Pun potpis ovog metoda je:
 
-If the SQL statement contains parameter markers, the values for these parameter markers
-need to be set before executing the statement. Value can be set using `setXXX` methods
-of `PreparedStatement` object where `XXX` denoted the data type of the parameter marker.
-`setXXX` methods are also called setter methods.
+```java
+PreparedStatement prepareStatement(String sql) throws SQLException
+```
 
-The following are the examples of setXXX methods:
+Postavljanje vrednosti parametarskim oznakama se vr\v si pozivom nekog metoda iz familije
+`PreparedStatement.setXXX`, gde `XXX` ozna\v cava tip parametarske oznake koja se postavlja.
+Neki od primera `setXXX` metoda su:
 
-- setInt,
-- setString,
-- setDouble,
-- setBytes,
-- setClob,
-- setBlob
+- `setInt`,
+- `setString`,
+- `setDouble`,
+- `setBytes`,
+- `setClob`,
+- `setBlob`
 - ...
 
-After setting the parameter values, the SQL statement can be executed using any of the
-`executeQuery`, `executeUpdate`, or `execute` method based on the SQL type.
+Nakon postavljanja vrednosti parametara, SQL naredba se mo\v ze izvr\v siti pozivom nekog
+od ve\'c opisanih metoda `executeQuery` ili `executeUpdate`, zavisno od vrste SQL naredbe.
+Za razliku od istoimenih metoda interfejsa `Statement`, ovi metodi se pozivaju bez prosle\dj ivanja
+SQL naredbe (s obzirom da smo naredbu ve\'c prosledili prilikom konstrukcije `PreparedStatement` objekta).
+
+Naredne procedure opisuju korake neophodne za kori\v s\'cenje interfejsa `PreparedStatement`.
+
+{% include lab/begin-recipe.html naziv="Obrada kursora u JDBC aplikacijama (slu\v caj sa parametarskim oznakama)" %}
+
+Da bismo iterirali kroz rezultuju\'cu tabelu naredbe `SELECT` koja sadr\v zi parametarske oznake, potrebno je da ispratimo naredne korake:
+
+1. Napisati SQL naredbu kao nisku.
+```java
+String sql = "SELECT ... WHERE INDEKS = ? AND IME = ? ...";
+```
+2. Kreirati objekat interfejsa `PreparedStatement` pozivom metoda `Connection.prepareStatement(String sql)`.
+```java
+PreparedStatement stmt = con.prepareStatement(sql);
+```
+3. Pozvati odgovarajući metod iz familije metoda `PreparedStatement.setXXX(int parameterIndex, XXX x)` 
+za postavljanje vrednosti parametarske oznake u naredbi. Na primer:
+```java
+stmt.setInt(1, 20200134);
+stmt.setString(2, "Ivana");
+```
+4. Kreirati objekat interfejsa `ResultSet` pozivom metoda `PreparedStatement.executeQuery()`.
+```java
+ResultSet kursor = stmt.executeQuery();
+```
+5. Pozicionirati se na red koji je potrebno pročitati metodima za prolazak kroz kursor. Na primer:
+```java
+while (kursor.next()) {
+    // ...
+}
+```
+6. Pozvati odgovarajući metod iz familije metoda `ResultSet.getXXX(int columnIndex)` za dohvatanje vrednosti 
+iz kolone rezultujuće tabele sa indeksom `columnIndex`. Na primer:
+```java
+while (kursor.next()) {
+    int indeks = kursor.getInt(1);
+    String ime = kursor.getString(2);
+    // ...
+}
+```
+   1. Eventualno proveriti da li je dohvaćena `NULL` vrednost (videti [sekciju o nedostaju\'cim vrednostima](#834-rukovanje-nedostajućim-vrednostima)).
+7. Nakon svih iteracija, pozvati metod `kursor.close()` radi zatvaranja kursora.
+8. Nakon zatvaranja kursora, pozvati metod `stmt.close()` radi zatvaranja objekta naredbe.
+
+{% include lab/end-recipe.html %}
+
+{% include lab/begin-recipe.html naziv="Obrada a\v zuriraju\'cih SQL naredbi u JDBC aplikacijama (slu\v caj sa parametarskim oznakama)" %}
+
+Da bismo izmenili podatke u bazi podataka nekom SQL naredbom sa parametarskim oznakama, potrebno je da ispratimo naredne korake:
+
+1. Napisati SQL naredbu kao nisku.
+```java
+String sql = "DELETE ... WHERE INDEKS = ? ...";
+```
+2. Kreirati objekat interfejsa `PreparedStatement` pozivom metoda `Connection.prepareStatement(String sql)`.
+```java
+PreparedStatement stmt = con.prepareStatement(sql);
+```
+3. Pozvati odgovarajući metod iz familije metoda `PreparedStatement.setXXX(int parameterIndex, XXX x)` 
+za postavljanje vrednosti parametarske oznake u naredbi. Na primer:
+```java
+stmt.setInt(1, 20200134);
+```
+4. Pozvati metod `stmt.executeUpdate()`.
+```java
+int brojRedova = stmt.executeUpdate();
+```
+5. Pozvati metod `stmt.close()` radi zatvaranja objekta naredbe.
+
+{% include lab/end-recipe.html %}
+
+Naredni zadaci demonstriraju upotrebu interfejsa `PreparedStatement`.
 
 {% include lab/exercise.html broj="8.3" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji učitava dva cela broja, X i Y, a zatim svim predmetima koji imaju X ESPB bodova, postavlja broj bodova na Y. Nakon toga ispisati broj ažuriranih redova." %}
 
@@ -504,7 +615,11 @@ try (Scanner scanner = new Scanner(System.in)) {
 }
 ```
 
-Drugi pristup podrazumeva kori\v s\'cenje specifi\v cnih metoda radi a\v zuriranja podataka u kursoru, \v cime se efektivno vr\v si a\v zuriranje u bazi podataka. Naredni koraci opisuju postupak a\v zuriranja postoje\'cih slogova u `ResultSet`:
+Drugi pristup podrazumeva kori\v s\'cenje specifi\v cnih metoda radi a\v zuriranja podataka u kursoru, \v cime se efektivno vr\v si a\v zuriranje u bazi podataka. 
+
+{% include lab/begin-recipe.html naziv="A\v zuriranje slogova pomo\'cu a\v zuriraju\'cih kursora" %}
+
+Naredni koraci opisuju postupak a\v zuriranja postoje\'cih slogova u `ResultSet`:
 
 1. Kreirati objekat interfejsa `Statement` pozivom metoda 
 ```java
@@ -517,14 +632,31 @@ ResultSet kursor = stmt.executeQuery(sql);
 3. Pozicionirati se na slog koji je potrebno ažurirati metodima za prolazak kroz kursor. Na primer:
 ```java
 while (kursor.next()) {
+    kursor.absolute(5); // Samo ako kursor nije tipa TYPE_FORWARD_ONLY
     // ...
 }
 ```
-4. Pozvati odgovarajući metod nad objektom `kursor` iz familije metoda `ResultSet.updateXXX(int columnIndex, XXX x)` za ažuriranje vrednosti kolone tabele sa indeksom `columnIndex` novom vrednošću `x`
-5. Ako želimo da poništimo izmene, možemo pozvati metod `kursor.cancelRowUpdates()`
-6. Ukoliko želimo da zapravo izvršimo izmene nad slogom u BP, potrebno je da pozovemo metod `kursor.updateRow()`. U suprotnom će, prelaskom na drugi red, sve izmene biti ignorisane
-7. Nakon svih iteracija, pozvati metod `kursor.close()` radi zatvaranja kursora
-8. Nakon zatvaranja kursora, pozvati metod `stmt.close()` radi zatvaranja objekta naredbe
+4. Pozvati odgovarajući metod iz familije metoda `ResultSet.updateXXX(int columnIndex, XXX x)` za ažuriranje vrednosti kolone tabele sa indeksom `columnIndex` novom vrednošću `x`.
+```java
+kursor.updateInt(1, 100);
+```
+   1. Ako želimo da poništimo izmene, možemo pozvati metod `kursor.cancelRowUpdates()`
+   1. Ukoliko želimo da zapravo izvršimo izmene nad slogom u BP, potrebno je da pozovemo metod `ResultSet.updateRow()`. U suprotnom će, prelaskom na drugi red, sve izmene biti ignorisane.
+```java
+kursor.updateRow();
+```
+7. Nakon svih iteracija, zatvoriti kursor.
+```java
+kursor.close();
+```
+8. Nakon zatvaranja kursora, zatvoriti naredbu.
+```java
+stmt.close();
+```
+
+{% include lab/end-recipe.html %}
+
+Pogledajmo primer upotrebe u narednom zadatku.
 
 {% include lab/exercise.html broj="8.7" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji ispisuje sadržaj tabele
 `PREDMET` i, u istoj iteraciji, ukoliko je broj bodova jednak X, postavlja se broj bodova na
@@ -545,22 +677,43 @@ Konstrukcija novog sloga se vrši u dva koraka:
 
 Unos baferisanog "slogu za unos" se izvr\v sava pozivom metoda `void ResultSet.insertRow()`. Me\dj utim, da bismo zapravo uspeli da konstrui\v semo ovaj specijalni slog, neophodno je da signaliziramo kursoru da \v zelimo da menjamo ba\v s taj red, a ne teku\'ci red kroz koji se iterira u kursoru. Ovo je mogu\'ce uraditi pozivom metoda `void ResultSet.moveToInsertRow()`. Prilikom poziva ovog metoda, kursor se pozicionira na "slog za unos" i ujedno se pamti redni broj tekućeg sloga koji se obrađuje u kursoru. Nakon \v sto smo zavr\v sili proceduru za unos opisanu prethodnim koracima, potrebno je pozvati metod `void ResultSet.moveToCurrentRow()` koji \'ce ponovo pozicionirati kursor na prethodno zapamćeni tekući slog koji se obrađuje u kursoru.
 
-Dakle, celokupna procedura za unos novog sloga je data narednim koracima:
+{% include lab/begin-recipe.html naziv="Unos slogova pomo\'cu a\v zuriraju\'cih kursora" %}
 
-1. Kreirati objekat interfejsa `Statement` pozivom metoda 
+Celokupna procedura za unos novog sloga je data narednim koracima:
+
+1. Kreirati objekat interfejsa `Statement` za rad sa a\v zuriraju\'cim kursorima. 
 ```java
 Statement stmt = con.createStatement(..., ResultSet.CONCUR_UPDATABLE, ...);
 ```
-2. Kreirati objekat interfejsa `ResultSet` pozivom metoda 
+2. Kreirati objekat interfejsa `ResultSet`. 
 ```java
 ResultSet kursor = stmt.executeQuery(sql);
 ```
-3. Pozicionirati se na "slog za unos" pozivom metoda `kursor.moveToInsertRow()`
-4. Pozvati odgovarajući metod nad objektom `kursor` iz familije metoda `ResultSet.updateXXX(int columnIndex, XXX x)` za postavljanje vrednosti kolone "sloga za unos" sa indeksom `columnIndex` novom vrednošću `x`
-5. Ukoliko želimo da zapravo unesemo novi slog u BP, potrebno je da pozovemo metod `kursor.insertRow()`. U suprotnom će, prelaskom na drugi red, sve izmene biti ignorisane
-6. Pozicionirati se na tekući slog u rezultujućoj tabeli kursora pozivom metoda `kursor.moveToCurrentRow()`
-7. Nakon svih iteracija, pozvati metod `kursor.close()` radi zatvaranja kursora
-8. Nakon zatvaranja kursora, pozvati metod `stmt.close()` radi zatvaranja objekta naredbe
+3. Otvoriti kursor i pozicionirati se na "slog za unos". 
+```java
+while (kursor.next()) {
+    kursor.moveToInsertRow();
+    // ...
+}
+```
+4. Pozvati odgovarajući metod iz familije metoda `ResultSet.updateXXX(int columnIndex, XXX x)` za postavljanje vrednosti kolone "sloga za unos" sa indeksom `columnIndex` novom vrednošću `x`. Na primer:
+```java
+kursor.setInt(1, 100);
+```
+5. Ukoliko želimo da zapravo unesemo novi slog u BP, potrebno je da pozovemo metod `ResultSet.insertRow()`. U suprotnom će, prelaskom na drugi red, sve izmene biti ignorisane.
+```java
+kursor.insertRow();
+```
+6. Pozicionirati se na tekući slog u rezultujućoj tabeli kursora pozivom metoda `ResultSet.moveToCurrentRow()`.
+```java
+kursor.moveToCurrentRow();
+```
+7. Nakon svih iteracija, pozvati metod `kursor.close()` radi zatvaranja kursora.
+8. Nakon zatvaranja kursora, pozvati metod `stmt.close()` radi zatvaranja objekta naredbe.
+
+{% include lab/end-recipe.html %}
+
+Naredni zadatak ilustruje upotrebu opisane procedure.
 
 {% include lab/exercise.html broj="8.8" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji:
 1. Kreira tabelu `UNETIPREDMETI` \v cije su kolone: (1) identifikator predmeta i (2) broj polo\v zenih ispita za taj predmet. Postaviti odgovaraju\'ce primarne i strane klju\v ceve.
@@ -605,19 +758,24 @@ while (rs.next()) {
 }
 ```
 
-Brisanje sloga iz objekta `ResultSet` je jednostavnije nego a\v zuriranje ili unos sloga. Naredni koraci defini\v su operaciju brisanja sloga iz kursora:
+Brisanje sloga iz objekta `ResultSet` je jednostavnije nego a\v zuriranje ili unos sloga. 
 
-1. Kreirati objekat interfejsa `Statement` pozivom metoda
+{% include lab/begin-recipe.html naziv="Brisanje slogova pomo\'cu a\v zuriraju\'cih kursora" %}
+
+Naredni koraci defini\v su operaciju brisanja sloga iz kursora:
+
+1. Kreirati objekat interfejsa `Statement` za rad sa bri\v su\'cim kursorima.
 ```java
 Statement stmt = con.createStatement(..., ResultSet.CONCUR_UPDATABLE, ...);
 ```
-2. Kreirati objekat interfejsa `ResultSet` pozivom metoda 
+2. Kreirati objekat interfejsa `ResultSet`.
 ```java
 ResultSet kursor = stmt.executeQuery(sql);
 ```
 3. Pozicionirati se na slog koji je potrebno obrisati metodima za prolazak kroz kursor. Na primer:
 ```java
 while (kursor.next()) {
+    kursor.absolute(5); // Samo ako kursor nije tipa TYPE_FORWARD_ONLY
     // ...
 }
 ```
@@ -625,10 +783,11 @@ while (kursor.next()) {
 5. Nakon svih iteracija, pozvati metod `kursor.close()` radi zatvaranja kursora
 6. Nakon zatvaranja kursora, pozvati metod `stmt.close()` radi zatvaranja objekta naredbe
 
-The `deleteRow()` method deletes the row from the `ResultSet` and, at the same time, it
-deletes the row from the database. There is no way to cancel the delete operation except
-by rolling back the transaction. If the auto-commit mode is enabled on the `Connection`,
-`deleteRow()` will permanently delete the row from the database.
+{% include lab/end-recipe.html %}
+
+Metod `deleteRow()` bri\v se onaj red na koji je `ResultSet` pozicioniran. Ne postoji na\v cin
+da se operacija brisanja poni\v sti (osim poni\v stavanjem transakcije, o \v cemu \'ce biti 
+vi\v se re\v ci u narednom poglavlju).
 
 {% include lab/exercise.html broj="8.9" tekst="Napisati Java program u kojem se naredbe izvr\v savaju dinami\v cki koji briše sve nepoložene ispite u \v skolskoj godini koja se zadaje sa standarnog ulaza. Nakon svakog brisanja ispita, ispisati naredne informacije o njemu na standardni izlaz: indeks, oznaku roka, \v skolsku godinu i identifikator predmeta." %}
 
