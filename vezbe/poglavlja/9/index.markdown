@@ -9,57 +9,63 @@ kao i povezivanje na više baza podataka u JDBC aplikacijama.
 
 ## 9.1 Transakcioni rad
 
-JDBC supports the following concepts:
+JDBC podr\v zava naredne koncepte za upravljanje transakcijama:
 
-- Setting the Auto-Commit Mode
-- Transaction isolation level
-- Savepoints
+- Re\v zim automatskog potvr\dj ivanja izmena
+- Pode\v savanje nivoa izolovanosti transakcija
+- Ta\v cke \v cuvanja
 
-### 9.1.1 Auto-Commit Mode
+### 9.1.1 Re\v zim automatskog potvr\dj ivanja izmena
 
-When you connect to a database, the auto-commit property for the `Connection` object
-is set to `true` by default. If a connection is in the auto-commit mode, a SQL statement
-is committed automatically after its successful execution. If a connection is not in the
-auto-commit mode, you must call the `commit()` or `rollback()` method of the `Connection`
-object to commit or roll back a transaction. Typically, you disable the auto-commit mode
-for a connection in a JDBC application, so the logic in your application controls the
-final outcome of the transaction. To disable the auto-commit mode, you need to call the
-`setAutoCommit(false)` on the `Connection` object after a connection has been established.
-If a connection URL allows you to set the auto-commit mode, you can also specify it as
-part of the connection URL. You set the auto-commit mode of your connection in the
-`JDBCUtil.getConnection()` method to false after you get a `Connection` object.
+Prilikom povezivanja na bazu podataka, JDBC drajver podrazumevano postavlja svojstvo
+objekta interfejsa `Connection` automatskog potvr\dj ivanja izmena na `true`. Ako je
+konekcija pode\v sena u re\v zimu automatskog potvr\dj ivanja izmena, onda \'ce svaka
+SQL naredba koja se izvr\v si nad bazom podataka biti u isto vreme i potvr\dj ena (u
+slu\v caju uspe\v snog izvr\v senja te naredbe) ili poni\v stena (u slu\v caju 
+neuspe\v snog izvr\v senja te naredbe).
+
+Ovo pona\v sanje nam \v cesto nije po\v zeljno, s obzirom da je neophodno da sami
+defini\v semo koje sve SQL naredbe predstavljaju deo transakcija u aplikacijama. Zbog
+toga, potrebno je isklju\v citi re\v zim automatskog potvr\dj ivanja izmena. Ovo se
+izvr\v sava pozivom metoda `Connection.setAutoCommit(boolean autoCommit)` i 
+prosle\d jivanjem vrednosti `false`, nakon \v sto se konekcija ka bazi podataka uspe\v sno
+uspostavi.
 
 ```java
-// Get a connection
+// Dohvatanje konekcije
 Connection con = DriverManager.getConnection(dbURL, userId, password);
 
-// Set the auto-commit off
+// Isklju\v civanje re\v zima automatskog potvr\dj ivanja izmena
 con.setAutoCommit(false);
 ```
 
-If the `setAutoCommit()` method is called to change the auto-commit mode of a connection
-in the middle of a transaction, the transaction is committed at that time. Typically, you
-would set the auto-commit mode of a connection just after connecting to the database.
+Ako se metod `setAutoCommit` poziva da bi se promenio re\v zim automatskog potvr\dj ivanja 
+izmena u toku izvr\v savanja neke transakcije, ta transakcija \'ce biti potvr\dj ena u tom
+trenutku. Zbog toga \v sto ovakvo pona\v sanje mo\v ze dovesti do neo\v cekivanih pona\v sanja
+u odnosu na poslovnu logiku aplikacije, obi\v cno se re\v zim automatskog potvr\dj ivanja 
+izmena postavlja odmah nakon povezivanja na bazu podataka, kao u primeru koda iznad.
 
-#### Committing and Rolling Back Transactions
+#### Potvr\dj ivanje i poni\v stavanje izmena u transakcijama
 
-If the auto-commit mode is disabled for a connection, you can use the `commit()` or `rollback()`
-method to commit or roll back a transaction. Typical code in a JDBC application
-that performs a database transaction is as shown:
+Jednog kada je re\v zim automatskog potvr\dj ivanja izmena isklju\v cen, na raspolaganju
+su nam metodi `Connection.commit()` i `Connection.rollback()` kojima se upravlja du\v zina
+trajanja i uspe\v snost transakcija.
+
+Uobi\v cajeni kod u JDBC aplikacijama koji izvr\v sava transakciju nad bazom podataka je
+dat u nastavku:
 
 ```java
-// Get a connection
-Connection con = DriverManager.getConnection(dbURL, userId, password);
-// Set the auto-commit off
-con.setAutoCommit(false);
+try (
+    // Get a connection
+    Connection con = DriverManager.getConnection(dbURL, userId, password);
+) {
+    // Set the auto-commit off
+    con.setAutoCommit(false);
 
-try {
     // Perform database transaction activities here
     
     // Successful scenario:
     con.commit();
-    // Close the connection
-    con.close();
 }
 catch (SQLException e) {
     System.out.println("An error occured: " + e.getMessage());
@@ -68,13 +74,13 @@ catch (SQLException e) {
     try {
         // Unsuccessful scenario:
         con.rollback();
-        // Close the connection
-        con.close();
     }
-    catch (SQLException e) {
-    }
+    catch (SQLException e) {}
 
-    System.exit(1);
+    System.exit(2);
+}
+catch (Exception e) {
+    // ...
 }
 ```
 
@@ -90,26 +96,26 @@ Re\v senje:
 
 include_source(vezbe/primeri/poglavlje_9/src/zadatak_9_1/Main.java, java)
 
-### 9.1.2 Transaction Isolation Level
+### 9.1.2 Nivoi izolacije transakcija
 
-The ANSI SQL-92 standard defines four transaction isolation levels in terms of the data
-consistency. Each isolation level defines what kinds of data inconsistencies are allowed, or
-not allowed. The four transaction isolation levels are as follows:
+ANSI SQL-92 standard defini\v se \v cetiri nivoa izolacije transakcija u terminima
+konzistentnosti podataka. Svaki nivo izolacije defini\v se koje vrste nekonzistentnosti
+podataka jesu ili nisu dozvoljene. Ovi nivoi su:
 
 - Read uncommitted
 - Read committed
 - Repeatable read
 - Serializable
 
-Java defines the following four constants in the `Connection` interface that correspond to
-the four isolation levels defined by the ANSI SQL-92 standard:
+JDBC standard defini\v se naredne \v cetiri stati\v cke konstante interfejsa `Connection` 
+koji odgovaraju nivoima izolacije ANSI SQL-92 standarda, redom:
 
 - `TRANSACTION_READ_UNCOMMITTED`
 - `TRANSACTION_READ_COMMITTED`
 - `TRANSACTION_REPEATABLE_READ`
 - `TRANSACTION_SERIALIZABLE`
 
-You can set the isolation level of a transaction for a database connection using the `setTransactionIsolation(int level)` method of the `Connection` interface.
+Postavljanje nivoa izolacije transakcija za bazu podataka se mo\v ze izvr\v siti pozivom metoda `Connection.setTransactionIsolation(int level)`.
 
 ```java
 // Get a Connection object
@@ -129,18 +135,23 @@ S obzirom da \'cemo menjati odgovaraju\'cu tabelu, naredbu `stmt` koja se korist
 
 include_source(vezbe/primeri/poglavlje_9/src/zadatak_9_2/Main.java, java)
 
-### 9.1.3 Savepoints in a Transaction
+### 9.1.3 Ta\v cke \v cuvanja u transakciji
 
-A database transaction consists of one or more changes as a unit of work. A savepoint in
-a transaction is like a marker that marks a point in a transaction so that, if needed, the
-transaction can be rolled back (or undone) up to that point.
+Kao \v sto znamo, transakcija u bazi podataka se sadr\v zi od jedne ili vi\v se izmena u 
+okviru jedne jedinice posla. Poni\v stavanje transakcije podrazumevano poni\v stava sve
+izmene definisane u toj jedinici posla.
 
-An object of the `Savepoint` interface represents a savepoint in a transaction. To mark a
-savepoint in a transaction, you simply call the `setSavepoint()` method of the `Connection`.
-The `setSavepoint()` method is overloaded. One version accepts no argument and another
-accepts a string, which is the name of the savepoint. The `setSavepoint()` method returns
-a `Savepoint` object, which is your marker and you must keep it for future use. Here’s an
-example:
+Ta\v cka \v cuvanja predstavlja marker koji odre\dj uje ta\v cku u transakciji do koje se
+mogu poni\v stiti izmene. Drugim re\v cima, poni\v stavanje transakcije do neke ta\v cke
+\v cuvanja \'ce poni\v stiti samo one izmene koje su nastale nakon te ta\v cke \v cuvanja
+(a one koje su nastale pre ta\v cke \v cuvanja \'ce ostati neponi\v stene).
+
+U JDBC aplikacijama, ta\v cke \v cuvanja se reprezentuju objektima interfejsa `Savepoint`.
+Kako bi se markirala ta\v cka u teku\'coj transakciji, potrebno je pozvati metod
+`Connection.setSavepoint()`. Ovaj metod kreira novu, neimenovanu ta\v cku \v cuvanja u
+teku\'coj transakciji i vra\'ca objekat interfejsa `Statement` koji je reprezentuje.
+Ovaj objekat se koristi za upravljanje ta\v ckom \v cuvanja nadalje. Naredni primer
+ilustruje kreiranje nekoliko ta\v caka \v cuvanja u okviru transakcije:
 
 ```java
 Connection con = DriverManager.getConnection(dbURL, userId, password);
@@ -148,39 +159,48 @@ con.setAutoCommit(false);
 
 Statement stmt = con.createStatement();
 
-stmt.execute("insert into person values ('John', 'Doe')");
+stmt.executeUpdate("insert into person values ('John', 'Doe')");
 Savepoint sp1 = con.setSavepoint(); // 1
 
-stmt.execute("insert into person values ('Jane', 'Doe')");
+stmt.executeUpdate("insert into person values ('Jane', 'Doe')");
 Savepoint sp2 = con.setSavepoint(); // 2
 
-stmt.execute("insert into person values ('Another', 'Unknown')");
+stmt.executeUpdate("insert into person values ('Another', 'Unknown')");
 Savepoint sp3 = con.setSavepoint(); // 3
 ```
 
-At this point, you have finer control on the transaction if you want to undo any of these
-three inserts into the person table. Now you can use another version of the `rollback()`
-method of the `Connection`, which accepts a `Savepoint` object. If you want to undo all
-changes that were made after savepoint 1, you can do so as follows:
+Nakon kreiranja poslednje ta\v cke \v cuvanja, korisnik ima opciju da poni\v sti izmene
+do bilo koje od ta\v caka \v cuvanja `spX`. Da bi se ova akcija ostvarila, potrebno je
+pozvati metod `Connection.rollback(Savepoint savepoint)` \v ciji argument defini\v se
+ta\v cku \v cuvanja do koje se vr\v si poni\v stavanje transakcije. Na primer, ako bismo
+\v zeleli da poni\v stimo sve izmene nakon ta\v cke \v cuvanja 1, iskoristili bismo poziv:
 
 ```java
 // Rolls back inserts 2 and 3
 con.rollback(sp1);
 ```
 
-Once you roll back up to a savepoint (say, `spx`), all savepoints that were created after the
-savepoint spx are released and you cannot refer to them again. If you refer to a released
-savepoint, the JDBC driver will throw a `SQLException`. The following snippet of code
-will throw a `SQLException`:
+Va\v zno je napomenuti da jednom kad smo poni\v stili izmene do neke ta\v cke \v cuvanja, 
+(recimo, `sp1`), sve ta\v cke \v cuvanja koje su kreirane nakon ove ta\v cke \v cuvanja
+(`sp2` i `sp3`) bi\'ce oslobo\dj ene i ne bi trebalo referisati na njih nadalje. Poku\v saj
+da se oslobodi ve\'c oslobo\dj ena ta\v cka \v cuvanja rezultuje ispaljivanjem izuzetka 
+`SQLException`. Na primer, naredni kod \'ce ispaliti izuzetak `SQLException` (pod 
+pretpostavkom da prethodno nisu oslobo\dj ene ta\v cke \v cuvanja `sp1` i `sp2`):
 
 ```java
 con.rollback(sp2); // Will release sp3
 con.rollback(sp3); // Will throw an exception: sp3 is already released.
 ```
 
-Note that when you roll back a transaction to a savepoint, that savepoint itself is not
-released. When you call, for example, `con.rollback(sp2)`, savepoint `sp2` remains valid. You
-can add more savepoints afterward and roll back up to savepoint `sp2` again.
+Primetimo da prilikom poni\v stavanja transakcije do neke ta\v cke \v cuvanja,
+sama ta\v cka \v cuvanja do koje se izvr\v silo poni\v stavanje ne\'ce biti oslobo\dj ena.
+Na primer, u primeru koda iznad, ta\v cka \v cuvanja `sp2` je ostala aktivna i korisnik
+mo\v ze ponovo poni\v stiti izmene do nje. 
+
+```java
+con.rollback(sp2); // OK
+con.rollback(sp2); // OK
+```
 
 {% include lab/exercise.html broj="9.3" tekst="Napisati Java program u kojem se SQL naredbe izvr\v savaju dinami\v cki koji pronalazi indekse i nazive predmeta za sva polaganja koja su bila neuspe\v sna. Sortirati podatke po indeksu rastu\'ce. Obezbediti da aplikacija bri\v se podatke o najvi\v se 10 studenata. Jednu transakciju \v cine brisanja za sve prona\dj ene studente. Prilikom obrade podataka, ispisati informacije o indeksu studenta, a zatim prikazati nazive predmeta za obrisana polaganja tog studenta. Nakon brisanja podataka o jednom studentu, upitati korisnika da li \v zeli da poni\v sti izmene za tog studenta (voditi ra\v cuna da brisanja za sve prethodne studente ostanu nepromenjena)." %}
 
