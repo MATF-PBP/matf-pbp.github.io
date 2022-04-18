@@ -698,7 +698,7 @@ while (kursor.next()) {
 ```
 4. Pozvati odgovarajući metod iz familije metoda `ResultSet.updateXXX(int columnIndex, XXX x)` za postavljanje vrednosti kolone "sloga za unos" sa indeksom `columnIndex` novom vrednošću `x`. Na primer:
 ```java
-kursor.setInt(1, 100);
+kursor.updateInt(1, 100);
 ```
 5. Ukoliko želimo da zapravo unesemo novi slog u BP, potrebno je da pozovemo metod `ResultSet.insertRow()`. U suprotnom će, prelaskom na drugi red, sve izmene biti ignorisane.
 ```java
