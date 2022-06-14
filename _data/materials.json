@@ -12,16 +12,15 @@
                 "link": "http://poincare.matf.bg.ac.rs/~gordana//UvodRBP/FINALE.pdf"
             }
         ],
-        "classes": [],
-        "webex": [
-            {
-                "day": "Sreda",
-                "groups": ["3I", "4R"],
-                "time": "15h - 17h",
-                "teacher": "Nina Radojičić Matić",
-                "link": "https://matf.webex.com/meet/nina"
+        "classes": [{
+                "studyprogram": "Snimci sa predavanja",
+                "lectures": [
+                    "Linkove možete pronaći u obaveštenjima na Hypatiji"
+                ]
             }
-        ]
+
+	  ],
+        "webex": []
     },
     "lab": {
         "bibliography": [
