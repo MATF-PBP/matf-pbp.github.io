@@ -1,7 +1,7 @@
 ---
 layout: notification
 title: "Rezultati ispita u roku JAN PS"
-time: "00:00"
+time: "09:40"
 ---
 
 Rezultate ispita u roku JAN PS možete pogledati [ovde](../../../ispiti/rezultati/teorija/janps.pdf).
