@@ -7,27 +7,16 @@
             "image": "/resources/images/nina.jpg"
         },
         {
-            "name": "Nikola Ajzenhamer",
-            "website": "https://matf.nikolaajzenhamer.rs",
-            "type": "Vežbe",
-            "image": "/resources/images/nikola_ajzenhamer.jpg",
-            "officeHours": {
-                "type": "link",
-                "link": "https://matf.nikolaajzenhamer.rs//2022/02/21/nastava-u-letnjem-semestru",
-                "text": "Konsultacije"
-            }
-        },
-        {
-            "name": "Anja Bukurov",
-            "website": "http://www.math.rs/~anja_bukurov",
-            "type": "Vežbe",
-            "image": "/resources/images/anja_bukurov.jpg"
-        },
-        {
             "name": "Boris Cvitak",
             "website": "http://www.matf.bg.ac.rs/p/-boris-cvitak",
             "type": "Vežbe",
             "image": "/resources/images/boris_cvitak.jpg"
+        },
+        {
+            "name": "Luka Jovičić",
+            "website": "http://www.matf.bg.ac.rs/~luka.jovicic",
+            "type": "Vežbe",
+            "image": "/resources/images/luka_jovicic.jpg"
         }
     ]
 }
