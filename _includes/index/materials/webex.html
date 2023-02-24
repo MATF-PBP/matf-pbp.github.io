@@ -14,7 +14,7 @@
 
  -->
 
- <h4>Informacije za pristupanje časovima onlajn</h4>
+ <h4>Termini časova:</h4>
 
  {% if include.webex.size > 0 %}
  <div class="ui list">
@@ -26,7 +26,8 @@
             <ul>
                 <li>Grupe: {{ webexData.groups | join: ', ' }}</li>
                 <li>Nastavnik: {{ webexData.teacher }}</li>
-                <li>Link: <a href="{{ webexData.link }}">{{ webexData.link }}</a></li>
+                <li>Lokacija: {{ webexData.location }}</li>
+                <!-- <li>Link: <a href="{{ webexData.link }}">{{ webexData.link }}</a></li> -->
                 {% if webexData.password %}
                 <li>Šifra: {{ webexData.password }}</li>
                 {% endif %}
