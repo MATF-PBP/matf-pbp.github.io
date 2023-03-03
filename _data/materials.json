@@ -31,6 +31,11 @@
             },
             {
                 "type": "link",
+                "title": "Snimci vežbi",
+                "link": "http://enastava.matf.bg.ac.rs/~boris_cvitak/"
+            },
+            {
+                "type": "link",
                 "title": "Informacije o softveru koji se koristi na kursu",
                 "link": "https://docs.google.com/document/d/1oj8Pwr5T2f_Hx9dnz3NoYbV9hxY_Obru2_oFQNWIxNI/edit?usp=sharing"
             },
@@ -103,14 +108,14 @@
             {
                 "teacher": "Boris Cvitak",
                 "day": "Utorak",
-                "groups": ["3I1"],
+                "groups": ["3I1, 4R"],
                 "time": "8h - 11h",
                 "location": "N201"
             },
             {
                 "teacher": "Boris Cvitak",
                 "day": "Petak",
-                "groups": ["4R"],
+                "groups": ["3I1, 4R"],
                 "time": "12h - 14h",
                 "location": "718"
             },
