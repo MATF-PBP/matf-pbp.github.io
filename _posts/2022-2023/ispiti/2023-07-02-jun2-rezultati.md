@@ -1,7 +1,7 @@
 ---
 layout: notification
 title: "Rezultati ispita u roku Jun 2"
-time: "18:80"
+time: "18:50"
 ---
 Rezultate ispita u roku Jun 2 možete pogledati [ovde](../../../ispiti/rezultati/ukupno/jun2.pdf).
 
