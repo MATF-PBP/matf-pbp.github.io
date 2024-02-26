@@ -106,25 +106,32 @@
         ],
         "webex": [
             {
-                "teacher": "Boris Cvitak",
+                "teacher": "Isidora Burmaz",
+                "day": "Ponedeljak",
+                "groups": ["3I1A"],
+                "time": "8h - 11h",
+                "location": "BIM"
+            },
+            {
+                "teacher": "Marija Marković",
                 "day": "Utorak",
-                "groups": ["3I1, 4R"],
-                "time": "9h - 11h",
+                "groups": ["3I2B"],
+                "time": "12h - 15h",
+                "location": "N202"
+            },
+            {
+                "teacher": "Isidora Burmaz",
+                "day": "Utorak",
+                "groups": ["3I2A"],
+                "time": "12h - 15h",
                 "location": "N201"
             },
             {
-                "teacher": "Boris Cvitak",
+                "teacher": "Isidora Burmaz",
                 "day": "Petak",
-                "groups": ["3I1, 4R"],
-                "time": "12h - 14h",
+                "groups": ["3I1B"],
+                "time": "12h - 15h",
                 "location": "718"
-            },
-            {
-                "teacher": "Luka Jovičić",
-                "day": "Ponedeljak",
-                "groups": ["3I2"],
-                "time": "13h - 16h",
-                "location": "N202"
             }
         ]
     }
