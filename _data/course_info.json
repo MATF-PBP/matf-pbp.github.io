@@ -1,22 +1,22 @@
 {
     "teachers": [
         {
-            "name": "dr Nina Radojičić Matić",
-            "website": "http://www.math.rs/~nina",
+            "name": "dr Ivana Tanasijević",
+            "website": "http://www.math.rs/~ivana.tanasijevic",
             "type": "Predavanja",
-            "image": "/resources/images/nina.jpg"
+            "image": "/resources/images/ivana.png"
         },
         {
-            "name": "Boris Cvitak",
-            "website": "http://www.matf.bg.ac.rs/p/-boris-cvitak",
+            "name": "Marija Marković",
+            "website": "https://poincare.matf.bg.ac.rs/~marija.markovic",
             "type": "Vežbe",
-            "image": "/resources/images/boris_cvitak.jpg"
+            "image": "/resources/images/marija_markovic.jpg"
         },
         {
-            "name": "Luka Jovičić",
-            "website": "http://www.matf.bg.ac.rs/~luka.jovicic",
+            "name": "Isidora Burmaz",
+            "website": "http://www.matf.bg.ac.rs/~isidora.burmaz",
             "type": "Vežbe",
-            "image": "/resources/images/luka_jovicic.jpg"
+            "image": "/resources/images/blank.jpg"
         }
     ]
 }
