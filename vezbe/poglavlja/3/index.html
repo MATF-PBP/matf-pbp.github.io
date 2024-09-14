@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="rs">
+<head>
+    <title>3. Programiranje korišćenjem kursora | Programiranje baza podataka</title>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" type="text/css" href="/resources/semantic/semantic.min.css">
+    <script src="/resources/jquery/jquery-3.5.1.min.js"></script>
+    <script src="/resources/semantic/semantic.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+    <script src="https://semantic-ui.com/javascript/library/highlight.min.js"></script>
+    <script>
+        hljs.initHighlightingOnLoad();
+        $(document).ready(() => {
+            $("table").addClass('ui celled table');
+        });
+    </script>
+</head>
+
+<body>
+    <div class="ui sticky black big launch right attached fixed button" id="pageSticky">
+        <i class="content icon"></i>
+        <span class="text">Prikaži sadržaj</span>
+    </div>
+
+    <div class="ui sidebar vertical menu" id="sideMenu">
+        <div class="item">
+            <h3>Sadržaj</h3>
+        </div>
+        <a class="item" href="/vezbe/predgovor">Predgovor</a>
+        <a class="item" href="/vezbe/poglavlja/1">1. Uvod u programiranje baza podataka</a>
+        <a class="item" href="/vezbe/poglavlja/2">2. Osnovni koncepti programiranja C/SQL aplikacija</a>
+        <a class="item" href="/vezbe/poglavlja/3">3. Programiranje korišćenjem kursora</a>
+        <a class="item" href="/vezbe/poglavlja/4">4. Aplikacije sa dinamičkim SQL naredbama</a>
+        <a class="item" href="/vezbe/poglavlja/5">5. Implementiranje transakcija</a>
+        <a class="item" href="/vezbe/poglavlja/6">6. Aplikacije u višekorisničkom okruženju</a>
+        <a class="item" href="/vezbe/poglavlja/7">7. Povezivanje aplikacija na više baza podataka</a>
+        <a class="item" href="/vezbe/poglavlja/8">8. Osnovni koncepti programiranja Java/SQL aplikacija sa
+            dinamičkim SQL naredbama (JDBC)</a>
+        <a class="item" href="/vezbe/poglavlja/9">9. Napredne tehnike razvijanja Java/SQL aplikacija</a>
+        <a class="item" href="/vezbe/poglavlja/10">10. Uvod u razvojno okruženje Hibernate</a>
+        <a class="item" href="/vezbe/poglavlja/11">11. Napredna objektno-relaciona preslikavanja</a>
+        <a class="item" href="/vezbe/poglavlja/12">12. Napredno kreiranje upita pomoću JPA Criteria API</a>
+        <a class="item" href="/vezbe/poglavlja/13">13. Programiranje SQL rutina</a>
+        <a class="item" href="/vezbe/poglavlja/14">14. Korisnički-definisane funkcije</a>
+        <a class="item" href="/vezbe/poglavlja/15">15. Ugrađene procedure</a>
+        <a class="item" href="/vezbe/poglavlja/16">16. Okidači</a>
+    </div>
+
+    <div class="ui justified container">
+        <img class="ui centered small image" src="/resources/matf-srb.png">
+        <header class="ui center aligned block header">
+            <h1><a href="/">Programiranje baza podataka</a></h1>
+        </header>
+
+        <div class="ui divider"></div>
+
+        <div id="pageContent">
+            <h2>3. Programiranje korišćenjem kursora</h2>
+
+
+<div class="ui warning message">
+    <div class="header">
+        Ova stranica je pod konstrukcijom!
+    </div>
+    Ako pronađete grešku ili propust, molimo Vas da nam skrenete pažnju otvaranjem primedbe na <a href="https://github.com/MATF-PBP/matf-pbp.github.io"><i class="github icon"></i>zvaničnom GitHub repozitorijumu</a>.
+</div>
+
+
+<p>Do sada su rezultati naših SQL upita bili kardinalnosti 1. Zbog toga smo mogli da koristimo jednostavnu <code class="language-plaintext highlighter-rouge">SELECT INTO</code> naredbu za dohvatanje informacija iz rezultata upita. Ukoliko smo sigurni da će rezultat upita biti jedan red, ovakav način programiranja je prihvatljiv. Međutim, ukoliko znamo da se rezultat može sastojati od više redova, potreban nam je drugačiji pristup.</p>
+
+<p>U slučaju da nam je nepoznat broj redova u rezultatu upita, za dohvatanje rezultata možemo iskoristiti mehanizam zasnovan na kursorima. Kursorima je moguće procesirati svaki red rezultata, bez obzira na to koliko redova rezultat sadrži. Kursor je imenovana kontrolna struktura koja se koristi od strane aplikativnog programa da “pokazuje” na specifičan red u okviru uređenog skupa redova.</p>
+
+<h2 id="31-rad-sa-kursorima">3.1 Rad sa kursorima</h2>
+
+<p>Rad sa kursorima se najčešće može opisati kroz naredna četiri koraka:</p>
+
+<ol>
+  <li>Deklaracija kursora</li>
+  <li>Otvaranje kursora</li>
+  <li>Iteriranje kroz kursor</li>
+  <li>Zatvaranje kursora</li>
+</ol>
+
+<h3 id="311-deklaracija-kursora">3.1.1. Deklaracija kursora</h3>
+
+<p>Deklaracija kursora se izvodi navođenjem SQL naredbe <code class="language-plaintext highlighter-rouge">DECLARE</code> čija je sintaksa data u nastavku:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">DECLARE</span> <span class="o">&lt;</span><span class="n">IME_KURSORA</span><span class="o">&gt;</span>
+<span class="k">CURSOR</span> <span class="k">FOR</span> <span class="o">&lt;</span><span class="n">UPIT</span><span class="o">&gt;</span>
+<span class="p">[(</span><span class="k">FOR</span> <span class="k">READ</span> <span class="k">ONLY</span><span class="p">)</span><span class="o">|</span><span class="p">(</span><span class="k">FOR</span> <span class="k">UPDATE</span> <span class="k">OF</span> <span class="o">&lt;</span><span class="n">LISTA_ATRIBUTA</span><span class="o">&gt;</span><span class="p">)]</span>
+<span class="p">[(</span><span class="k">WITHOUT</span> <span class="k">HOLD</span><span class="p">)</span><span class="o">|</span><span class="p">(</span><span class="k">WITH</span> <span class="k">HOLD</span><span class="p">)]</span>
+</code></pre></div></div>
+
+<p>Promenljiva <code class="language-plaintext highlighter-rouge">&lt;IME_KURSORA&gt;</code> mora biti jedinstvena u programu. Vrednost <code class="language-plaintext highlighter-rouge">&lt;UPIT&gt;</code> predstavlja upit, tj. naredbu <code class="language-plaintext highlighter-rouge">SELECT</code> za koji se kursor vezuje. Upit ne može da sadrži parametarske oznake, ali može sadržati matične promenljive, s tim da deklaracije matičnih promenljivih koje se koriste u upitu moraju biti pre deklaracije kursora.</p>
+
+<p>Ukoliko navedemo klauzu <code class="language-plaintext highlighter-rouge">FOR READ ONLY</code>, time definišemo kursor koji služi samo za čitanje podataka. Ukoliko želimo da se podaci menjaju pomoću kursora, tada se nakon <code class="language-plaintext highlighter-rouge">&lt;UPIT&gt;</code> navodi klauza <code class="language-plaintext highlighter-rouge">FOR UPDATE OF</code> za kojom sledi lista imena kolona u rezultatu upita koji se mogu menjati kursorom, odvojeni zapetama.</p>
+
+<p>Postoje četiri tipa kursora:</p>
+
+<ul>
+  <li><em>Čitajući</em>, koji podržava samo operaciju čitanja podataka. Ovim kursorom nije moguće vršiti operacije brisanja ili ažuriranja.</li>
+  <li><em>Brišući</em>, koji podržava operacije čitanja i brisanja podataka. Ovim kursorom nije moguće vršiti operaciju ažuriranja.</li>
+  <li><em>Ažurirajući</em>, koji podržava sve tri operacije nad podacima.</li>
+  <li><em>Dvosmisleni</em>, ukoliko Db2 nije u stanju da na osnovu upita zaključi da li će se kursor koristiti za čitanje ili menjanje podataka.</li>
+</ul>
+
+<p>U nastavku slede njihove definicije:</p>
+
+<ul>
+  <li>Za kursor kažemo da je <em>brišući</em> ako je svaki od narednih uslova ispunjen:
+    <ul>
+      <li>Klauza <code class="language-plaintext highlighter-rouge">FROM</code> u glavnom delu <code class="language-plaintext highlighter-rouge">&lt;UPIT&gt;</code> sadrži tačno jednu tabelu ili pogled nad jednom tabelom koji služi za brisanje.</li>
+      <li><code class="language-plaintext highlighter-rouge">&lt;UPIT&gt;</code> ne sadrži neku od klauza <code class="language-plaintext highlighter-rouge">DISTINCT</code> ili <code class="language-plaintext highlighter-rouge">VALUES</code>.</li>
+      <li><code class="language-plaintext highlighter-rouge">&lt;UPIT&gt;</code> ne sadrži <code class="language-plaintext highlighter-rouge">ORDER BY</code> i klauzu <code class="language-plaintext highlighter-rouge">FOR UPDATE OF</code> (zajedno).</li>
+      <li><code class="language-plaintext highlighter-rouge">&lt;UPIT&gt;</code> ne sadrži agregatne funkcije ili neku od klauza <code class="language-plaintext highlighter-rouge">GROUP BY</code> ili <code class="language-plaintext highlighter-rouge">HAVING</code>.</li>
+      <li><code class="language-plaintext highlighter-rouge">&lt;UPIT&gt;</code> ne sadrži neki skupovni operator, kao što su <code class="language-plaintext highlighter-rouge">UNION</code>, <code class="language-plaintext highlighter-rouge">INTERSECT</code> ili <code class="language-plaintext highlighter-rouge">EXCEPT</code> sa izuzetkom <code class="language-plaintext highlighter-rouge">UNION ALL</code>.</li>
+      <li><code class="language-plaintext highlighter-rouge">&lt;UPIT&gt;</code> ne sadrži klauzu <code class="language-plaintext highlighter-rouge">FOR READ ONLY</code>.</li>
+    </ul>
+  </li>
+  <li>
+    <p>Za kursor kažemo da je <em>čitajući</em> ukoliko nije brišući.</p>
+  </li>
+  <li>
+    <p>Za kursor kažemo da je <em>ažurirajući</em> ukoliko je brišući i kolone koje su proglašene za ažuriranje u klauzi <code class="language-plaintext highlighter-rouge">FOR UPDATE OF</code> predstavljaju neke od kolona u baznoj tabeli.</p>
+  </li>
+  <li>Za kursor kažemo da je <em>dvosmisleni</em> ukoliko je upit dinamički pripremljen i nije navedena nijedna od klauza <code class="language-plaintext highlighter-rouge">FOR READ ONLY</code> ili <code class="language-plaintext highlighter-rouge">FOR UPDATE OF</code> i kursor zadovoljava uslove brišućeg kursora.</li>
+</ul>
+
+<p>Navođenjem neke od opcionih klauza <code class="language-plaintext highlighter-rouge">WITHOUT HOLD</code> ili <code class="language-plaintext highlighter-rouge">WITH HOLD</code> možemo specifikovati da li će se kursor zatvarati ili ne kao posledica operacije <em>pohranjivanja</em> (engl. <em>commit</em>). Navođenjem klauze <code class="language-plaintext highlighter-rouge">WITHOUT HOLD</code> kursor se ne sprečava da bude zatvoren, što je podrazumevano ponašanje. Navođenjem klauze <code class="language-plaintext highlighter-rouge">WITH HOLD</code> kursor održava resurse kroz različite jedinice posla. Kada budemo diskutovali o transakcijama, definisaćemo preciznije ovo ponašanje.</p>
+
+<h3 id="312-otvaranje-kursora">3.1.2. Otvaranje kursora</h3>
+
+<p>Otvaranje kursora se izvodi navođenjem SQL naredbe <code class="language-plaintext highlighter-rouge">OPEN</code> čija je sintaksa data u nastavku:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">OPEN</span> <span class="o">&lt;</span><span class="n">IME_KURSORA</span><span class="o">&gt;</span>
+<span class="p">[</span><span class="k">USING</span> <span class="o">&lt;</span><span class="n">LISTA_MATICNIH_PROMENLJIVIH</span><span class="o">&gt;</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>Naredbom <code class="language-plaintext highlighter-rouge">OPEN</code> se vrši otvaranje kursora i njegovo izvršavanje, zarad dohvatanja redova iz rezultujuće tabele. U trenutku otvaranja kursora, upit koji je naveden prilikom deklaracije kursora se izvršava. Ukoliko je taj upit sadržao matične promenljive, onda se pretpostavlja da je programer postavio vrednosti tih matičnih promenljivih pre otvaranja kursora. Drugim rečima, vrednosti tih matičnih promenljivih će biti iskorišćene tek prilikom otvaranja kursora.</p>
+
+<p>Promenljiva <code class="language-plaintext highlighter-rouge">&lt;IME_KURSORA&gt;</code> mora biti deklarisana naredbom <code class="language-plaintext highlighter-rouge">DECLARE</code> pre samog otvaranja kursora. Kada se izvrši naredba <code class="language-plaintext highlighter-rouge">OPEN</code>, kursor naziva <code class="language-plaintext highlighter-rouge">&lt;IME_KURSORA&gt;</code> mora biti u zatvorenom stanju (bilo da je eksplicitno zatvoren ili da je samo deklarisan pre otvaranja).</p>
+
+<p>Ukoliko se kursor otvara za pripremljenu (dinamičku) SQL naredbu, navođenjem klauze <code class="language-plaintext highlighter-rouge">USING</code> možemo navesti vrednosti koje se koriste za zamenu parametarskih oznaka.</p>
+
+<!-- U slučaju statičke SQL naredbe, klauza `USING` se može koristiti za zamenu vrednosti matičnih promenljivih koje su navedene u `SELECT` naredbi prilikom deklaracije kursora, pri čemu važi da redosled navođenja matičnih promenljivih u `LISTA_MATICNIH_PROMENLJIVIH` mora odgovarati redosledu matičnih promenljivih u `SELECT` naredbi koje te promenljive zamenjuju. -->
+
+<p>Nakon otvaranja kursor je pozicioniran ispred prvog reda rezultujuće tabele.</p>
+
+<h3 id="313-iteriranje-kroz-kursor">3.1.3. Iteriranje kroz kursor</h3>
+
+<p>Iteriranje kroz kursor se izvodi navođenjem SQL naredbe <code class="language-plaintext highlighter-rouge">FETCH</code> čija je sintaksa data u nastavku:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">FETCH</span> <span class="o">&lt;</span><span class="n">IME_KURSORA</span><span class="o">&gt;</span>
+<span class="k">INTO</span> <span class="o">&lt;</span><span class="n">LISTA_MATICNIH_PROMENLJIVIH</span><span class="o">&gt;</span>
+</code></pre></div></div>
+
+<p>Naredbom <code class="language-plaintext highlighter-rouge">FETCH</code> se vrši pozicioniranje kursora na naredni red iz rezultujuće tabele i dodeljuju se vrednosti iz tog reda ciljanim promenljivama. Promenljiva <code class="language-plaintext highlighter-rouge">&lt;IME_KURSORA&gt;</code> mora biti deklarisana naredbom <code class="language-plaintext highlighter-rouge">DECLARE</code> pre samog dohvatanja podataka. Dodatno, da bi se izvršila naredba <code class="language-plaintext highlighter-rouge">FETCH</code>, kursor naziva <code class="language-plaintext highlighter-rouge">&lt;IME_KURSORA&gt;</code> mora biti u otvorenom stanju.</p>
+
+<p>Klauzom <code class="language-plaintext highlighter-rouge">INTO</code> se prva vrednost dohvaćenog reda smešta u prvu promenljivu koja je navedena u <code class="language-plaintext highlighter-rouge">&lt;LISTA_MATICNIH_PROMENLJIVIH&gt;</code>, druga vrednost reda u drugu promenljivu, itd. Ako dođe do greške pri bilo kojoj dodeli vrednosti, ta vrednost se ne dodeljuje promenljivoj, kao ni bilo koja vrednost nakon nje. Sve do tada dodeljene vrednosti ostaju dodeljene.</p>
+
+<p>Otvoreni kursor ima tri moguće pozicije:</p>
+
+<ol>
+  <li>Može biti pozicioniran ispred prvog reda.</li>
+  <li>Može biti pozicioniran na nekom redu.</li>
+  <li>Može biti pozicioniran nakon poslednjeg reda.</li>
+</ol>
+
+<p>Kursor može biti samo pozicioniran na nekom redu isključivo primenom naredbe <code class="language-plaintext highlighter-rouge">FETCH</code>. Ako se kursor pozicionira na poslednjem redu rezultujuće tabele ili iza njega, izvršavanje naredbe <code class="language-plaintext highlighter-rouge">FETCH</code> ima naredne efekte:</p>
+
+<ul>
+  <li>
+    <p>Vrednost koda za dijagnostiku greške (u našim programima, vrednost u koju se razmota makro <code class="language-plaintext highlighter-rouge">SQLCODE</code>) postavlja se na vrednost <code class="language-plaintext highlighter-rouge">+100</code>.</p>
+  </li>
+  <li>
+    <p>Kursor se pozicionira nakon poslednjeg reda rezultata.</p>
+  </li>
+  <li>
+    <p>Vrednosti se ne dodeljuju matičnim promenljivama.</p>
+  </li>
+</ul>
+
+<p>Ako je kursor pozicioniran ispred prvog reda, izvršavanjem naredbe <code class="language-plaintext highlighter-rouge">FETCH</code>, kursor se pozicionira na prvi red, i vrednosti se dodeljuju matičnim promenljivama klauzom <code class="language-plaintext highlighter-rouge">INTO</code>. Ako je kursor pozicioniran na redu koji nije poslednji, izvršavanjem naredbe <code class="language-plaintext highlighter-rouge">FETCH</code>, kursor se pozicionira na naredni red i vrednosti tog reda se dodeljuju matičnim promenljivama klauzom <code class="language-plaintext highlighter-rouge">INTO</code>.</p>
+
+<p>Ako je kursor pozicioniran na nekom redu, taj red se naziva <em>tekući red kursora</em>. Kursor na koji se referiše u pozicionirajućim naredbama <code class="language-plaintext highlighter-rouge">UPDATE</code> ili <code class="language-plaintext highlighter-rouge">DELETE</code> mora biti pozicioniran na nekom redu. Moguće je da se, dolaskom do greške, stanje kursora postavi na nepredvidivo.</p>
+
+<h3 id="314-zatvaranje-kursora">3.1.4. Zatvaranje kursora</h3>
+
+<p>Zatvaranje kursora se izvodi navođenjem SQL naredbe <code class="language-plaintext highlighter-rouge">CLOSE</code> čija je sintaksa data u nastavku:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CLOSE</span> <span class="o">&lt;</span><span class="n">IME_KURSORA</span><span class="o">&gt;</span>
+<span class="p">[</span><span class="k">WITH</span> <span class="n">RELEASE</span><span class="p">]</span>
+</code></pre></div></div>
+
+<p>Naredbom <code class="language-plaintext highlighter-rouge">CLOSE</code> se vrši zatvaranje kursora. Ukoliko je rezultujuća tabela kreirana kada je kursor otvoren, ta tabela se uništava. Promenljiva <code class="language-plaintext highlighter-rouge">&lt;IME_KURSORA&gt;</code> mora biti deklarisana naredbom <code class="language-plaintext highlighter-rouge">DECLARE</code> pre samog dohvatanja podataka. Dodatno, da bi se izvršila naredba <code class="language-plaintext highlighter-rouge">CLOSE</code>, kursor naziva <code class="language-plaintext highlighter-rouge">&lt;IME_KURSORA&gt;</code> mora biti u otvorenom stanju.</p>
+
+<p>Ukoliko se navede opciona klauza <code class="language-plaintext highlighter-rouge">WITH RELEASE</code>, prilikom zatvaranja kursora se pokušava sa oslobađanjem svih katanaca koji su držani od strane kursora. S obzirom da se katanci mogu držati drugim operacijama ili procesima, ne znači da će biti nužno i oslobođeni zatvaranjem kursora. O katancima će biti više reči u kasnijim poglavljima.</p>
+
+<p>Na kraju jedinice posla, svi kursori koji pripadaju procesu aplikacije i koji su deklarisani bez klauze <code class="language-plaintext highlighter-rouge">WITH HOLD</code> se implicitno zatvaraju.</p>
+
+<h2 id="32-korišćenje-kursora-za-čitanje-podataka">3.2 Korišćenje kursora za čitanje podataka</h2>
+
+<p>Sada smo spremni za rešavanje primera koji zahtevaju upotrebu kursora. Počnimo sa narednim zadacima koji ilustruju čitanje rezultata iz kursora.</p>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 3.1</strong>: Napisati C/SQL program koji ispisuje identifikator, oznaku, naziv, nivo, broj bodova, zvanje i opis za svaki od studijskih programa.</p>
+</div>
+
+<p>Rešenje:</p>
+
+<p><strong>Datoteka: <code class="language-plaintext highlighter-rouge">vezbe/primeri/poglavlje_3/zadatak_3_1.sqc</code></strong>:</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">INCLUDE</span> <span class="n">SQLCA</span><span class="p">;</span>
+
+<span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">BEGIN</span> <span class="n">DECLARE</span> <span class="n">SECTION</span><span class="p">;</span>
+<span class="n">sqlint32</span> <span class="n">hStudyProgramId</span><span class="p">;</span>
+<span class="kt">char</span> <span class="n">hStudyProgramLabel</span><span class="p">[</span><span class="mi">11</span><span class="p">];</span>
+<span class="kt">char</span> <span class="n">hStudyProgramName</span><span class="p">[</span><span class="mi">201</span><span class="p">];</span>
+<span class="kt">short</span> <span class="n">hDegreeLevelId</span><span class="p">;</span>
+<span class="kt">short</span> <span class="n">hESPB</span><span class="p">;</span>
+<span class="kt">char</span> <span class="n">hStudyProgramTitle</span><span class="p">[</span><span class="mi">101</span><span class="p">];</span>
+<span class="k">struct</span> <span class="p">{</span>
+   <span class="kt">short</span> <span class="kt">int</span> <span class="n">length</span><span class="p">;</span>
+   <span class="kt">char</span> <span class="n">data</span><span class="p">[</span><span class="mi">32700</span><span class="p">];</span>
+<span class="p">}</span> <span class="n">hStudyProgramDesc</span><span class="p">;</span>
+<span class="kt">short</span> <span class="n">hIndStudyProgramDesc</span><span class="p">;</span>
+<span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">END</span> <span class="n">DECLARE</span> <span class="n">SECTION</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">checkSQL</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">SQLCODE</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"Greska %d: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">SQLCODE</span><span class="p">,</span> <span class="n">str</span><span class="p">);</span>
+
+        <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CONNECT</span> <span class="n">RESET</span><span class="p">;</span>
+        <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Konektujemo se na bazu podataka</span>
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CONNECT</span> <span class="n">TO</span> <span class="n">stud2020</span> <span class="n">USER</span> <span class="n">student</span> <span class="n">USING</span> <span class="n">abcdef</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Connect"</span><span class="p">);</span>
+    
+    <span class="c1">// Deklarisemo kursor koji prolazi tabelom STUDIJSKIPROGRAM.</span>
+    <span class="c1">// Ovde navodimo upit kroz koji ce kursor prolaziti, ali koji se jos uvek ne izvrsava.</span>
+    <span class="n">EXEC</span> <span class="n">SQL</span> 
+        <span class="n">DECLARE</span> <span class="n">cStudyPrograms</span> <span class="n">CURSOR</span> <span class="n">FOR</span> 
+        <span class="n">SELECT</span>  <span class="n">ID</span><span class="p">,</span> 
+                <span class="n">OZNAKA</span><span class="p">,</span> 
+                <span class="n">NAZIV</span><span class="p">,</span> 
+                <span class="n">IDNIVOA</span><span class="p">,</span> 
+                <span class="n">OBIMESPB</span><span class="p">,</span>
+                <span class="n">ZVANJE</span><span class="p">,</span>
+                <span class="n">OPIS</span>
+        <span class="n">FROM</span>    <span class="n">DA</span><span class="p">.</span><span class="n">STUDIJSKIPROGRAM</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Declare cursor cStudyPrograms"</span><span class="p">);</span>
+    
+    <span class="c1">// Otvaramo kursor, cime se izvrsava upit naveden u deklaraciji.</span>
+    <span class="c1">// Sada se kursor nalazi na redu "pre prvog reda" u rezultatu.</span>
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">OPEN</span> <span class="n">cStudyPrograms</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Open cursor cStudyPrograms"</span><span class="p">);</span>
+    
+    <span class="n">printf</span><span class="p">(</span><span class="s">"+---------------------------------------------------------------------------------------------------------------------------------------+</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"|                                                           STUDIJSKI PROGRAM                                                           |</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"+-----+------+------------------------------+----+----+------------------------------+--------------------------------------------------+</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"|ID   |OZNAKA|NAZIV                         |NIVO|OBIM|ZVANJE                        |OPIS                                              |</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"|-----+------+------------------------------+----+----+------------------------------+--------------------------------------------------+</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="c1">// Sve dok ima redova u rezultujucoj tabeli</span>
+    <span class="k">for</span><span class="p">(;;)</span> <span class="p">{</span>
+        <span class="c1">// Citamo red po red</span>
+        <span class="n">EXEC</span> <span class="n">SQL</span> 
+            <span class="n">FETCH</span>   <span class="n">cStudyPrograms</span>
+            <span class="n">INTO</span>    <span class="o">:</span><span class="n">hStudyProgramId</span><span class="p">,</span> 
+                    <span class="o">:</span><span class="n">hStudyProgramLabel</span><span class="p">,</span> 
+                    <span class="o">:</span><span class="n">hStudyProgramName</span><span class="p">,</span> 
+                    <span class="o">:</span><span class="n">hDegreeLevelId</span><span class="p">,</span> 
+                    <span class="o">:</span><span class="n">hESPB</span><span class="p">,</span>
+                    <span class="o">:</span><span class="n">hStudyProgramTitle</span><span class="p">,</span>
+                    <span class="o">:</span><span class="n">hStudyProgramDesc</span> <span class="o">:</span><span class="n">hIndStudyProgramDesc</span><span class="p">;</span>
+        <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Fetch from cursor cStudyPrograms"</span><span class="p">);</span>
+
+        <span class="c1">// Ako smo stigli do kraja rezultujuce tabele, </span>
+        <span class="c1">// izlazimo iz petlje</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">SQLCODE</span> <span class="o">==</span> <span class="mi">100</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">// Inace, stampamo red iz rezultata</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"|%-5d|%-6s|%-30.30s|%-4hd|%-4hd|%-30.30s|%-50.50s|</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> 
+               <span class="n">hStudyProgramId</span><span class="p">,</span> <span class="n">hStudyProgramLabel</span><span class="p">,</span> <span class="n">hStudyProgramName</span><span class="p">,</span> <span class="n">hDegreeLevelId</span><span class="p">,</span> <span class="n">hESPB</span><span class="p">,</span> 
+               <span class="n">hStudyProgramTitle</span><span class="p">,</span> <span class="p">(</span><span class="n">hIndStudyProgramDesc</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">?</span> <span class="s">"NULL"</span> <span class="o">:</span> <span class="n">hStudyProgramDesc</span><span class="p">.</span><span class="n">data</span><span class="p">);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"|-----+------+------------------------------+----+----+------------------------------+--------------------------------------------------+</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="c1">// Zatvaramo kursor</span>
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CLOSE</span> <span class="n">cStudyPrograms</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Close cursor cStudyPrograms"</span><span class="p">);</span>
+
+    <span class="c1">// Raskidamo konekciju sa bazom podataka</span>
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CONNECT</span> <span class="n">RESET</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Connect reset"</span><span class="p">);</span>
+    
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 3.2</strong>: Napisati C/SQL program kojim se za uneti broj indeksa studenta ispisuju podaci (naziv predmeta, datum polaganja i ocena) za sve ispite koje je on položio. Nakon toga, ispisati prosek ocena tog studenta.</p>
+</div>
+
+<p>Rešenje:</p>
+
+<p><strong>Datoteka: <code class="language-plaintext highlighter-rouge">vezbe/primeri/poglavlje_3/zadatak_3_2.sqc</code></strong>:</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">INCLUDE</span> <span class="n">SQLCA</span><span class="p">;</span>
+
+<span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">BEGIN</span> <span class="n">DECLARE</span> <span class="n">SECTION</span><span class="p">;</span>
+<span class="n">sqlint32</span> <span class="n">hIndex</span><span class="p">;</span>
+<span class="kt">char</span> <span class="n">hCourseName</span><span class="p">[</span><span class="mi">151</span><span class="p">];</span>
+<span class="kt">char</span> <span class="n">hExamDate</span><span class="p">[</span><span class="mi">11</span><span class="p">];</span>
+<span class="kt">short</span> <span class="n">hIndExamDate</span><span class="p">;</span>
+<span class="kt">short</span> <span class="n">hGrade</span><span class="p">;</span>
+<span class="kt">short</span> <span class="n">hIndGrade</span><span class="p">;</span>
+<span class="kt">double</span> <span class="n">hAverageGrade</span><span class="p">;</span>
+<span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">END</span> <span class="n">DECLARE</span> <span class="n">SECTION</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">checkSQL</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">SQLCODE</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"Greska %d: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">SQLCODE</span><span class="p">,</span> <span class="n">str</span><span class="p">);</span>
+
+        <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CONNECT</span> <span class="n">RESET</span><span class="p">;</span>
+        <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Konektujemo se na bazu podataka</span>
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CONNECT</span> <span class="n">TO</span> <span class="n">stud2020</span> <span class="n">USER</span> <span class="n">student</span> <span class="n">USING</span> <span class="n">abcdef</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Connect"</span><span class="p">);</span>
+    
+    <span class="c1">// Deklarisemo kursor koji za dati broj indeksa nalazi sve polozene ispite</span>
+    <span class="n">EXEC</span> <span class="n">SQL</span> 
+        <span class="n">DECLARE</span> <span class="n">cPassedExams</span> <span class="n">CURSOR</span> <span class="n">FOR</span> 
+        <span class="n">SELECT</span>  <span class="n">NAZIV</span><span class="p">,</span> 
+                <span class="n">DATPOLAGANJA</span><span class="p">,</span> 
+                <span class="n">OCENA</span> 
+        <span class="n">FROM</span>    <span class="n">DA</span><span class="p">.</span><span class="n">ISPIT</span> <span class="n">I</span> <span class="n">JOIN</span>
+                <span class="n">DA</span><span class="p">.</span><span class="n">PREDMET</span> <span class="n">P</span> <span class="n">ON</span> <span class="n">I</span><span class="p">.</span><span class="n">IDPREDMETA</span> <span class="o">=</span> <span class="n">P</span><span class="p">.</span><span class="n">ID</span>
+        <span class="n">WHERE</span>   <span class="n">INDEKS</span> <span class="o">=</span> <span class="o">:</span><span class="n">hIndex</span> <span class="n">AND</span>
+                <span class="n">OCENA</span> <span class="o">&gt;</span> <span class="mi">5</span> <span class="n">AND</span>
+                <span class="n">STATUS</span> <span class="o">=</span> <span class="sc">'o'</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Declare cursor"</span><span class="p">);</span>
+    
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Unesite broj indeksa studenta:</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">scanf</span><span class="p">(</span><span class="s">"%d"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">hIndex</span><span class="p">);</span>
+
+    <span class="c1">// Otvaramo kursor</span>
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">OPEN</span> <span class="n">cPassedExams</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Open cursor"</span><span class="p">);</span>
+    
+    <span class="n">printf</span><span class="p">(</span><span class="s">"+--------------------------------------------------+----------+-----+</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"|NAZIV                                             |DATUM     |OCENA|</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"+--------------------------------------------------+----------+-----+</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    
+    <span class="k">for</span><span class="p">(;;)</span> <span class="p">{</span>
+        <span class="c1">// Smestamo naredni red rezultata upita u odgovarajuce maticne promenljive</span>
+        <span class="n">EXEC</span> <span class="n">SQL</span> 
+            <span class="n">FETCH</span>   <span class="n">cPassedExams</span>
+            <span class="n">INTO</span>    <span class="o">:</span><span class="n">hCourseName</span><span class="p">,</span> 
+                    <span class="o">:</span><span class="n">hExamDate</span> <span class="o">:</span><span class="n">hIndExamDate</span><span class="p">,</span> 
+                    <span class="o">:</span><span class="n">hGrade</span> <span class="o">:</span><span class="n">hIndGrade</span><span class="p">;</span>
+        <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Fetch cursor"</span><span class="p">);</span>
+
+        <span class="c1">// Ako smo stigli do kraja kursora, izlazimo iz petlje</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">SQLCODE</span> <span class="o">==</span> <span class="mi">100</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="c1">// Inace, stampamo naredni ispit</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"|%-50.50s|%10s|%5hd|</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> 
+               <span class="n">hCourseName</span><span class="p">,</span> <span class="p">(</span><span class="n">hIndExamDate</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">?</span> <span class="n">hExamDate</span> <span class="o">:</span> <span class="s">"NULL"</span><span class="p">,</span> <span class="p">(</span><span class="n">hIndGrade</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">?</span> <span class="n">hGrade</span> <span class="o">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"+--------------------------------------------------+----------+-----+</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    
+    <span class="c1">// Zatvaramo kursor</span>
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CLOSE</span> <span class="n">cPassedExams</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Close cursor"</span><span class="p">);</span>
+
+    <span class="c1">// Za datog studenta racunamo prosecnu ocenu</span>
+    <span class="n">EXEC</span> <span class="n">SQL</span> 
+        <span class="n">SELECT</span>  <span class="n">COALESCE</span><span class="p">(</span><span class="n">AVG</span><span class="p">(</span><span class="n">OCENA</span> <span class="o">+</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="p">),</span> <span class="mi">5</span><span class="p">.</span><span class="mi">0</span><span class="p">)</span> 
+        <span class="n">INTO</span>    <span class="o">:</span><span class="n">hAverageGrade</span> 
+        <span class="n">FROM</span>    <span class="n">DA</span><span class="p">.</span><span class="n">ISPIT</span>
+        <span class="n">WHERE</span>   <span class="n">INDEKS</span> <span class="o">=</span> <span class="o">:</span><span class="n">hIndex</span> <span class="n">AND</span>
+                <span class="n">OCENA</span> <span class="o">&gt;</span> <span class="mi">5</span> <span class="n">AND</span>
+                <span class="n">STATUS</span> <span class="o">=</span> <span class="sc">'o'</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Select into"</span><span class="p">);</span>
+    
+    <span class="n">printf</span><span class="p">(</span><span class="s">"Prosecna ocena je: %.2f.</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">hAverageGrade</span><span class="p">);</span>
+
+    <span class="c1">// Raskidamo konekciju sa bazom podataka</span>
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CONNECT</span> <span class="n">RESET</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Connect reset"</span><span class="p">);</span>
+    
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h2 id="33-korišćenje-kursora-za-ažuriranje-i-brisanje-podataka">3.3 Korišćenje kursora za ažuriranje i brisanje podataka</h2>
+
+<p>Kao što smo napomenuli, moguće je korišćenje kursora za ažuriranje ili brisanje redova iz tabela. U slučaju ažuriranja redova, potrebno je deklarisati koje kolone se mogu menjati pri deklaraciji kursora, a zatim koristiti <code class="language-plaintext highlighter-rouge">UPDATE</code> naredbu oblika:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">UPDATE</span>  <span class="o">&lt;</span><span class="n">TABELA</span><span class="o">&gt;</span>
+<span class="k">SET</span>     <span class="o">&lt;</span><span class="n">KOLONA_1</span><span class="o">&gt;</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">VREDNOST_1</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="c1">-- ...</span>
+        <span class="o">&lt;</span><span class="n">KOLONA_N</span><span class="o">&gt;</span> <span class="o">=</span> <span class="o">&lt;</span><span class="n">VREDNOST_N</span><span class="o">&gt;</span>
+<span class="k">WHERE</span>   <span class="k">CURRENT</span> <span class="k">OF</span> <span class="o">&lt;</span><span class="n">IME_KURSORA</span><span class="o">&gt;</span>
+</code></pre></div></div>
+
+<p>SQL naredba <code class="language-plaintext highlighter-rouge">UPDATE</code> koja ažurira podatke u tabeli na osnovu pozicije nekog kursora naziva se <em>pozicionirajuća</em> <code class="language-plaintext highlighter-rouge">UPDATE</code> naredba.</p>
+
+<p>Očigledno, kolone <code class="language-plaintext highlighter-rouge">&lt;KOLONA_1&gt;</code>, <code class="language-plaintext highlighter-rouge">...</code>, <code class="language-plaintext highlighter-rouge">&lt;KOLONA_N&gt;</code> moraju biti deklarisane u <code class="language-plaintext highlighter-rouge">FOR UPDATE OF</code> klauzi pri deklaraciji kursora naziva <code class="language-plaintext highlighter-rouge">&lt;IME_KURSORA&gt;</code>. Takođe, tabela <code class="language-plaintext highlighter-rouge">&lt;TABELA&gt;</code> mora biti jedina tabela koja se nalazi u <code class="language-plaintext highlighter-rouge">FROM</code> klauzi kursora. Na ovaj način će upotrebom opisane naredbe <code class="language-plaintext highlighter-rouge">UPDATE</code> biti ažuriran tekući red kursora.</p>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 3.3</strong>: Napisati C/SQL program kojim se za svaki od studijskih programa korisniku postavlja pitanje da li želi da uveća broj bodova za 10. Ako je odgovor potvrdan, vrši se odgovarajuća promena.</p>
+</div>
+
+<p>Rešenje:</p>
+
+<p><strong>Datoteka: <code class="language-plaintext highlighter-rouge">vezbe/primeri/poglavlje_3/zadatak_3_3.sqc</code></strong>:</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">INCLUDE</span> <span class="n">SQLCA</span><span class="p">;</span>
+
+<span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">BEGIN</span> <span class="n">DECLARE</span> <span class="n">SECTION</span><span class="p">;</span>
+<span class="n">sqlint32</span> <span class="n">hStudyProgramId</span><span class="p">;</span>
+<span class="kt">char</span> <span class="n">hStudyProgramLabel</span><span class="p">[</span><span class="mi">11</span><span class="p">];</span>
+<span class="kt">char</span> <span class="n">hStudyProgramName</span><span class="p">[</span><span class="mi">201</span><span class="p">];</span>
+<span class="kt">short</span> <span class="n">hDegreeLevelId</span><span class="p">;</span>
+<span class="kt">short</span> <span class="n">hESPB</span><span class="p">;</span>
+<span class="kt">char</span> <span class="n">hStudyProgramTitle</span><span class="p">[</span><span class="mi">101</span><span class="p">];</span>
+<span class="k">struct</span> <span class="p">{</span>
+   <span class="kt">short</span> <span class="kt">int</span> <span class="n">length</span><span class="p">;</span>
+   <span class="kt">char</span> <span class="n">data</span><span class="p">[</span><span class="mi">32700</span><span class="p">];</span>
+<span class="p">}</span> <span class="n">hStudyProgramDesc</span><span class="p">;</span>
+<span class="kt">short</span> <span class="n">hIndStudyProgramDesc</span><span class="p">;</span>
+<span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">END</span> <span class="n">DECLARE</span> <span class="n">SECTION</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">checkSQL</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">SQLCODE</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"Greska %d: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">SQLCODE</span><span class="p">,</span> <span class="n">str</span><span class="p">);</span>
+
+        <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CONNECT</span> <span class="n">RESET</span><span class="p">;</span>
+        <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// Konektujemo se na bazu podataka</span>
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CONNECT</span> <span class="n">TO</span> <span class="n">stud2020</span> <span class="n">USER</span> <span class="n">student</span> <span class="n">USING</span> <span class="n">abcdef</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Connect"</span><span class="p">);</span>
+    
+    <span class="c1">// Deklarisemo kursor koji prolazi tabelom STUDIJSKIPROGRAM.</span>
+    <span class="c1">// Primetite da upit zadovoljava ogranicenje za koriscenje pozicionirajuce UPDATE naredbe.</span>
+    <span class="n">EXEC</span> <span class="n">SQL</span> 
+        <span class="n">DECLARE</span> <span class="n">cStudyPrograms</span> <span class="n">CURSOR</span> <span class="n">FOR</span> 
+        <span class="n">SELECT</span>  <span class="n">ID</span><span class="p">,</span> 
+                <span class="n">OZNAKA</span><span class="p">,</span> 
+                <span class="n">NAZIV</span><span class="p">,</span> 
+                <span class="n">IDNIVOA</span><span class="p">,</span> 
+                <span class="n">OBIMESPB</span><span class="p">,</span>
+                <span class="n">ZVANJE</span><span class="p">,</span>
+                <span class="n">OPIS</span>
+        <span class="n">FROM</span>    <span class="n">DA</span><span class="p">.</span><span class="n">STUDIJSKIPROGRAM</span>
+        <span class="n">FOR</span>     <span class="n">UPDATE</span> <span class="n">OF</span> <span class="n">OBIMESPB</span><span class="p">;</span> <span class="c1">// Na ovaj nacin najavljujemo SUBP</span>
+                                    <span class="c1">// da cemo vrsiti promenu kolone "OBIMESPB"</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Declare cursor cStudyPrograms"</span><span class="p">);</span>
+    
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">OPEN</span> <span class="n">cStudyPrograms</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Open cursor cStudyPrograms"</span><span class="p">);</span>
+    
+    <span class="n">printf</span><span class="p">(</span><span class="s">"+---------------------------------------------------------------------------------------------------------------------------------------+</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"|                                                           STUDIJSKI PROGRAM                                                           |</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"+-----+------+------------------------------+----+----+------------------------------+--------------------------------------------------+</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"|ID   |OZNAKA|NAZIV                         |NIVO|OBIM|ZVANJE                        |OPIS                                              |</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">"|-----+------+------------------------------+----+----+------------------------------+--------------------------------------------------+</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+
+    <span class="k">for</span><span class="p">(;;)</span> <span class="p">{</span>
+        <span class="n">EXEC</span> <span class="n">SQL</span> 
+            <span class="n">FETCH</span>   <span class="n">cStudyPrograms</span>
+            <span class="n">INTO</span>    <span class="o">:</span><span class="n">hStudyProgramId</span><span class="p">,</span> 
+                    <span class="o">:</span><span class="n">hStudyProgramLabel</span><span class="p">,</span> 
+                    <span class="o">:</span><span class="n">hStudyProgramName</span><span class="p">,</span> 
+                    <span class="o">:</span><span class="n">hDegreeLevelId</span><span class="p">,</span> 
+                    <span class="o">:</span><span class="n">hESPB</span><span class="p">,</span>
+                    <span class="o">:</span><span class="n">hStudyProgramTitle</span><span class="p">,</span>
+                    <span class="o">:</span><span class="n">hStudyProgramDesc</span> <span class="o">:</span><span class="n">hIndStudyProgramDesc</span><span class="p">;</span>
+        <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Fetch from cursor cStudyPrograms"</span><span class="p">);</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">SQLCODE</span> <span class="o">==</span> <span class="mi">100</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="n">printf</span><span class="p">(</span><span class="s">"|%-5d|%-6s|%-30.30s|%-4hd|%-4hd|%-30.30s|%-50.50s|</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> 
+               <span class="n">hStudyProgramId</span><span class="p">,</span> <span class="n">hStudyProgramLabel</span><span class="p">,</span> <span class="n">hStudyProgramName</span><span class="p">,</span> <span class="n">hDegreeLevelId</span><span class="p">,</span> <span class="n">hESPB</span><span class="p">,</span> <span class="n">hStudyProgramTitle</span><span class="p">,</span> 
+               <span class="p">(</span><span class="n">hIndStudyProgramDesc</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">?</span> <span class="n">hStudyProgramDesc</span><span class="p">.</span><span class="n">data</span> <span class="o">:</span> <span class="s">"NULL"</span><span class="p">);</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"|-----+------+------------------------------+----+----+------------------------------+--------------------------------------------------+</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        
+        <span class="c1">// Sada mozemo da iskoristimo cinjenicu da se nalazimo na redu u kursoru za studijski program </span>
+        <span class="c1">// cije smo podatke ispisali iznad, pa mozemo da iskoristimo pozicionirajucu UPDATE naredbu.</span>
+        <span class="c1">// Naravno, ovo radimo samo ako korisnik potvrdi da zeli da izmeni tekuci red.</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\t</span><span class="s">Da li zelite da povecate broj ESPB za 10? [d/n] "</span><span class="p">);</span>
+        <span class="kt">char</span> <span class="n">userResponse</span><span class="p">;</span>
+        <span class="n">scanf</span><span class="p">(</span><span class="s">"%c"</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">userResponse</span><span class="p">);</span>
+        <span class="n">getchar</span><span class="p">();</span> <span class="c1">// Da bismo procitali i znak za novi red</span>
+        
+        <span class="c1">// Ukoliko korisnik zeli izmenu...</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">userResponse</span> <span class="o">==</span> <span class="sc">'d'</span><span class="p">)</span> <span class="p">{</span>
+            <span class="c1">// Izvrsavamo pozicionirajucu UPDATE naredbu</span>
+            <span class="n">EXEC</span> <span class="n">SQL</span> 
+                <span class="n">UPDATE</span>  <span class="n">DA</span><span class="p">.</span><span class="n">STUDIJSKIPROGRAM</span>
+                <span class="n">SET</span>     <span class="n">OBIMESPB</span> <span class="o">=</span> <span class="n">OBIMESPB</span> <span class="o">+</span> <span class="mi">10</span>
+                <span class="n">WHERE</span>   <span class="n">CURRENT</span> <span class="n">OF</span> <span class="n">cStudyPrograms</span><span class="p">;</span> <span class="c1">// Na ovaj nacin kazemo da zelimo izmenu </span>
+                                                   <span class="c1">// nad trenutnim redom u kursoru cStudyPrograms</span>
+            <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Update"</span><span class="p">);</span>
+            
+            <span class="c1">// Dohvatamo azuriranu vrednost iz BP</span>
+            <span class="n">EXEC</span> <span class="n">SQL</span> 
+                <span class="n">SELECT</span>  <span class="n">OBIMESPB</span>
+                <span class="n">INTO</span>    <span class="o">:</span><span class="n">hESPB</span>
+                <span class="n">FROM</span>    <span class="n">DA</span><span class="p">.</span><span class="n">STUDIJSKIPROGRAM</span>
+                <span class="n">WHERE</span>   <span class="n">ID</span> <span class="o">=</span> <span class="o">:</span><span class="n">hStudyProgramId</span><span class="p">;</span>
+            <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Select into"</span><span class="p">);</span>
+            
+            <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\t</span><span class="s">Broj bodova je sada %hd</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">hESPB</span><span class="p">);</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"|-----+------+------------------------------+----+----+------------------------------+--------------------------------------------------+</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CLOSE</span> <span class="n">cStudyPrograms</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Close cursor cStudyPrograms"</span><span class="p">);</span>
+
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CONNECT</span> <span class="n">RESET</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Connect reset"</span><span class="p">);</span>
+    
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>U slučaju brisanja redova pomoću kursora, nije potrebno deklarisati koje kolone se mogu brisati kao što je to bio slučaj sa ažuriranjem. Potrebno je samo da tabela <code class="language-plaintext highlighter-rouge">&lt;TABELA&gt;</code> bude jedina tabela koja se nalazi u <code class="language-plaintext highlighter-rouge">FROM</code> klauzi upita kursora naziva <code class="language-plaintext highlighter-rouge">&lt;IME_KURSORA&gt;</code>, da bi se mogla koristiti <code class="language-plaintext highlighter-rouge">DELETE</code> naredba oblika:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">DELETE</span> 
+<span class="k">FROM</span>    <span class="o">&lt;</span><span class="n">IME_TABELE</span><span class="o">&gt;</span>
+<span class="k">WHERE</span>   <span class="k">CURRENT</span> <span class="k">OF</span> <span class="o">&lt;</span><span class="n">IME_KURSORA</span><span class="o">&gt;</span>
+</code></pre></div></div>
+
+<p>SQL naredba <code class="language-plaintext highlighter-rouge">DELETE</code> koja ažurira podatke u tabeli na osnovu pozicije nekog kursora naziva se <em>pozicionirajuća</em> <code class="language-plaintext highlighter-rouge">DELETE</code> naredba.</p>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 3.4</strong>: Napisati C/SQL program kojim se za sve studente studijskog programa <em>Informatika</em> briše prvi položen ispit (ukoliko ima položenih ispita tog studenta). Za svako obrisano polaganje ispisati: indeks, ime i prezime studenta, datum polaganja i naziv predmeta.</p>
+</div>
+
+<p>Rešenje:</p>
+
+<p><strong>Datoteka: <code class="language-plaintext highlighter-rouge">vezbe/primeri/poglavlje_3/zadatak_3_4.sqc</code></strong>:</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">INCLUDE</span> <span class="n">SQLCA</span><span class="p">;</span>
+
+<span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">BEGIN</span> <span class="n">DECLARE</span> <span class="n">SECTION</span><span class="p">;</span>
+<span class="n">sqlint32</span> <span class="n">hIndex</span><span class="p">;</span>
+<span class="kt">char</span> <span class="n">hName</span><span class="p">[</span><span class="mi">51</span><span class="p">];</span>
+<span class="kt">char</span> <span class="n">hSurname</span><span class="p">[</span><span class="mi">51</span><span class="p">];</span>
+<span class="kt">char</span> <span class="n">hCourseName</span><span class="p">[</span><span class="mi">151</span><span class="p">];</span>
+<span class="kt">char</span> <span class="n">hExamDate</span><span class="p">[</span><span class="mi">11</span><span class="p">];</span>
+<span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">END</span> <span class="n">DECLARE</span> <span class="n">SECTION</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">checkSQL</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">SQLCODE</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"Greska %d: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">SQLCODE</span><span class="p">,</span> <span class="n">str</span><span class="p">);</span>
+
+        <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CONNECT</span> <span class="n">RESET</span><span class="p">;</span>
+        <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CONNECT</span> <span class="n">TO</span> <span class="n">stud2020</span> <span class="n">USER</span> <span class="n">student</span> <span class="n">USING</span> <span class="n">abcdef</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Connect"</span><span class="p">);</span>
+    
+    <span class="n">EXEC</span> <span class="n">SQL</span> 
+        <span class="n">DECLARE</span> <span class="n">cFirstExams</span> <span class="n">CURSOR</span> <span class="n">FOR</span> 
+        <span class="n">WITH</span> <span class="n">POMOCNA</span> <span class="n">AS</span> <span class="p">(</span>
+            <span class="n">SELECT</span>      <span class="n">I</span><span class="p">.</span><span class="n">INDEKS</span><span class="p">,</span> 
+                        <span class="n">MIN</span><span class="p">(</span><span class="n">DATPOLAGANJA</span><span class="p">)</span> <span class="n">AS</span> <span class="n">DATUMPRVOG</span>
+            <span class="n">FROM</span>        <span class="n">DA</span><span class="p">.</span><span class="n">ISPIT</span> <span class="n">I</span> <span class="n">JOIN</span>
+                        <span class="n">DA</span><span class="p">.</span><span class="n">DOSIJE</span> <span class="n">D</span> <span class="n">ON</span> <span class="n">D</span><span class="p">.</span><span class="n">INDEKS</span> <span class="o">=</span> <span class="n">I</span><span class="p">.</span><span class="n">INDEKS</span> <span class="n">JOIN</span>
+                        <span class="n">DA</span><span class="p">.</span><span class="n">STUDIJSKIPROGRAM</span> <span class="n">S</span> <span class="n">ON</span> <span class="n">S</span><span class="p">.</span><span class="n">ID</span> <span class="o">=</span> <span class="n">D</span><span class="p">.</span><span class="n">IDPROGRAMA</span>
+            <span class="n">WHERE</span>       <span class="n">S</span><span class="p">.</span><span class="n">NAZIV</span> <span class="o">=</span> <span class="err">'</span><span class="n">Informatika</span><span class="err">'</span> <span class="n">AND</span>
+                        <span class="n">OCENA</span> <span class="o">&gt;</span> <span class="mi">5</span> <span class="n">AND</span>
+                        <span class="n">STATUS</span> <span class="o">=</span> <span class="sc">'o'</span>
+            <span class="n">GROUP</span> <span class="n">BY</span>    <span class="n">I</span><span class="p">.</span><span class="n">INDEKS</span>
+            <span class="n">HAVING</span>      <span class="n">MIN</span><span class="p">(</span><span class="n">DATPOLAGANJA</span><span class="p">)</span> <span class="n">IS</span> <span class="n">NOT</span> <span class="nb">NULL</span>
+        <span class="p">)</span>
+
+        <span class="n">SELECT</span>  <span class="n">I</span><span class="p">.</span><span class="n">INDEKS</span><span class="p">,</span>
+                <span class="p">(</span>
+                    <span class="n">SELECT</span>  <span class="n">IME</span> 
+                    <span class="n">FROM</span>    <span class="n">DA</span><span class="p">.</span><span class="n">DOSIJE</span> <span class="n">D</span> 
+                    <span class="n">WHERE</span>   <span class="n">D</span><span class="p">.</span><span class="n">INDEKS</span> <span class="o">=</span> <span class="n">I</span><span class="p">.</span><span class="n">INDEKS</span>
+                <span class="p">),</span> 
+                <span class="p">(</span>
+                    <span class="n">SELECT</span>  <span class="n">PREZIME</span> 
+                    <span class="n">FROM</span>    <span class="n">DA</span><span class="p">.</span><span class="n">DOSIJE</span> <span class="n">D</span> 
+                    <span class="n">WHERE</span>   <span class="n">D</span><span class="p">.</span><span class="n">INDEKS</span> <span class="o">=</span> <span class="n">I</span><span class="p">.</span><span class="n">INDEKS</span>
+                <span class="p">),</span> 
+                <span class="p">(</span>
+                    <span class="n">SELECT</span>  <span class="n">NAZIV</span>
+                    <span class="n">FROM</span>    <span class="n">DA</span><span class="p">.</span><span class="n">PREDMET</span> <span class="n">P</span>
+                    <span class="n">WHERE</span>   <span class="n">P</span><span class="p">.</span><span class="n">ID</span> <span class="o">=</span> <span class="n">I</span><span class="p">.</span><span class="n">IDPREDMETA</span>
+                <span class="p">),</span>
+                <span class="n">DATPOLAGANJA</span>
+        <span class="n">FROM</span>    <span class="n">DA</span><span class="p">.</span><span class="n">ISPIT</span> <span class="n">I</span>
+        <span class="n">WHERE</span>   <span class="n">EXISTS</span> <span class="p">(</span>
+                    <span class="n">SELECT</span>  <span class="o">*</span>
+                    <span class="n">FROM</span>    <span class="n">POMOCNA</span> <span class="n">PO</span> 
+                    <span class="n">WHERE</span>   <span class="n">PO</span><span class="p">.</span><span class="n">INDEKS</span> <span class="o">=</span> <span class="n">I</span><span class="p">.</span><span class="n">INDEKS</span> <span class="n">AND</span>
+                            <span class="n">PO</span><span class="p">.</span><span class="n">DATUMPRVOG</span> <span class="o">=</span> <span class="n">I</span><span class="p">.</span><span class="n">DATPOLAGANJA</span>
+                <span class="p">);</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Declare cursor"</span><span class="p">);</span>
+    
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">OPEN</span> <span class="n">cFirstExams</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Open cursor"</span><span class="p">);</span>
+    
+    <span class="c1">// Brojac obrisanih redova</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+
+    <span class="k">for</span><span class="p">(;;)</span> <span class="p">{</span>
+        <span class="n">EXEC</span> <span class="n">SQL</span> 
+            <span class="n">FETCH</span>   <span class="n">cFirstExams</span>
+            <span class="n">INTO</span>    <span class="o">:</span><span class="n">hIndex</span><span class="p">,</span>
+                    <span class="o">:</span><span class="n">hName</span><span class="p">,</span> 
+                    <span class="o">:</span><span class="n">hSurname</span><span class="p">,</span>
+                    <span class="o">:</span><span class="n">hCourseName</span><span class="p">,</span>
+                    <span class="o">:</span><span class="n">hExamDate</span><span class="p">;</span>
+        <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Fetch cursor"</span><span class="p">);</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">SQLCODE</span> <span class="o">==</span> <span class="mi">100</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Brisem polaganje studenta %-15.15s %-15.15s (%d) hExamDatea %s na predmetu %-50.50s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">hName</span><span class="p">,</span> <span class="n">hSurname</span><span class="p">,</span> <span class="n">hIndex</span><span class="p">,</span> <span class="n">hExamDate</span><span class="p">,</span> <span class="n">hCourseName</span><span class="p">);</span>
+
+        <span class="c1">// Uvecavamo brojac za jedan</span>
+        <span class="o">++</span><span class="n">i</span><span class="p">;</span>
+
+        <span class="n">EXEC</span> <span class="n">SQL</span> 
+            <span class="n">DELETE</span>  <span class="n">FROM</span> <span class="n">DA</span><span class="p">.</span><span class="n">ISPIT</span>
+            <span class="n">WHERE</span>   <span class="n">CURRENT</span> <span class="n">OF</span> <span class="n">cFirstExams</span><span class="p">;</span> <span class="c1">// Na ovaj nacin kazemo da zelimo da obrisemo </span>
+                                            <span class="c1">// trenutni red u kursoru cFirstExams</span>
+        <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Delete"</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n\n</span><span class="s">Obrisali smo %d redova.</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span>
+
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CLOSE</span> <span class="n">cFirstExams</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Close cursor"</span><span class="p">);</span>
+    
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CONNECT</span> <span class="n">RESET</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Connect reset"</span><span class="p">);</span>
+    
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h2 id="34-ugnežđeni-kursori">3.4 Ugnežđeni kursori</h2>
+
+<p>Do sada smo videli kako možemo koristiti kursore za upravljanje potencijalno višim brojem redova u rezultatu upita. Obrada ovih redova je do sada obuhvatala jednostavno procesiranje podataka, poput ispisivanja na standardni izlaz, uz eventualne transformacije ili ažuriranje ili brisanje podataka na koje pokazuje kursor.</p>
+
+<p>Međutim, šta raditi ukoliko je potrebno da za svaki red rezultata jednog upita izvršimo akciju nad rezultatom nekog drugog upita? Da li nam kursori u ovakvim situacijama mogu pomoći? Odgovor je potvrdan zbog činjenice da je kursore moguće ugnežđavati. Tipičan tok rada podrazumeva naredne korake u slučaju dva kursora od kojih je jedan (unutrašnji) ugnežđen u drugi (spoljašnji):</p>
+
+<ol>
+  <li>
+    <p>Deklaracija spoljašnjeg kursora.</p>
+  </li>
+  <li>
+    <p>Deklaracija unutrašnjeg kursora.</p>
+  </li>
+  <li>
+    <p>Otvaranje spoljašnjeg kursora.</p>
+  </li>
+  <li>
+    <p>Dohvatanje jednog po jednog reda spoljašnjeg kursora. Za svaki dohvaćeni red u spoljašnjem kursoru:</p>
+
+    <ol>
+      <li>
+        <p>Obrada dohvaćenih podataka spoljašnjeg kursora.</p>
+      </li>
+      <li>
+        <p>Otvaranje unutrašnjeg kursora.</p>
+      </li>
+      <li>
+        <p>Dohvatanje jednog po jednog reda unutrašnjeg kursora. Za svaki dohvaćeni red u unutrašnjem kursoru:</p>
+
+        <ol>
+          <li>Obrada dohvaćenih podataka unutrašnjeg kursora.</li>
+        </ol>
+      </li>
+      <li>
+        <p>Zatvaranje unutrašnjeg kursora.</p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p>Zatvaranje spoljašnjeg kursora.</p>
+  </li>
+</ol>
+
+<p>Naredna dva zadatka ilustruju rad sa ugnežđenim kursorima.</p>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 3.5</strong>: Napisati C/SQL program kojim se formira izveštaj o studentima koji su padali neki ispit koji sadrži sledeće informacije: ime, prezime i broj indeksa. Za svaki studijski program formirati posebnu sekciju izveštaja sa zaglavljem koje sadrži identifikator i naziv studijskog programa. Izveštaj urediti po nazivu studijskog programa rastuće, a sadržaj svake sekcije urediti po broju indeksa rastuće.</p>
+</div>
+
+<p>Rešenje:</p>
+
+<p><strong>Datoteka: <code class="language-plaintext highlighter-rouge">vezbe/primeri/poglavlje_3/zadatak_3_5.sqc</code></strong>:</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">INCLUDE</span> <span class="n">SQLCA</span><span class="p">;</span>
+
+<span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">BEGIN</span> <span class="n">DECLARE</span> <span class="n">SECTION</span><span class="p">;</span>
+<span class="n">sqlint32</span> <span class="n">hStudyProgramId</span><span class="p">;</span>
+<span class="kt">char</span> <span class="n">hStudyProgramName</span><span class="p">[</span><span class="mi">201</span><span class="p">];</span>
+
+<span class="n">sqlint32</span> <span class="n">hIndex</span><span class="p">;</span>
+<span class="kt">char</span> <span class="n">hName</span><span class="p">[</span><span class="mi">21</span><span class="p">];</span>
+<span class="kt">char</span> <span class="n">hSurname</span><span class="p">[</span><span class="mi">21</span><span class="p">];</span>
+<span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">END</span> <span class="n">DECLARE</span> <span class="n">SECTION</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">checkSQL</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">SQLCODE</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"Greska %d: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">SQLCODE</span><span class="p">,</span> <span class="n">str</span><span class="p">);</span>
+
+        <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CONNECT</span> <span class="n">RESET</span><span class="p">;</span>
+        <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CONNECT</span> <span class="n">TO</span> <span class="n">stud2020</span> <span class="n">USER</span> <span class="n">student</span> <span class="n">USING</span> <span class="n">abcdef</span><span class="p">;</span>  
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Konekcija na bazu"</span><span class="p">);</span>
+    
+    <span class="n">EXEC</span> <span class="n">SQL</span> 
+        <span class="n">DECLARE</span> <span class="n">cStudyPrograms</span> <span class="n">CURSOR</span> <span class="n">FOR</span> 
+        <span class="n">SELECT</span>      <span class="n">ID</span><span class="p">,</span> 
+                    <span class="n">NAZIV</span>
+        <span class="n">FROM</span>        <span class="n">DA</span><span class="p">.</span><span class="n">STUDIJSKIPROGRAM</span>
+        <span class="n">ORDER</span> <span class="n">BY</span>    <span class="n">NAZIV</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Deklaracija kursora - cStudyPrograms"</span><span class="p">);</span>
+    
+    <span class="n">EXEC</span> <span class="n">SQL</span> 
+        <span class="n">DECLARE</span> <span class="n">cFailedExams</span> <span class="n">CURSOR</span> <span class="n">FOR</span> 
+        <span class="n">SELECT</span>      <span class="n">INDEKS</span><span class="p">,</span> 
+                    <span class="n">IME</span><span class="p">,</span> 
+                    <span class="n">PREZIME</span>
+        <span class="n">FROM</span>        <span class="n">DA</span><span class="p">.</span><span class="n">DOSIJE</span> <span class="n">D</span> 
+        <span class="n">WHERE</span>       <span class="n">D</span><span class="p">.</span><span class="n">IDPROGRAMA</span> <span class="o">=</span> <span class="o">:</span><span class="n">hStudyProgramId</span> <span class="n">AND</span>
+                    <span class="n">EXISTS</span> <span class="p">(</span>
+                        <span class="n">SELECT</span>  <span class="o">*</span> 
+                        <span class="n">FROM</span>    <span class="n">DA</span><span class="p">.</span><span class="n">ISPIT</span>
+                        <span class="n">WHERE</span>   <span class="n">INDEKS</span> <span class="o">=</span> <span class="n">D</span><span class="p">.</span><span class="n">INDEKS</span> <span class="n">AND</span>
+                                <span class="n">OCENA</span> <span class="o">=</span> <span class="mi">5</span> <span class="n">AND</span>
+                                <span class="n">STATUS</span> <span class="o">=</span> <span class="sc">'o'</span>
+                    <span class="p">)</span>
+        <span class="n">ORDER</span> <span class="n">BY</span>    <span class="n">INDEKS</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Deklaracija kursora - cFailedExams"</span><span class="p">);</span>
+    
+    <span class="c1">/////////////////////////////////////</span>
+    <span class="c1">// Pocetak obrade spoljasnjeg kursora</span>
+
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">OPEN</span> <span class="n">cStudyPrograms</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Otvaranje kursora - cStudyPrograms"</span><span class="p">);</span>
+
+    <span class="k">for</span><span class="p">(;;)</span> <span class="p">{</span>
+        <span class="n">EXEC</span> <span class="n">SQL</span> 
+            <span class="n">FETCH</span>   <span class="n">cStudyPrograms</span>
+            <span class="n">INTO</span>    <span class="o">:</span><span class="n">hStudyProgramId</span><span class="p">,</span> 
+                    <span class="o">:</span><span class="n">hStudyProgramName</span><span class="p">;</span>
+        <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Dohvatanje podataka iz kursora - cStudyPrograms"</span><span class="p">);</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">SQLCODE</span> <span class="o">==</span> <span class="mi">100</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+        
+        <span class="c1">// Stampamo sekciju za smer</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"</span><span class="se">\n</span><span class="s">********************************************************************************</span><span class="se">\n</span><span class="s">"</span>
+               <span class="s">"*Studenti sa studijskog programa %-4.4d: %-40.40s*</span><span class="se">\n</span><span class="s">"</span>
+               <span class="s">"********************************************************************************</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span>
+               <span class="n">hStudyProgramId</span><span class="p">,</span> <span class="n">hStudyProgramName</span><span class="p">);</span>
+        
+        <span class="c1">/////////////////////////////////////</span>
+        <span class="c1">// Pocetak obrade unutrasnjeg kursora</span>
+
+        <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">OPEN</span> <span class="n">cFailedExams</span><span class="p">;</span>
+        <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Otvaranje kursora - cFailedExams"</span><span class="p">);</span>
+        
+        <span class="k">for</span><span class="p">(;;)</span> <span class="p">{</span>
+            <span class="n">EXEC</span> <span class="n">SQL</span> 
+                <span class="n">FETCH</span>   <span class="n">cFailedExams</span>
+                <span class="n">INTO</span>    <span class="o">:</span><span class="n">hIndex</span><span class="p">,</span> 
+                        <span class="o">:</span><span class="n">hName</span><span class="p">,</span> 
+                        <span class="o">:</span><span class="n">hSurname</span><span class="p">;</span>
+            <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Dohvatanje podataka iz kursora - cFailedExams"</span><span class="p">);</span>
+
+            <span class="k">if</span><span class="p">(</span><span class="n">SQLCODE</span> <span class="o">==</span> <span class="mi">100</span><span class="p">)</span> <span class="p">{</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+            
+            <span class="c1">// Stampamo informacije o studentu</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">"Student %s %s sa brojem hIndexa %d</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">hName</span><span class="p">,</span> <span class="n">hSurname</span><span class="p">,</span> <span class="n">hIndex</span><span class="p">);</span>    
+        <span class="p">}</span>
+        
+        <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CLOSE</span> <span class="n">cFailedExams</span><span class="p">;</span>
+        <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Zatvaranje kursora - cFailedExams"</span><span class="p">);</span>
+        
+        <span class="c1">// Kraj obrade unutrasnjeg kursora</span>
+        <span class="c1">//////////////////////////////////</span>
+    <span class="p">}</span>
+
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CLOSE</span> <span class="n">cStudyPrograms</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Zatvaranje kursora - cStudyPrograms"</span><span class="p">);</span>
+
+    <span class="c1">// Kraj obrade spoljasnjeg kursora</span>
+    <span class="c1">//////////////////////////////////</span>
+
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CONNECT</span> <span class="n">RESET</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Connect reset"</span><span class="p">);</span>
+    
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<p>Za naredni zadatak je potrebno izvršiti narednu SQL naredbu:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">ALTER</span> <span class="k">TABLE</span> <span class="n">DA</span><span class="p">.</span><span class="n">ISPIT</span>
+<span class="k">ADD</span> <span class="k">COLUMN</span> <span class="n">NAPOMENA</span> <span class="nb">VARCHAR</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 3.6</strong>: Napisati C/SQL program kojim se za svaki smer pronalazi student koji ima najviše položenih ESPB bodova. Zatim u tabeli <code class="language-plaintext highlighter-rouge">ISPIT</code> u napomeni koja se odnosi na poslednji položeni ispit tog studenta zapisuje <code class="language-plaintext highlighter-rouge">'Ovo je student koji ima najvise polozenih kredita na svom smeru'</code>.</p>
+</div>
+
+<p>Rešenje: U ovom zadatku smo kreirali pomoćne funkcije koje upravljaju kursorima i obrađuju podatke iz dohvaćenih rezultata, kako bismo povećali modularnost koda. Ono što je važno primetiti jeste da, bez obzira na organizaciju izvornog koda, <strong>neophodno je da se deklaracije kursora u kodu nalaze ispred drugih operacija sa kursorima u kodu</strong>. Ukoliko to nije slučaj, onda će Db2 pretprocesor prijaviti grešku. Razlog za ovo ponašanje jeste zbog toga što Db2 pretprocesor kod čita kao tekst, ne uzimajući u obzir redosled stvarnog izvršavanja operacija i poziva funkcija. Na primer, ukoliko bi Db2 pretprocesor prvo naišao na naredbu <code class="language-plaintext highlighter-rouge">OPEN</code>, pa onda na <code class="language-plaintext highlighter-rouge">DECLARE</code>, tada bi prijavio grešku zato što naredba <code class="language-plaintext highlighter-rouge">OPEN</code> referiše na naziv kursora za koji Db2 pretprocesor prethodno nije zapamtio da postoji.</p>
+
+<p><strong>Datoteka: <code class="language-plaintext highlighter-rouge">vezbe/primeri/poglavlje_3/zadatak_3_6.sqc</code></strong>:</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+</span>
+<span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">INCLUDE</span> <span class="n">SQLCA</span><span class="p">;</span>
+
+<span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">BEGIN</span> <span class="n">DECLARE</span> <span class="n">SECTION</span><span class="p">;</span>
+<span class="kt">short</span> <span class="n">hSumESPB</span><span class="p">;</span> 
+<span class="n">sqlint32</span> <span class="n">hStudyProgramId</span><span class="p">;</span>
+<span class="n">sqlint32</span> <span class="n">hIndex</span><span class="p">;</span>
+
+<span class="kt">char</span> <span class="n">hLastExamDate</span><span class="p">[</span><span class="mi">11</span><span class="p">];</span>
+<span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">END</span> <span class="n">DECLARE</span> <span class="n">SECTION</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">checkSQL</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">str</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span><span class="p">(</span><span class="n">SQLCODE</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">fprintf</span><span class="p">(</span><span class="n">stderr</span><span class="p">,</span> <span class="s">"Greska %d: %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> <span class="n">SQLCODE</span><span class="p">,</span> <span class="n">str</span><span class="p">);</span>
+
+        <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CONNECT</span> <span class="n">RESET</span><span class="p">;</span>
+        <span class="n">exit</span><span class="p">(</span><span class="n">EXIT_FAILURE</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">declareMaxSumESPBCursor</span><span class="p">();</span>
+<span class="kt">void</span> <span class="nf">declareLastExamsCursor</span><span class="p">();</span>
+<span class="kt">void</span> <span class="nf">iterOverMaxSumESPBCursor</span><span class="p">();</span>
+<span class="kt">void</span> <span class="nf">iterOverLastExamsCursor</span><span class="p">();</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CONNECT</span> <span class="n">TO</span> <span class="n">stud2020</span> <span class="n">USER</span> <span class="n">student</span> <span class="n">USING</span> <span class="n">abcdef</span><span class="p">;</span>  
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Konekcija na bazu"</span><span class="p">);</span>
+    
+    <span class="n">declareMaxSumESPBCursor</span><span class="p">();</span>
+    <span class="n">declareLastExamsCursor</span><span class="p">();</span>    
+    
+    <span class="n">iterOverMaxSumESPBCursor</span><span class="p">();</span>
+
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CONNECT</span> <span class="n">RESET</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Diskonekcija sa baze"</span><span class="p">);</span>
+    
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">declareMaxSumESPBCursor</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">EXEC</span> <span class="n">SQL</span> 
+        <span class="n">DECLARE</span> <span class="n">cMaxSumESPB</span> <span class="n">CURSOR</span> <span class="n">FOR</span> 
+        <span class="n">WITH</span> <span class="n">POMOCNA</span> <span class="n">AS</span> <span class="p">(</span>
+            <span class="n">SELECT</span>      <span class="n">D</span><span class="p">.</span><span class="n">IDPROGRAMA</span><span class="p">,</span> 
+                        <span class="n">D</span><span class="p">.</span><span class="n">INDEKS</span><span class="p">,</span> 
+                        <span class="n">SUM</span><span class="p">(</span><span class="n">P</span><span class="p">.</span><span class="n">ESPB</span><span class="p">)</span> <span class="n">SUMA</span>
+            <span class="n">FROM</span>        <span class="n">DA</span><span class="p">.</span><span class="n">DOSIJE</span> <span class="n">D</span> <span class="n">JOIN</span>
+                        <span class="n">DA</span><span class="p">.</span><span class="n">ISPIT</span> <span class="n">I</span> <span class="n">ON</span> <span class="n">I</span><span class="p">.</span><span class="n">INDEKS</span> <span class="o">=</span> <span class="n">D</span><span class="p">.</span><span class="n">INDEKS</span> <span class="n">JOIN</span>
+                        <span class="n">DA</span><span class="p">.</span><span class="n">PREDMET</span> <span class="n">P</span> <span class="n">ON</span> <span class="n">P</span><span class="p">.</span><span class="n">ID</span> <span class="o">=</span> <span class="n">I</span><span class="p">.</span><span class="n">IDPREDMETA</span>
+            <span class="n">WHERE</span>       <span class="n">OCENA</span> <span class="o">&gt;</span> <span class="mi">5</span> <span class="n">AND</span>
+                        <span class="n">STATUS</span> <span class="o">=</span> <span class="sc">'o'</span>
+            <span class="n">GROUP</span> <span class="n">BY</span>    <span class="n">D</span><span class="p">.</span><span class="n">IDPROGRAMA</span><span class="p">,</span> 
+                        <span class="n">D</span><span class="p">.</span><span class="n">INDEKS</span>
+        <span class="p">)</span>
+        <span class="n">SELECT</span>      <span class="n">POM</span><span class="p">.</span><span class="n">SUMA</span><span class="p">,</span> 
+                    <span class="n">D</span><span class="p">.</span><span class="n">INDEKS</span><span class="p">,</span> 
+                    <span class="n">POM</span><span class="p">.</span><span class="n">IDPROGRAMA</span>
+        <span class="n">FROM</span>        <span class="n">POMOCNA</span> <span class="n">POM</span> <span class="n">JOIN</span>
+                    <span class="n">DA</span><span class="p">.</span><span class="n">DOSIJE</span> <span class="n">D</span> <span class="n">ON</span> <span class="n">D</span><span class="p">.</span><span class="n">INDEKS</span> <span class="o">=</span> <span class="n">POM</span><span class="p">.</span><span class="n">INDEKS</span> 
+        <span class="n">WHERE</span>       <span class="n">POM</span><span class="p">.</span><span class="n">SUMA</span> <span class="n">IN</span> <span class="p">(</span>
+                        <span class="n">SELECT</span>  <span class="n">MAX</span><span class="p">(</span><span class="n">SUMA</span><span class="p">)</span> 
+                        <span class="n">FROM</span>    <span class="n">POMOCNA</span> <span class="n">POM1</span> 
+                        <span class="n">WHERE</span>   <span class="n">POM1</span><span class="p">.</span><span class="n">IDPROGRAMA</span> <span class="o">=</span> <span class="n">POM</span><span class="p">.</span><span class="n">IDPROGRAMA</span>
+                    <span class="p">)</span>
+        <span class="n">ORDER</span> <span class="n">BY</span>    <span class="n">IDPROGRAMA</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Deklaracija kursora - cMaxSumESPB"</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">declareLastExamsCursor</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">EXEC</span> <span class="n">SQL</span> 
+        <span class="n">DECLARE</span> <span class="n">cLastExams</span> <span class="n">CURSOR</span> <span class="n">FOR</span> 
+        <span class="n">WITH</span> <span class="n">POMOCNA</span> <span class="n">AS</span> <span class="p">(</span>
+            <span class="n">SELECT</span>      <span class="n">I</span><span class="p">.</span><span class="n">INDEKS</span><span class="p">,</span> 
+                        <span class="n">MAX</span><span class="p">(</span><span class="n">DATPOLAGANJA</span><span class="p">)</span> <span class="n">DATUMPOSLEDNJEG</span>
+            <span class="n">FROM</span>        <span class="n">DA</span><span class="p">.</span><span class="n">ISPIT</span> <span class="n">I</span> <span class="n">JOIN</span>
+                        <span class="n">DA</span><span class="p">.</span><span class="n">DOSIJE</span> <span class="n">D</span> <span class="n">ON</span> <span class="n">D</span><span class="p">.</span><span class="n">INDEKS</span> <span class="o">=</span> <span class="n">I</span><span class="p">.</span><span class="n">INDEKS</span>
+            <span class="n">WHERE</span>       <span class="n">OCENA</span> <span class="o">&gt;</span> <span class="mi">5</span> <span class="n">AND</span>
+                        <span class="n">STATUS</span> <span class="o">=</span> <span class="sc">'o'</span>
+            <span class="n">GROUP</span> <span class="n">BY</span>    <span class="n">I</span><span class="p">.</span><span class="n">INDEKS</span>
+            <span class="n">HAVING</span>      <span class="n">MAX</span><span class="p">(</span><span class="n">DATPOLAGANJA</span><span class="p">)</span> <span class="n">IS</span> <span class="n">NOT</span> <span class="nb">NULL</span>
+        <span class="p">)</span>
+        <span class="n">SELECT</span>  <span class="n">I</span><span class="p">.</span><span class="n">INDEKS</span>
+        <span class="n">FROM</span>    <span class="n">DA</span><span class="p">.</span><span class="n">ISPIT</span> <span class="n">I</span>
+        <span class="n">WHERE</span>   <span class="n">I</span><span class="p">.</span><span class="n">INDEKS</span> <span class="o">=</span> <span class="o">:</span><span class="n">hIndex</span> <span class="n">AND</span>
+                <span class="n">EXISTS</span> <span class="p">(</span>
+                    <span class="n">SELECT</span>  <span class="o">*</span> 
+                    <span class="n">FROM</span>    <span class="n">POMOCNA</span> <span class="n">PO</span> 
+                    <span class="n">WHERE</span>   <span class="n">PO</span><span class="p">.</span><span class="n">INDEKS</span> <span class="o">=</span> <span class="n">I</span><span class="p">.</span><span class="n">INDEKS</span> <span class="n">AND</span>
+                            <span class="n">PO</span><span class="p">.</span><span class="n">DATUMPOSLEDNJEG</span> <span class="o">=</span> <span class="n">DATPOLAGANJA</span>
+                <span class="p">)</span>
+        <span class="n">FOR</span>     <span class="n">UPDATE</span> <span class="n">OF</span> <span class="n">NAPOMENA</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Deklaracija kursora - cLastExams"</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">iterOverMaxSumESPBCursor</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">OPEN</span> <span class="n">cMaxSumESPB</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Otvaranje kursora - cMaxSumESPB"</span><span class="p">);</span>
+
+    <span class="k">for</span><span class="p">(;;)</span> <span class="p">{</span>
+        <span class="n">EXEC</span> <span class="n">SQL</span> 
+            <span class="n">FETCH</span>   <span class="n">cMaxSumESPB</span>                
+            <span class="n">INTO</span>    <span class="o">:</span><span class="n">hSumESPB</span><span class="p">,</span> 
+                    <span class="o">:</span><span class="n">hIndex</span><span class="p">,</span> 
+                    <span class="o">:</span><span class="n">hStudyProgramId</span><span class="p">;</span>
+        <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Dohvatanje podataka iz kursora - cMaxSumESPB"</span><span class="p">);</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">SQLCODE</span> <span class="o">==</span> <span class="mi">100</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+        
+        <span class="c1">// Stampamo informaciju o studentu koji ima najvise kredita na smeru</span>
+        <span class="n">printf</span><span class="p">(</span><span class="s">"Student sa brojem hIndexa %d na smeru %d ima polozeno %d bodova!</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span> 
+               <span class="n">hIndex</span><span class="p">,</span> <span class="n">hStudyProgramId</span><span class="p">,</span> <span class="n">hSumESPB</span><span class="p">);</span>
+        
+        <span class="n">iterOverLastExamsCursor</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CLOSE</span> <span class="n">cMaxSumESPB</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Zatvaranje kursora - cMaxSumESPB"</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">iterOverLastExamsCursor</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">OPEN</span> <span class="n">cLastExams</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Otvaranje kursora - cLastExams"</span><span class="p">);</span>
+    
+    <span class="k">for</span><span class="p">(;;)</span> <span class="p">{</span>
+        <span class="n">EXEC</span> <span class="n">SQL</span> 
+            <span class="n">FETCH</span>   <span class="n">cLastExams</span>
+            <span class="n">INTO</span>    <span class="o">:</span><span class="n">hIndex</span><span class="p">,</span> 
+                    <span class="o">:</span><span class="n">hLastExamDate</span><span class="p">;</span>
+        <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Dohvatanje podataka iz kursora - cLastExams"</span><span class="p">);</span>
+
+        <span class="k">if</span><span class="p">(</span><span class="n">SQLCODE</span> <span class="o">==</span> <span class="mi">100</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">break</span><span class="p">;</span>
+        <span class="p">}</span>
+        
+        <span class="c1">// Pokusavamo da unesemo novi red u tabelu DOSIJEEXT</span>
+        <span class="n">EXEC</span> <span class="n">SQL</span> 
+            <span class="n">UPDATE</span>  <span class="n">DA</span><span class="p">.</span><span class="n">ISPIT</span>
+            <span class="n">SET</span>     <span class="n">NAPOMENA</span> <span class="o">=</span> <span class="err">'</span><span class="n">Ovo</span> <span class="n">je</span> <span class="n">student</span> <span class="n">koji</span> <span class="n">ima</span> <span class="n">najvise</span> <span class="n">polozenih</span> <span class="n">kredita</span> <span class="n">na</span> <span class="n">svom</span> <span class="n">smeru</span><span class="err">'</span>
+            <span class="n">WHERE</span>   <span class="n">CURRENT</span> <span class="n">OF</span> <span class="n">cLastExams</span><span class="p">;</span>
+        <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Update ISPIT"</span><span class="p">);</span>
+    <span class="p">}</span>
+    
+    <span class="n">EXEC</span> <span class="n">SQL</span> <span class="n">CLOSE</span> <span class="n">cLastExams</span><span class="p">;</span>
+    <span class="n">checkSQL</span><span class="p">(</span><span class="s">"Zatvaranje kursora - cLastExams"</span><span class="p">);</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h2 id="35-zadaci-za-vežbu">3.5 Zadaci za vežbu</h2>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 3.7</strong>: Napisati C/SQL program koji ispisuje sva ženska imena koja postoje među studentima (zajedno sa brojem pojavljivanja) u opadajućem poretku.</p>
+</div>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 3.8</strong>: Napisati C/SQL program koji ispisuje za svakog studenta ime, prezime, poslednji položeni ispit (naziv predmeta koji je položen), kao i datum polaganja tog ispita.</p>
+</div>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 3.9</strong>: Napisati C/SQL program koji se za sve studente smera <em>Informatika</em> ažurira u tabeli <code class="language-plaintext highlighter-rouge">ISPIT</code> prvi položen ispit (ukoliko ima položenih ispita za tog studenta) tako što povećava ocenu za 1 (ukoliko je ocena bila 5 ili 10 ostavlja je nepromenjenu).</p>
+</div>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 3.10</strong>: Napisati C/SQL program koji ispisuje sve napomene koje se nalaze u tabeli <code class="language-plaintext highlighter-rouge">ISPIT</code>, navodeći i broj indeksa studenata. (Videti napomenu iznad zadatka 3.6 za kreiranje kolone NAPOMENA.)</p>
+</div>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 3.11</strong>: Napisati C/SQL program kojim se sa standardnog ulaza unosi ime studijskog programa, a zatim se ispisuje 10 studenata tog smera koji imaju najviše neuspešnih polaganja na ispitima tokom studija. Izdvojiti ime, prezime, broj indeksa i broj neuspešnih polaganja tokom studija.</p>
+</div>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 3.12</strong>: Napisati C/SQL program koji za studenta čiji se broj indeksa zadaje sa standardnog ulaza, ispisuje naziv predmeta, datum polaganja, ocenu i broj osvojenih poena za svaki ispit koji je student položio. Nakon toga ispisuje se prosečna ocena studenta.</p>
+</div>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 3.13</strong>: Napisati C/SQL program kojim se omogućava nastavniku da unese naziv predmeta, godinu roka i oznaku roka. Za svako polaganje datog predmeta u datom ispitnom roku ponuditi nastavniku mogućnost da izmeni ocenu koju je student osvojio. Ispisati informacije o indeksu, imenu i prezimenu studenta kao i ocenu koju je dobio, pa zatražiti od nastavnika novu ocenu. Nakon unosa nove ocene, obavestiti nastavnika o uspešnosti izmene i preći na naredno polaganje (ukoliko ih ima više).</p>
+</div>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 3.14</strong>: Napisati C/SQL program kojim se brišu sva uspešna polaganja ispita iz barem trećeg pokušaja za studente koji su upisivali najviše N godina, gde se vrednost za N unosi sa standardnog ulaza.</p>
+</div>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 3.15</strong>: Napisati C/SQL program kojim se, za svakog studenta koji se upisao u godini koja se učitava sa standardnog ulaza, ispisuju podaci o imenu, prezimenu i prosečnoj oceni, a zatim se ispisuju informacije o položenim ispitima i to: naziv predmeta, ocena i datum polaganja.</p>
+</div>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 3.16</strong>: Napisati C/SQL program koji nudi mogućnost ukidanja uslova polaganja za predmete. Program prvo zahteva od korisnika da unese naziv predmeta. Program pronalazi sve predmete sa datim nazivom (može ih biti više) i ispisuje njihove identifikatore, nazive i oznake. Za svaki takav predmet P, program ispisuje identifikatore i nazive njegovih uslovnih predmeta U. Za svaki uslovni predmet U predmeta P, program pita korisnika da li želi da ukine uslovnost P-&gt;U. Ukoliko korisnik potvrdi, ukinuti uslov i ispisati poruku.</p>
+</div>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 3.17</strong>: Napisati C/SQL program koji ispisuje izveštaj za svaki predmet o njegovim uslovnim predmetima. Za svaki predmet ispisati informacije o identifikatoru predmeta i njegovom nazivu. Svaka sekcija koja izlistava informacije o uslovnim predmetima treba da ispisuje identifikator i naziv uslovnih predmeta za tekući predmet za koji se pravi sekcija, pri čemu se prikazuju informacije samo o onim uslovnim predmetima za koje postoji polaganje sa ocenom 10 na osnovnim akademskim studijama čiji je datum polaganja bio pre 2018. godine.</p>
+</div>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 3.18</strong>: Napisati C/SQL program koji za svaki ispitni rok ispisuje njegov naziv i broj uspešnih polaganja za svaku ocenu u tom ispitnom roku. Nakon ispisivanja informacija o ispitnom roku, ponuditi korisniku da izbriše informacije o polaganim ispitima u tom roku. Ukoliko korisnik želi da obriše te podatke, prvo izlistati podatke o indeksu, identifikatoru predmeta, godini roka, oznaci roka i datumu polaganja (ako postoji) za svako polaganje koje se briše. Na kraju brisanja polaganja u jednom ispitnom roku, ispisati ukupan broj obrisanih redova.</p>
+</div>
+
+
+        </div>
+    </div>
+
+    <script>
+        $('#pageSticky').sticky({
+            context: '#pageContent'
+        });
+
+        $('#pageSticky').click(function () {
+            $('#sideMenu').sidebar('toggle');
+        });
+    </script>
+</body>
+
+</html>
