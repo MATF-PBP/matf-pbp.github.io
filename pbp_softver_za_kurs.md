@@ -1,9 +1,3 @@
----
-layout: page
-title: Spisak alata
-permalink: /pbp_softver_za_kurs/
----
-
 # Spisak alata
 
 Za praktičan deo kursa Programiranje baze podataka koristi se:
