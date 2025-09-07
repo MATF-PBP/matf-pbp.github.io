@@ -41,6 +41,11 @@
             },
             {
                 "type": "link",
+                "title": "Informacije o softveru koji se koristi na kursu (nova verzija, u izradi)",
+                "link": "https://matf-pbp.github.io/pbp_softver_za_kurs.md"
+            },
+            {
+                "type": "link",
                 "title": "Primer praktičnog dela završnog ispita",
                 "link": "/ispiti/primer-ispita.zip"
             },
