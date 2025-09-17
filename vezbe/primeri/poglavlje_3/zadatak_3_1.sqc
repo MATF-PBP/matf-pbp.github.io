@@ -1,0 +1,95 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 hStudyProgramId;
+char hStudyProgramLabel[11];
+char hStudyProgramName[201];
+short hDegreeLevelId;
+short hESPB;
+char hStudyProgramTitle[101];
+struct {
+   short int length;
+   char data[32700];
+} hStudyProgramDesc;
+short hIndStudyProgramDesc;
+EXEC SQL END DECLARE SECTION;
+
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main() {
+    // Konektujemo se na bazu podataka
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    checkSQL("Connect");
+    
+    // Deklarisemo kursor koji prolazi tabelom STUDIJSKIPROGRAM.
+    // Ovde navodimo upit kroz koji ce kursor prolaziti, ali koji se jos uvek ne izvrsava.
+    EXEC SQL 
+        DECLARE cStudyPrograms CURSOR FOR 
+        SELECT  ID, 
+                OZNAKA, 
+                NAZIV, 
+                IDNIVOA, 
+                OBIMESPB,
+                ZVANJE,
+                OPIS
+        FROM    DA.STUDIJSKIPROGRAM;
+    checkSQL("Declare cursor cStudyPrograms");
+    
+    // Otvaramo kursor, cime se izvrsava upit naveden u deklaraciji.
+    // Sada se kursor nalazi na redu "pre prvog reda" u rezultatu.
+    EXEC SQL OPEN cStudyPrograms;
+    checkSQL("Open cursor cStudyPrograms");
+    
+    printf("+---------------------------------------------------------------------------------------------------------------------------------------+\n");
+    printf("|                                                           STUDIJSKI PROGRAM                                                           |\n");
+    printf("+-----+------+------------------------------+----+----+------------------------------+--------------------------------------------------+\n");
+    printf("|ID   |OZNAKA|NAZIV                         |NIVO|OBIM|ZVANJE                        |OPIS                                              |\n");
+    printf("|-----+------+------------------------------+----+----+------------------------------+--------------------------------------------------+\n");
+
+    // Sve dok ima redova u rezultujucoj tabeli
+    for(;;) {
+        // Citamo red po red
+        EXEC SQL 
+            FETCH   cStudyPrograms
+            INTO    :hStudyProgramId, 
+                    :hStudyProgramLabel, 
+                    :hStudyProgramName, 
+                    :hDegreeLevelId, 
+                    :hESPB,
+                    :hStudyProgramTitle,
+                    :hStudyProgramDesc :hIndStudyProgramDesc;
+        checkSQL("Fetch from cursor cStudyPrograms");
+
+        // Ako smo stigli do kraja rezultujuce tabele, 
+        // izlazimo iz petlje
+        if (SQLCODE == 100) {
+            break;
+        }
+
+        // Inace, stampamo red iz rezultata
+        printf("|%-5d|%-6s|%-30.30s|%-4hd|%-4hd|%-30.30s|%-50.50s|\n", 
+               hStudyProgramId, hStudyProgramLabel, hStudyProgramName, hDegreeLevelId, hESPB, 
+               hStudyProgramTitle, (hIndStudyProgramDesc < 0) ? "NULL" : hStudyProgramDesc.data);
+        printf("|-----+------+------------------------------+----+----+------------------------------+--------------------------------------------------+\n");
+    }
+
+    // Zatvaramo kursor
+    EXEC SQL CLOSE cStudyPrograms;
+    checkSQL("Close cursor cStudyPrograms");
+
+    // Raskidamo konekciju sa bazom podataka
+    EXEC SQL CONNECT RESET;
+    checkSQL("Connect reset");
+    
+    return 0;
+}
