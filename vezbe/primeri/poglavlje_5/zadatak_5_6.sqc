@@ -1,0 +1,115 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+short hSchoolYear;
+char hFinalsLabel[21];
+sqlint32 hCourseId;
+double hSuccessPercentage;
+EXEC SQL END DECLARE SECTION;
+
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL ROLLBACK;
+
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main()  {
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    checkSQL("Connect");
+
+    EXEC SQL 
+        DECLARE cExamStatistics CURSOR WITH HOLD FOR
+        SELECT      SKGODINA,
+                    OZNAKAROKA,
+                    IDPREDMETA,
+                    SUM(
+                        CASE 
+                            WHEN OCENA > 5 AND STATUS='o' THEN 1.0 
+                            ELSE 0.0 
+                        END
+                    ) / COUNT(*) * 100.0 AS USPESNOST
+        FROM        DA.ISPIT I
+        WHERE       NOT EXISTS (
+                        SELECT  *
+                        FROM    DA.STATISTIKAPOLAGANJA SP
+                        WHERE   SP.SKGODINA = I.SKGODINA AND
+                                SP.OZNAKAROKA = I.OZNAKAROKA AND
+                                SP.IDPREDMETA = I.IDPREDMETA
+                    )
+        GROUP BY    SKGODINA,
+                    OZNAKAROKA,
+                    IDPREDMETA
+        ORDER BY    IDPREDMETA ASC,
+                    SKGODINA ASC,
+                    OZNAKAROKA DESC;
+    checkSQL("Declare cExamStatistics");
+    
+    EXEC SQL OPEN cExamStatistics;
+    checkSQL("Open cExamStatistics");
+    
+    for (;;) {
+        EXEC SQL 
+            FETCH   cExamStatistics
+            INTO    :hSchoolYear,
+                    :hFinalsLabel,
+                    :hCourseId,
+                    :hSuccessPercentage;
+        checkSQL("Fetch cExamStatistics");
+        
+        if (SQLCODE == 100) {
+            break;
+        }
+        
+        EXEC SQL
+            INSERT  INTO DA.STATISTIKAPOLAGANJA
+            VALUES  (:hSchoolYear, :hFinalsLabel, :hCourseId, NULL);
+        checkSQL("Insert");
+        
+        EXEC SQL SAVEPOINT tacka_cuvanja ON ROLLBACK RETAIN CURSORS;
+        checkSQL("Savepoint");
+        
+        EXEC SQL 
+            UPDATE  DA.STATISTIKAPOLAGANJA
+            SET     USPESNOST = :hSuccessPercentage
+            WHERE   SKGODINA = :hSchoolYear AND
+                    OZNAKAROKA = :hFinalsLabel AND
+                    IDPREDMETA = :hCourseId;
+        checkSQL("Update");
+        
+        printf("\nUneta je statistika: %5.2lf%% hSuccessPercentagei za predmet %d u roku %s %hd.\n"
+            "Da li zelite da ponistite unos statistike? [d/n] ", hSuccessPercentage, hCourseId, hFinalsLabel, hSchoolYear);
+        char userResponse = getchar();
+        getchar(); // novi red
+        
+        if (userResponse == 'd' || userResponse == 'D') {
+            EXEC SQL
+                ROLLBACK TO SAVEPOINT tacka_cuvanja;
+            checkSQL("Rollback to savepoint");
+            
+            printf("Statistika o polaganju nije sacuvana, ali je zabelezeno da je izracunata!\n");
+        }
+        
+        EXEC SQL COMMIT;
+        checkSQL("Commit");
+    }
+    
+    EXEC SQL CLOSE cExamStatistics;
+    checkSQL("Close cExamStatistics");
+    
+    EXEC SQL COMMIT;
+    checkSQL("Commit");
+    
+    EXEC SQL CONNECT RESET;
+    checkSQL("Connect reset");
+    
+    return 0;
+}
