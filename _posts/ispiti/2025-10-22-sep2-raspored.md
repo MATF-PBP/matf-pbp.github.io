@@ -4,7 +4,7 @@ title: "Raspored studenata po učionicama u roku Septembar 2"
 time: "12:25"
 ---
 
-U roku Septembar 2, svi studenti polažu ispit u učionici BIM.
+U roku Septembar 2, svi studenti polažu ispit u učionici 718.
 
 Ispit se polaže iz dva dela:
 - praktični deo sa početkom u 13.00 (traje 120 minuta)
