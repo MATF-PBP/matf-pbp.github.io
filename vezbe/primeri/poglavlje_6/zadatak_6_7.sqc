@@ -1,0 +1,185 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 hStudyProgramId;
+
+sqlint32 hIndex;
+char hName[26];
+char hSurname[26];
+sqlint32 hNumOfPassedExams;
+sqlint32 hSumESPB;
+
+sqlint32 hCountryId;
+EXEC SQL END DECLARE SECTION;
+
+void checkSQL(const char *str);
+int waitForLock(const char *code_hint);
+
+int main() {
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    checkSQL("CONNECT TO");
+    
+    EXEC SQL SET CURRENT LOCK TIMEOUT 5;
+    checkSQL("CURRENT LOCK TIMEOUT 5");
+    
+    printf("Unesite identifikator studijskog programa sa osnovnih studija: ");
+    scanf("%d", &hStudyProgramId);
+    
+    EXEC SQL DECLARE cStudents CURSOR WITH HOLD FOR 
+        SELECT      D.INDEKS,
+                    RTRIM(D.IME),
+                    RTRIM(D.PREZIME),
+                    COUNT(*) AS BROJ_POLOZENIH,
+                    SUM(P.ESPB) AS BROJ_ESPB
+        FROM        DA.DOSIJE D JOIN
+                    DA.ISPIT I ON D.INDEKS = I.INDEKS JOIN
+                    DA.PREDMET P ON I.IDPREDMETA = P.ID
+        WHERE       D.IDPROGRAMA = :hStudyProgramId AND
+                    I.OCENA > 5 AND
+                    I.STATUS = 'o' AND
+                    D.INDEKS NOT IN (
+                        SELECT  INDEKS
+                        FROM    DA.EKSKURZIJA
+                    )
+        GROUP BY    D.INDEKS,
+                    D.IME,
+                    D.PREZIME
+        HAVING      COUNT(*) >= 12 AND
+                    SUM(P.ESPB) >= 120
+        FOR         READ ONLY
+        WITH        RR;
+    checkSQL("DECLARE");
+        
+    EXEC SQL OPEN cStudents;
+    checkSQL("OPEN");
+    
+    unsigned numOfStudents = 0u;
+    
+    for(;;) {
+        EXEC SQL FETCH cStudents INTO
+            :hIndex,
+            :hName,
+            :hSurname,
+            :hNumOfPassedExams,
+            :hSumESPB;
+        if (waitForLock("FETCH")) {
+            continue;
+        }
+        checkSQL("FETCH");
+        
+        if (SQLCODE == 100) {
+            break;
+        }
+        
+        printf("\n----------------------------------------------------------------------------------------------------------------------\n");
+        printf("Anketiram studenta: %-10.10s %-15.15s (%d) - broj polozenih ispita = %5.5d, broj polozenih espb = %5.5d", 
+               hName, hSurname, hIndex, hNumOfPassedExams, hSumESPB);
+        printf("\n----------------------------------------------------------------------------------------------------------------------\n");
+        
+        printf("\nUnesite identifikator drzave ili 0: ");
+        scanf("%d", &hCountryId);
+        
+        if (!hCountryId) {
+            continue;
+        }
+        
+        printf("Unosim Vas glas za drzavu sa identifikatorom %d...\n", hCountryId);
+        
+        
+        EXEC SQL
+            INSERT  INTO DA.EKSKURZIJA
+            VALUES  (:hIndex, :hCountryId, CURRENT_DATE);
+        if (waitForLock("INSERT INTO")) {
+            continue;
+        }
+        
+        // Ako je neka druga aplikacija vec unela red za datog studenta...
+        if (SQLCODE != -803) {
+            checkSQL("INSERT INTO");
+        }
+        else {
+            // ...onda cemo pitati korisnika da li zeli da radi azuriranje glasa.
+            printf("Postoji glas za tekuceg studenta. Da li zelite da azurirate glas? [d/n] ");
+            char odgovor = getchar();
+            getchar();
+            
+            if (odgovor == 'n') {
+                break;
+            }
+            
+            EXEC SQL 
+                UPDATE  DA.EKSKURZIJA
+                SET     IDDRZAVE = :hCountryId
+                WHERE   INDEKS = :hIndex;
+            if (waitForLock("UPDATE")) {
+                continue;
+            }
+            checkSQL("UPDATE");
+        }
+        
+        printf("Vas glas je uspesno zabelezen!\n");
+        
+        EXEC SQL COMMIT;
+        checkSQL("COMMIT");
+        
+        printf("\n********** END TRANSACTION **********\n");
+        
+        ++numOfStudents;
+        
+        if (!(numOfStudents % 3)) {
+            printf("Da li zelite da zavrsite anketiranje? [da/ne] ");
+            char userResponse[3];
+            scanf("%s", userResponse);
+            
+            if (!strcmp(userResponse, "da")) {
+                printf("Zavrsavam program!\n");
+                break;
+            }
+        }
+    }
+    
+    EXEC SQL CLOSE cStudents;
+    checkSQL("CLOSE");
+    
+    EXEC SQL SET CURRENT LOCK TIMEOUT NULL;
+    checkSQL("CURRENT LOCK TIMEOUT NULL");
+    
+    EXEC SQL COMMIT;
+    checkSQL("COMMIT - kraj programa");
+    
+    EXEC SQL CONNECT RESET;
+    checkSQL("CONNECT RESET");
+    
+    return 0;
+}
+
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL ROLLBACK;
+
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int waitForLock(const char *code_hint) {
+    if (-913 <= SQLCODE && SQLCODE <= -911) {
+        printf("[%s] Objekat je zakljucan od strane druge transakcije. "
+            "Sacekati neko vreme...\n", code_hint);
+
+        EXEC SQL ROLLBACK;
+        checkSQL("Rollback");
+
+        EXEC SQL OPEN cStudents;    
+        checkSQL("Open predmeti - obrada cekanja");
+
+        return 1;
+    }
+    return 0;
+}
