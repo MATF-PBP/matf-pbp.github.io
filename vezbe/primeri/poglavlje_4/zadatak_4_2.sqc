@@ -1,0 +1,80 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sql.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+char hStatementString[255];
+short hSchoolYear;
+char hFinalLabel[21], 
+     hFinalName[31], 
+     hFinalStartDate[11], 
+     hFinalEndDate[11];
+EXEC SQL END DECLARE SECTION;
+
+void checkSQL(const char *str) {
+    if(sqlca.sqlcode < 0) {
+        char buffer[1024];
+        short bufferSize = sizeof(buffer);
+        short lineWidth = 50;
+        sqlaintp(buffer, bufferSize, lineWidth, &sqlca);
+
+        fprintf(stderr, "Greska %d: %s\n", sqlca.sqlcode, str);
+        fprintf(stderr, "%s\n", buffer);
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main() {
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    checkSQL("Connect");
+
+    // Kreiramo tekstualni oblik dinamicke SQL naredbe sa netipiziranim i neimenovanim parametarskim oznakama.
+    sprintf(hStatementString, "INSERT INTO DA.ISPITNIROK VALUES (?, ?, ?, ?, ?)");
+
+    // Kreiramo pripremljenu naredbu od njenog tekstualnog oblika
+    EXEC SQL 
+        PREPARE pStatement 
+        FROM    :hStatementString;
+    checkSQL("PREPARE");
+    
+    // Ucitavamo podatke za unosenje u tabelu ISPITNIROK
+    printf("Unesite godinu roka:\n");
+    scanf("%hd", &hSchoolYear);
+
+    printf("Unesite oznaku roka:\n");
+    scanf("%s", hFinalLabel);
+    getchar(); // Citanje novog reda zbog poziva fgets() u nastavku
+    
+    printf("Unesite naziv roka:\n");
+    // Funkcija fgets ce procitati i karakter za novi red na kraju unosa,
+    // tako da moramo da ga postavimo na terminirajucu nulu.
+    fgets(hFinalName, sizeof(hFinalName), stdin);
+    hFinalName[strcspn(hFinalName, "\n")] = '\0';
+    
+    printf("Unesite datum pocetka prijave roka:\n");
+    scanf("%s", hFinalStartDate);
+
+    printf("Unesite datum kraja prijave roka:\n");
+    scanf("%s", hFinalEndDate);
+
+    // Izvrsavamo prethodno pripremljenu naredbu koriscenjem maticnih promenljivih
+    EXEC SQL 
+        EXECUTE pStatement 
+        USING   :hSchoolYear, 
+                :hFinalLabel, 
+                :hFinalName, 
+                :hFinalStartDate, 
+                :hFinalEndDate;
+    checkSQL("Execute");
+    
+    printf("Novi ispitni rok je uspesno unet!\n");
+
+    EXEC SQL CONNECT RESET;
+    checkSQL("Connect reset");
+
+    return 0;
+}

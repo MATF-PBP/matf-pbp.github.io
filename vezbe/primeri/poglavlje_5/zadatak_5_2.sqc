@@ -1,0 +1,42 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL ROLLBACK;
+
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main() {
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    checkSQL("Connect");
+    
+    EXEC SQL 
+        BEGIN COMPOUND ATOMIC STATIC
+            INSERT  INTO DA.ISPITNIROK
+            VALUES  (YEAR(CURRENT_DATE), 'maj', CONCAT('Maj ', YEAR(CURRENT_DATE)), CURRENT_DATE, CURRENT_DATE + 20 days);
+            
+            UPDATE  DA.ISPITNIROK
+            SET     DATKRAJA = DATKRAJA - 10 days
+            WHERE   SKGODINA = YEAR(CURRENT_DATE) AND
+                    OZNAKAROKA = 'maj';
+        END COMPOUND;
+    checkSQL("Compound");
+    
+    printf("Sve naredbe su uspesno izvrsene!\n");
+    
+    EXEC SQL COMMIT;
+    checkSQL("Commit");
+    
+    EXEC SQL CONNECT RESET;
+    checkSQL("Connect reset");
+    
+    return 0;
+}

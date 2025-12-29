@@ -1,0 +1,193 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 hIndex;
+short hSchoolYear;
+char hCourseName[201];
+short hGrade;
+EXEC SQL END DECLARE SECTION;
+
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL ROLLBACK;
+
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+void declareSchoolYearsCursor(sqlint32 hIndex);
+void declareExamsCursor(sqlint32 hIndex, short hSchoolYear);
+unsigned iterOverSchoolYearsCursor();
+void iterOverExamsCursor(sqlint32 hIndex, short hSchoolYear);
+
+char userResponse[3];
+
+int main() {
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    checkSQL("Connect");
+
+    declareSchoolYearsCursor(hIndex);
+    declareExamsCursor(hIndex, hSchoolYear);
+    
+    for(;;) {
+        printf("\n----------POCETAK TRANSAKCIJE----------\n\n");
+        
+        printf("Unesite indeks studenta: ");
+        scanf("%d", &hIndex);
+        
+        unsigned numOfSchoolYears = iterOverSchoolYearsCursor();
+        
+        if (numOfSchoolYears == 0u) {
+            printf(
+                "Za datog studenta ne postoji obradjena godina "
+                "u kojoj su polagali neke ispite\n");
+            continue;
+        }
+        
+        printf("Unesite jednu od ponudjenih godina polaganja: ");
+        scanf("%hd", &hSchoolYear);
+        
+        iterOverExamsCursor(hIndex, hSchoolYear);
+        
+        EXEC SQL COMMIT;
+        checkSQL("Commit transakcije");
+        
+        printf("\n----------KRAJ TRANSAKCIJE----------\n");
+        
+        printf("\nDa li zelite da nastavite dalje? [da/ne] ");
+        scanf("%s", userResponse);
+        
+        if (strcmp(userResponse, "da") != 0) {
+            break;
+        }
+    }
+    
+    EXEC SQL COMMIT;
+    checkSQL("Commit");
+    
+    EXEC SQL CONNECT RESET;
+    checkSQL("Connect reset");
+    
+    return 0;
+}
+
+void declareSchoolYearsCursor(sqlint32 hIndex) {
+    EXEC SQL 
+        DECLARE cSchoolYears CURSOR FOR
+        SELECT  DISTINCT 
+                SKGODINA
+        FROM    DA.ISPIT I
+        WHERE   INDEKS = :hIndex AND
+                OCENA > 5 AND
+                STATUS = 'o' AND
+                NOT EXISTS (
+                    SELECT  *
+                    FROM    DA.OBRADJENAPOLAGANJA
+                    WHERE   INDEKS = :hIndex AND
+                            GODINA = I.SKGODINA
+                )
+        FOR     READ ONLY;
+    checkSQL("Declare cSchoolYears");
+}
+
+void declareExamsCursor(sqlint32 hIndex, short hSchoolYear) {
+    EXEC SQL 
+        DECLARE cExams CURSOR WITH HOLD FOR
+        SELECT  (
+                    SELECT  TRIM(P.NAZIV)
+                    FROM    DA.PREDMET P
+                    WHERE   I.IDPREDMETA = P.ID
+                ) AS NAZIV_PREDMETA,
+                I.OCENA
+        FROM    DA.ISPIT I
+        WHERE   I.INDEKS = :hIndex AND
+                I.SKGODINA = :hSchoolYear AND
+                OCENA > 5 AND
+                STATUS = 'o'
+        FOR     UPDATE OF STATUS;
+    checkSQL("Declare cExams");
+}
+
+unsigned iterOverSchoolYearsCursor() {
+    unsigned numOfSchoolYears = 0u;
+    
+    EXEC SQL OPEN cSchoolYears;
+    checkSQL("Open cSchoolYears");
+    
+    for(;;) {
+        EXEC SQL 
+            FETCH   cSchoolYears
+            INTO    :hSchoolYear;
+        checkSQL("Fetch cSchoolYears");
+        
+        if (SQLCODE == 100) {
+            break;
+        }
+        
+        printf("\t%hd\n", hSchoolYear);
+        ++numOfSchoolYears;
+    }
+    
+    EXEC SQL CLOSE cSchoolYears;
+    checkSQL("Close cSchoolYears");
+    
+    return numOfSchoolYears;
+}
+
+void iterOverExamsCursor(sqlint32 hIndex, short hSchoolYear) {
+    EXEC SQL 
+        INSERT  INTO DA.OBRADJENAPOLAGANJA
+        VALUES  (:hIndex, :hSchoolYear);
+    checkSQL("Insert into");
+    
+    EXEC SQL
+        SAVEPOINT s_obradjeni ON ROLLBACK RETAIN CURSORS;
+    checkSQL("Savepoint");
+    
+    EXEC SQL OPEN cExams;
+    checkSQL("Open cExams");
+    
+    for (;;) {
+        EXEC SQL 
+            FETCH   cExams
+            INTO    :hCourseName,
+                    :hGrade;
+        checkSQL("Fetch cExams");
+        
+        if (SQLCODE == 100) {
+            break;
+        }
+        
+        printf("%s, %d\n", hCourseName, hGrade);
+        printf("Da li zelite da ponistite ispit? [da/ne] ");
+        scanf("%s", userResponse);
+        
+        if (strcmp(userResponse, "da") != 0) {
+            continue;
+        }
+        
+        EXEC SQL
+            UPDATE  DA.ISPIT
+            SET     STATUS = 'x'
+            WHERE   CURRENT OF cExams;
+        checkSQL("Update");
+    }
+    
+    EXEC SQL CLOSE cExams;
+    checkSQL("Close cExams");
+    
+    printf("Da li zelite da potvrdite sve izmene za tekuceg studenta? [da/ne] ");
+    scanf("%s", userResponse);
+    
+    if (strcmp(userResponse, "da") != 0) {
+        EXEC SQL ROLLBACK TO SAVEPOINT s_obradjeni;
+        checkSQL("Rollback to savepoint");
+    }
+}

@@ -1,0 +1,74 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <sql.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+// Maticna promenljiva koja ce cuvati tekstualni oblik dinamicke SQL naredbe
+char hStatementString[255];
+EXEC SQL END DECLARE SECTION;
+
+void checkSQL(const char *str) {
+    if(sqlca.sqlcode < 0) {
+        char buffer[1024];
+        short bufferSize = sizeof(buffer);
+        short lineWidth = 50;
+        sqlaintp(buffer, bufferSize, lineWidth, &sqlca);
+
+        fprintf(stderr, "Greska %d: %s\n", sqlca.sqlcode, str);
+        fprintf(stderr, "%s\n", buffer);
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main(int argc, char *argv[]) {
+    // Proveravamo argumente i datoteku za citanje
+    // pre nego sto se uopste povezemo
+    if (argc != 2) {
+        printf("Niste naveli datoteku za citanje!\n");
+        exit(EXIT_FAILURE);
+    }
+
+    FILE *ulaz = fopen(argv[1], "r");
+    if (ulaz == NULL) {
+        printf("Postoji problem sa citanjem datoteke \"%s\"!\n", argv[1]);
+        exit(EXIT_FAILURE);
+    }
+
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    checkSQL("Connect");
+    
+    int c; // `int` umesto `char` zbog EOF
+    int broj_karaktera = 0;
+    while(broj_karaktera < sizeof(hStatementString)) {
+        c = fgetc(ulaz);
+        
+        if (c == ';' || c == EOF) {
+            break;
+        }
+        
+        hStatementString[broj_karaktera++] = (char)c;
+    }
+
+    fclose(ulaz);
+
+    // Ispisujemo korisniku sta je uneo
+    printf("\nIzvrsavam naredbu:\n");
+    printf("***************************\n");
+    printf("%s\n", hStatementString);
+    printf("***************************\n");
+    
+    // Pripremamo i izvrsavamo unetu naredbu
+    EXEC SQL EXECUTE IMMEDIATE :hStatementString;
+    checkSQL("Execute immediate");
+    
+    printf("Naredba je uspesno izvrsena.\n");
+
+    EXEC SQL CONNECT RESET;
+    checkSQL("Connect reset");
+
+    return 0;
+}

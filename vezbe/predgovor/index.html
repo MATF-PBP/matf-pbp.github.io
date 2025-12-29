@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="rs">
+<head>
+    <title>Predgovor | Programiranje baza podataka</title>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" type="text/css" href="/resources/semantic/semantic.min.css">
+    <script src="/resources/jquery/jquery-3.5.1.min.js"></script>
+    <script src="/resources/semantic/semantic.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+    <script src="https://semantic-ui.com/javascript/library/highlight.min.js"></script>
+    <script>
+        hljs.initHighlightingOnLoad();
+        $(document).ready(() => {
+            $("table").addClass('ui celled table');
+        });
+    </script>
+</head>
+
+<body>
+    <div class="ui sticky black big launch right attached fixed button" id="pageSticky">
+        <i class="content icon"></i>
+        <span class="text">Prikaži sadržaj</span>
+    </div>
+
+    <div class="ui sidebar vertical menu" id="sideMenu">
+        <div class="item">
+            <h3>Sadržaj</h3>
+        </div>
+        <a class="item" href="/vezbe/predgovor">Predgovor</a>
+        <a class="item" href="/vezbe/poglavlja/1">1. Uvod u programiranje baza podataka</a>
+        <a class="item" href="/vezbe/poglavlja/2">2. Osnovni koncepti programiranja C/SQL aplikacija</a>
+        <a class="item" href="/vezbe/poglavlja/3">3. Programiranje korišćenjem kursora</a>
+        <a class="item" href="/vezbe/poglavlja/4">4. Aplikacije sa dinamičkim SQL naredbama</a>
+        <a class="item" href="/vezbe/poglavlja/5">5. Implementiranje transakcija</a>
+        <a class="item" href="/vezbe/poglavlja/6">6. Aplikacije u višekorisničkom okruženju</a>
+        <a class="item" href="/vezbe/poglavlja/7">7. Povezivanje aplikacija na više baza podataka</a>
+        <a class="item" href="/vezbe/poglavlja/8">8. Osnovni koncepti programiranja Java/SQL aplikacija sa
+            dinamičkim SQL naredbama (JDBC)</a>
+        <a class="item" href="/vezbe/poglavlja/9">9. Napredne tehnike razvijanja Java/SQL aplikacija</a>
+        <a class="item" href="/vezbe/poglavlja/10">10. Uvod u razvojno okruženje Hibernate</a>
+        <a class="item" href="/vezbe/poglavlja/11">11. Napredna objektno-relaciona preslikavanja</a>
+        <a class="item" href="/vezbe/poglavlja/12">12. Napredno kreiranje upita pomoću JPA Criteria API</a>
+        <a class="item" href="/vezbe/poglavlja/13">13. Programiranje SQL rutina</a>
+        <a class="item" href="/vezbe/poglavlja/14">14. Korisnički-definisane funkcije</a>
+        <a class="item" href="/vezbe/poglavlja/15">15. Ugrađene procedure</a>
+        <a class="item" href="/vezbe/poglavlja/16">16. Okidači</a>
+    </div>
+
+    <div class="ui justified container">
+        <img class="ui centered small image" src="/resources/matf-srb.png">
+        <header class="ui center aligned block header">
+            <h1><a href="/">Programiranje baza podataka</a></h1>
+        </header>
+
+        <div class="ui divider"></div>
+
+        <div id="pageContent">
+            <h2>Predgovor</h2>
+
+
+
+<p>Ovaj tekst predstavlja literaturu za časove vežbi za dva kursa “Programiranje baza podataka” na Matematičkom fakultetu Univerziteta u Beogradu - prvi je izborni kurs na 3. i 4. godini smera Informatika, a drugi je obavezni kurs na 4. godini smera Računarstvo i Informatika. Knjiga je dostupna u celosti, besplatno, na zvaničnom sajtu koji se može pronaći na adresi <a href="https://matf-pbp.github.io/">https://matf-pbp.github.io/</a>.</p>
+
+<p>Knjiga je koncipirana na osnovu različitih materijala sa časova vežbi koje su držale mnogobrojne kolege sa Katedre za računarstvo i informatiku Matematičkog fakulteta: <a href="http://www.math.rs/~nina">Nina Radojičić Matić</a>, <a href="http://www.math.rs/~aspasic">Ana Vulović</a>, <a href="http://www.math.rs/~vesnam">Vesna Marinković</a> i <a href="http://www.math.rs/~smalkov">Saša Malkov</a>, uz razne dopune, ispravke i poboljšanja u materijalima od strane autora <a href="https://matf.nikolaajzenhamer.rs">Nikole Ajzenhamera</a>, <a href="http://www.math.rs/~anja_bukurov">Anje Bukurov</a> i <a href="http://www.math.rs/~aspasic">Ana Vulović</a>. Knjiga je prateći materijal pre svega studentima koji ovaj kurs slušaju u okviru svojih studija, ali i svima Vama koji biste želeli da se upoznate sa ovom tematikom.</p>
+
+<p>Ova knjiga je podeljena u 5 delova:</p>
+
+<ul>
+  <li>
+    <p>U prvom delu uvodimo čitaoca u pojam programiranja baza podataka koristeći Db2 sistem za upravljanje bazama podataka. Ovaj deo se sastoji od jednog poglavlja u kojem je dat kratak prikaz arhitekture klijent-server na koju se oslanjaju tehnologije u narednim delovima knjige. Takođe, poglavlje 1 sadrži instrukcije za podešavanje operativnog sistema za uspešan razvoj aplikacija.</p>
+  </li>
+  <li>
+    <p>Drugi deo započinjemo osnovnim konceptima za programiranje C/SQL klijentskih aplikacija. Uvodno poglavlje 2 diskutuje o nekim važnim razlikama između C/SQL aplikacija koji imaju ugnežđene statičke, odnosno, dinamičke SQL naredbe. Takođe, u ovom poglavlju demonstriramo proces prevođenja i izvršavanja jednog jednostavnog C/SQL programa. Ovo poglavlje završavamo elementarnim konceptima važnim za kreiranje C/SQL klijentskih aplikacija. Poglavlje 3 uvodi koncept kursora i demonstrira rad sa njima. Poglavlje 4 diskutuje o ispravnosti implementacija transakcionog rada. U poglavlju 5 govorimo o razvoju aplikacija pod veoma realnom pretpostavkom da se aplikacije izvršavaju konkurentno, odnosno, da više korisnika koristi podatke iz iste baze podataka u isto vreme. Poglavlje 6 se tiče se programiranja C/SQL aplikacija u kojima se SQL naredbe izvršavaju dinamički. Poslednje poglavlje u ovom delu, poglavlje 7, govori o povezivanju klijentske aplikacije na više baza podataka.</p>
+  </li>
+  <li>
+    <p>Treći deo knjige predstavlja pandan drugom delu, sa razlikom da se koristi programski jezik Java za programiranje klijentskih aplikacija. Poglavlje 8 diskutuje o osnovnim konceptima za konstrukciju Java/SQL aplikacija u kojem se naredbe izvršavaju dinamički. U poglavlju 9 dajemo tehnike za razvoj naprednijih koncepata Java/SQL aplikacija, odnosno, govorimo o transakcionom radu, radu u višekorisničkom okruženju i radu sa više baza podataka.</p>
+  </li>
+  <li>
+    <p>Četvrti deo knjige je posvećen razvojnom okruženju Hibernate koji koristi programski jezik Java da bi izvršio objektno-relaciono preslikavanje. Drugim rečima, u pitanju je alat kojim možemo razvijati programe tako da podatke menjamo u memoriji aplikacije, a zatim da se te izmene u memoriji aplikacije oslikavaju u bazi podataka.</p>
+  </li>
+  <li>
+    <p>U petom delu knjige predstavljamo Db2 implementaciju standarda SQL/PSM kroz jezik SQL/PL. U pitanju je proširenje SQL standarda za konstruisanje SQL rutina na serverskoj strani arhitekture. U ovom delu diskutujemo o kreiranju ugrađenih procedura, korisnički-definisana funkcija i okidača. Takođe, prikazujemo i načine na koje je moguće pozivati i izvršavati SQL rutine.</p>
+  </li>
+</ul>
+
+<p>Nakon što smo opisali detaljnije sadržaj knjige, trebalo bi da postavimo odgovarajuće pretpostavke pred čitaoce. U ovoj knjizi nisu obrađene naredne teme, te se podrazumeva njihovo poznavanje:</p>
+
+<ul>
+  <li>Programiranje C aplikacija</li>
+  <li>Programiranje Java aplikacija</li>
+  <li>SQL naredbe za izdvajanje, unošenje, menjanje i brisanje informacija iz relacionih baza podataka.</li>
+</ul>
+
+<p>Ovaj materijal ne može zameniti pohađanje vežbi niti drugu preporučenu literaturu. Ovaj tekst je u ranoj fazi formiranja i nije recenziran. Ukoliko ste pažljivi čitalac ove knjige, i ukoliko uočite bilo kakvu grešku ili propust, možete otvoriti primedbu na <a href="https://github.com/MATF-PBP/matf-pbp.github.io">zvaničnom GitHub repozitorijumu kursa</a>.</p>
+
+<p>Autori</p>
+
+        </div>
+    </div>
+
+    <script>
+        $('#pageSticky').sticky({
+            context: '#pageContent'
+        });
+
+        $('#pageSticky').click(function () {
+            $('#sideMenu').sidebar('toggle');
+        });
+    </script>
+</body>
+
+</html>

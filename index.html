@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="rs">
+<head>
+    <title>Programiranje baza podataka | Programiranje baza podataka</title>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" type="text/css" href="/resources/semantic/semantic.min.css">
+    <script src="/resources/jquery/jquery-3.5.1.min.js"></script>
+    <script src="/resources/semantic/semantic.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+    <script src="https://semantic-ui.com/javascript/library/highlight.min.js"></script>
+    <script>
+        hljs.initHighlightingOnLoad();
+        $(document).ready(() => {
+            $("table").addClass('ui celled table');
+        });
+    </script>
+</head>
+
+<body>
+    <div class="ui grid">
+        <div class="thirteen wide centered column">
+            <img class="ui centered small image" src="/resources/matf-srb.png">
+            <header class="ui center aligned block header">
+                <h1><a href="/">Programiranje baza podataka</a></h1>
+            </header>
+
+            <div class="ui divider"></div>
+
+            <div class="ui stackable three column grid">
+    <div class="four wide column">
+        <h2 class="ui center aligned header">Informacije o kursu</h2>
+
+<h3 class="ui top attached header">Nastavno osoblje</h3>
+<div class="ui attached segment">
+    <div class="ui list">
+        
+        <div class="item">
+            <img width="45" height="60" class="ui image" src="/resources/images/ivana.png">
+            <div class="content">
+                <a class="header" href="http://www.math.rs/~ivana.tanasijevic">dr Ivana Tanasijević</a>
+                <div class="description">
+                    Predavanja
+                    
+                </div>
+            </div>
+        </div>
+        
+        <div class="item">
+            <img width="45" height="60" class="ui image" src="/resources/images/marija_markovic.jpg">
+            <div class="content">
+                <a class="header" href="https://poincare.matf.bg.ac.rs/~marija.markovic">Marija Marković</a>
+                <div class="description">
+                    Vežbe
+                    
+                </div>
+            </div>
+        </div>
+        
+        <div class="item">
+            <img width="45" height="60" class="ui image" src="/resources/images/blank.jpg">
+            <div class="content">
+                <a class="header" href="http://www.matf.bg.ac.rs/~isidora.burmaz">Isidora Burmaz</a>
+                <div class="description">
+                    Vežbe
+                    
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+<h3 class="ui top attached header">Pravila polaganja (2023/2024.)</h3>
+<div class="ui attached segment">
+    <p>Završni ispit nosi 100 poena i sastoji se od narednih delova:</p>
+    <div class="ui relaxed list">
+        <div class="item">
+            <i class="large desktop middle aligned icon"></i>
+            <div class="content">
+                <p class="header">Praktični deo (60 poena)</p>
+                <div class="description">Prag za prolaz je 20 poena.</div>
+            </div>
+        </div>
+        <div class="item">
+            <i class="large edit middle aligned icon"></i>
+            <div class="content">
+                <p class="header">Pismeni deo (40 poena)</p>
+                <div class="description">Prag za prolaz je 15 poena.</div>
+            </div>
+        </div>
+    </div>
+	<p>Praktični zadaci i teorija se polažu u istom terminu.</p>
+	<p>Ostvareni prag na jednom delu ispita važi u spojenim rokovima (Jun1-Jun2, Sept1-Sept2).</p>
+	<p>To znači sledeće:</p>
+<p>- Student može u prvom roku (Jun1) raditi jedan deo ispita, a u drugom (Jun2) drugi deo ispita. Isto tako, student može u prvom roku (Sept1) raditi jedan deo ispita, a u drugom (Sept2) drugi deo ispita.</p>
+<p>- Student može u prvom od spojenih rokova (Jun1/Sept1) raditi oba dela ispita, i ako je nezadovoljan rezultatom na jednom delu može izaći samo na taj deo u drugom roku (Jun2/Sept2). U ovom slučaju poeni ostvareni na tom delu ispita u prvom roku se više neće računati.</p>
+	<p>Ispit je potrebno prijaviti u svim rokovima u kojima student izlazi na neki deo ispita.</p>
+</div>
+    </div>
+    <div class="eight wide column">
+        <h2 class="ui center aligned header">Literatura i materijali sa časova</h2>
+
+<h3 class="ui top attached header">Predavanja</h3>
+<div class="ui attached segment">
+    <h4>Literatura</h4>
+
+
+<ul>
+    
+    
+    <li><a href="http://poincare.matf.bg.ac.rs/~nina.radojicic/pbpVesna.pdf">Skripta za predavanja (dr Vesna Marinković)</a></li>
+    
+    
+    
+    <li><a href="http://poincare.matf.bg.ac.rs/~gordana//UvodRBP/FINALE.pdf">Knjiga (prof. dr Gordana Pavlović Lažetić)</a></li>
+    
+    
+</ul>
+
+
+    <!-- 
+
+    Primer jednog webex podatka u materials.json:
+
+    {
+      "teacher": "Nikola Ajzenhamer",
+      "day": "Ponedeljak",
+      "groups": ["3I11"],
+      "time": "8h - 11h",
+      "link": "https://matf.webex.com/meet/nikola_ajzenhamer",
+      "password": "pbp1",
+      "note": "Ovde moze ici neka napomena, ali ovo polje ne mora da postoji"
+    }
+
+ -->
+
+ <h4>Termini časova:</h4>
+
+ 
+ <div class="text">
+     Nema časova
+ </div>
+ 
+    <!-- 
+
+    Primer jednog casa u materials.json:
+
+    {
+        "studyprogram": "I",
+        "lectures": [
+            "Čas 1: Osnove razvoja C/SQL aplikacija. SELECT INTO, INSERT, UPDATE i DELETE.",
+            "Čas 2: Kursori. SELECT.",
+            "Čas 3: Ugnežđeni kursori. Dinamički SQL. EXECUTE IMMEDIATE.",
+            "Čas 4: Dinamički SQL (nastavak). PREPARE. EXECUTE. Dinamički kursori.",
+            "Čas 5: Transakcije.",
+            "Čas 6: Višekorisničko okruženje.",
+            "Čas 7: JDBC. Kursori."
+        ]
+    }
+
+ -->
+
+<h4>Materijali sa časova</h4>
+
+
+<div class="ui list">
+    
+    <div class="item">
+        <i class="folder icon"></i>
+        <div class="content">
+            <div class="header">Snimci sa predavanja I i R smer</div>
+            
+            
+            <div class="list">
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Linkove možete pronaći u obaveštenjima svako na svom nalogu na Hypatiji</div>
+                    </div>
+                </div>
+                
+            </div>
+            
+        </div>
+    </div>
+    
+</div>
+
+
+
+
+
+</div>
+
+<h3 class="ui top attached header">Vežbe</h3>
+<div class="ui attached segment">
+    <h4>Literatura</h4>
+
+
+<ul>
+    
+    
+    <li><a href="/vezbe">Skripta za vežbe</a></li>
+    
+    
+    
+    <li><a href="http://enastava.matf.bg.ac.rs/~boris_cvitak/">Snimci vežbi</a></li>
+    
+    
+    
+    <li><a href="https://docs.google.com/document/d/1oj8Pwr5T2f_Hx9dnz3NoYbV9hxY_Obru2_oFQNWIxNI/edit?usp=sharing">Informacije o softveru koji se koristi na kursu</a></li>
+    
+    
+    
+    <li><a href="https://matf-pbp.github.io/pbp_softver_za_kurs.html">Informacije o softveru koji se koristi na kursu (nova verzija, u izradi)</a></li>
+    
+    
+    
+    <li><a href="/ispiti/primer-ispita.zip">Primer praktičnog dela završnog ispita</a></li>
+    
+    
+    
+    <li><a href="/ispiti/primer_ispita_2.zip">Primer praktičnog dela završnog ispita (2)</a></li>
+    
+    
+    
+    <li><a href="/ispiti/primer_ispita_jan1_2025.zip">Primer praktičnog dela završnog ispita (Januar 1 2024/25)</a></li>
+    
+    
+    
+    <li><a href="https://www.youtube.com/watch?v=7sMmQ-8gq_s">Snimak rešavanja primera ispita 2</a></li>
+    
+    
+</ul>
+
+
+    <!-- 
+
+    Primer jednog webex podatka u materials.json:
+
+    {
+      "teacher": "Nikola Ajzenhamer",
+      "day": "Ponedeljak",
+      "groups": ["3I11"],
+      "time": "8h - 11h",
+      "link": "https://matf.webex.com/meet/nikola_ajzenhamer",
+      "password": "pbp1",
+      "note": "Ovde moze ici neka napomena, ali ovo polje ne mora da postoji"
+    }
+
+ -->
+
+ <h4>Termini časova:</h4>
+
+ 
+ <div class="ui list">
+     
+     <div class="item">
+         <i class="calendar alternate icon"></i>
+         <div class="content">
+            Ponedeljak, 10h - 13h
+            <ul>
+                <li>Grupe: 3I1A</li>
+                <li>Nastavnik: Isidora Burmaz</li>
+                <li>Lokacija: 718</li>
+                <!-- <li>Link: <a href=""></a></li> -->
+                
+                
+            </ul>
+         </div>
+     </div>
+     
+     <div class="item">
+         <i class="calendar alternate icon"></i>
+         <div class="content">
+            Utorak, 12h - 15h
+            <ul>
+                <li>Grupe: 3I2B</li>
+                <li>Nastavnik: Marija Marković</li>
+                <li>Lokacija: N202</li>
+                <!-- <li>Link: <a href=""></a></li> -->
+                
+                
+            </ul>
+         </div>
+     </div>
+     
+     <div class="item">
+         <i class="calendar alternate icon"></i>
+         <div class="content">
+            Utorak, 12h - 15h
+            <ul>
+                <li>Grupe: 3I2A</li>
+                <li>Nastavnik: Isidora Burmaz</li>
+                <li>Lokacija: N201</li>
+                <!-- <li>Link: <a href=""></a></li> -->
+                
+                
+            </ul>
+         </div>
+     </div>
+     
+     <div class="item">
+         <i class="calendar alternate icon"></i>
+         <div class="content">
+            Petak, 12h - 15h
+            <ul>
+                <li>Grupe: 3I1B</li>
+                <li>Nastavnik: Isidora Burmaz</li>
+                <li>Lokacija: 718</li>
+                <!-- <li>Link: <a href=""></a></li> -->
+                
+                
+            </ul>
+         </div>
+     </div>
+     
+ </div>
+ 
+    <!-- 
+
+    Primer jednog casa u materials.json:
+
+    {
+        "studyprogram": "I",
+        "lectures": [
+            "Čas 1: Osnove razvoja C/SQL aplikacija. SELECT INTO, INSERT, UPDATE i DELETE.",
+            "Čas 2: Kursori. SELECT.",
+            "Čas 3: Ugnežđeni kursori. Dinamički SQL. EXECUTE IMMEDIATE.",
+            "Čas 4: Dinamički SQL (nastavak). PREPARE. EXECUTE. Dinamički kursori.",
+            "Čas 5: Transakcije.",
+            "Čas 6: Višekorisničko okruženje.",
+            "Čas 7: JDBC. Kursori."
+        ]
+    }
+
+ -->
+
+<h4>Materijali sa časova</h4>
+
+
+<div class="ui list">
+    
+    <div class="item">
+        <i class="folder icon"></i>
+        <div class="content">
+            <div class="header">I smer</div>
+            
+            
+            <div class="list">
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 1: (C/SQL) Osnove razvoja C/SQL aplikacija. SELECT INTO, INSERT, UPDATE i DELETE.</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 2: (C/SQL) Kursori. SELECT.</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 3: (C/SQL) Ugnežđeni kursori. Dinamički SQL. EXECUTE IMMEDIATE.</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 4: (C/SQL) Dinamički SQL (nastavak). PREPARE. EXECUTE. Dinamički kursori.</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 5: (C/SQL) Transakcije.</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 6: (C/SQL) Višekorisničko okruženje.</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 7: (JDBC) Osnove razvoja JDBC aplikacija. Kursori.</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 8: (JDBC) Vrste kursora. Ugnežđeni kursori. Osnove transakcionog rada.</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Cas 9: (JDBC) Tačke čuvanja i višekorisničko okruženje.</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 10: (Hibernate) Uvod u objektno-relaciono preslikavanje (ORP).</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 11: (Hibernate) Napredni ORP. HQL. Strani ključevi.</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 12: (Hibernate) JPA Criteria API.</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 13: Priprema za ispit.</div>
+                    </div>
+                </div>
+                
+            </div>
+            
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="folder icon"></i>
+        <div class="content">
+            <div class="header">R smer</div>
+            
+            
+            <div class="list">
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 1: (C/SQL) Osnove razvoja C/SQL aplikacija. SELECT INTO. </div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 2: (C/SQL) INSERT, UPDATE i DELETE. Kursori. SELECT.</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 3: (C/SQL) Kursori (nastavak). Ugnežđeni kursori.</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 4: (C/SQL) Dinamički SQL. EXECUTE IMMEDIATE. PREPARE. EXECUTE. Dinamički kursori.</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 5: (C/SQL) Transakcije.</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 6: (C/SQL) Transakcije (nastavak). Višekorisničko okruženje.</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 7: (C/SQL) Višekorisničko okruženje (nastavak).</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 8: (JDBC) Osnove razvoja JDBC aplikacija. Kursori.</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 9: (JDBC) Vrste kursora. Ugnežđeni kursori. Osnove transakcionog rada.</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 10: (JDBC) Tačke čuvanja i višekorisničko okruženje.</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 11: (Hibernate) Uvod u objektno-relaciono preslikavanje (ORP).</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 12: (Hibernate) Napredni ORP. HQL.</div>
+                    </div>
+                </div>
+                
+                <div class="item">
+                    <i class="file icon"></i>
+                    <div class="content">
+                        <div class="header">Čas 13: (Hibernate) Strani ključevi.</div>
+                    </div>
+                </div>
+                
+            </div>
+            
+        </div>
+    </div>
+    
+</div>
+
+
+
+<h4>Napomena za praktični deo završnog ispita</h4>
+
+Teme iz literature koje neće biti proveravane na praktičnim zadacima:
+
+<ul class="ui list">
+    
+    <li class="item">Sekcija 4.6. SQL prostor za opisivanje (SQLDA)</li>
+    
+    <li class="item">Sekcija 4.7. Naredba DESCRIBE</li>
+    
+    <li class="item">Sekcija 5.2. Složena SQL naredba</li>
+    
+    <li class="item">Sekcija 6.5. Programersko zaključavanje tabela</li>
+    
+    <li class="item">Poglavlje 7. Povezivanje aplikacija na više baza podataka</li>
+    
+    <li class="item">Sekcija 9.3. Povezivanje na više baza podataka</li>
+    
+    <li class="item">Sekcija 9.4. Objektno-orijentisani pristup kreiranju JDBC aplikacija</li>
+    
+    <li class="item">Poglavlje 12. Napredno kreiranje upita pomoću JPA Criteria API</li>
+    
+    <li class="item">...</li>
+    
+</ul>
+
+
+
+</div>
+    </div>
+    <div class="four wide column">
+        <h2 class="ui center aligned header">Obaveštenja</h2>
+
+<!-- Obaveštenja -->
+
+<div class="ui list">
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/12/29/dec-ps-rezultati">Rezultati ispita u roku Decembar PS</a>
+            <div class="description">29.12.2025. 13:40</div>
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/12/27/dec-ps-raspored">Raspored studenata po učionicama u roku Decembar PS</a>
+            <div class="description">27.12.2025. 11:30</div>
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/12/22/anketa-dec-ps">Anketa [Decembar PS]</a>
+            <div class="description">22.12.2025. 20:25</div>
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/11/05/dodatni-rezultati">Rezultati ispita u dodatnom roku</a>
+            <div class="description">05.11.2025. 20:25</div>
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/11/03/anketa-dodatni">Anketa [Dodatni rok]</a>
+            <div class="description">03.11.2025. 17:10</div>
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/10/26/sep2-rezultati">Rezultati ispita u roku Septembar 2</a>
+            <div class="description">26.10.2025. 17:55</div>
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/10/22/sep2-raspored">Raspored studenata po učionicama u roku Septembar 2</a>
+            <div class="description">22.10.2025. 12:25</div>
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/10/19/anketa-sep2">Anketa [Septembar 2]</a>
+            <div class="description">19.10.2025. 20:35</div>
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/10/16/sep1-rezultati">Rezultati ispita u roku Septembar 1</a>
+            <div class="description">16.10.2025. 21:45</div>
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/10/09/sep1-raspored">Raspored studenata po učionicama u roku Septembar 1</a>
+            <div class="description">09.10.2025. 10:20</div>
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/10/06/anketa-sep1">Anketa [Septembar 1]</a>
+            <div class="description">06.10.2025. 12:15</div>
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/10/03/jun2-rezultati">Rezultati ispita u roku Jun 2</a>
+            <div class="description">03.10.2025. 22:40</div>
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/09/26/jun2-raspored">Raspored studenata po učionicama u roku Jun 2</a>
+            <div class="description">26.09.2025. 09:00</div>
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/09/23/anketa-jun2">Anketa [Jun 2]</a>
+            <div class="description">23.09.2025. 12:15</div>
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/09/17/jun1-rezultati">Rezultati ispita u roku Jun 1</a>
+            <div class="description">17.09.2025. 21:30</div>
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/09/13/jun1-raspored">Raspored studenata po učionicama u roku Jun 1</a>
+            <div class="description">13.09.2025. 11:00</div>
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/09/07/anketa-jun1">Anketa [Jun 1]</a>
+            <div class="description">07.09.2025. 22:50</div>
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/08/28/jan2-rezultati">Rezultati ispita u roku Januar 2</a>
+            <div class="description">28.08.2025. 21:50</div>
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/08/25/jan2-raspored">Raspored studenata po učionicama u roku Januar 2</a>
+            <div class="description">25.08.2025. 01:35</div>
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/08/21/anketa-jan2">Anketa [Januar 2]</a>
+            <div class="description">21.08.2025. 16:15</div>
+        </div>
+    </div>
+    
+    <div class="item">
+        <i class="large bell outline middle aligned icon"></i>
+        <div class="content">
+            <a class="header" href="https://matf-pbp.github.io//2025/08/16/jan1-rezultati">Rezultati ispita u roku Januar 1</a>
+            <div class="description">16.08.2025. 20:00</div>
+        </div>
+    </div>
+    
+</div>
+
+    </div>
+</div>
+        </div>
+    </div>
+</body>
+
+</html>

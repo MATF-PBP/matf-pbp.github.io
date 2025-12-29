@@ -1,0 +1,96 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 hIndex;
+char hCourseName[151];
+char hExamDate[11];
+short hIndExamDate;
+short hGrade;
+short hIndGrade;
+double hAverageGrade;
+EXEC SQL END DECLARE SECTION;
+
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main() {
+    // Konektujemo se na bazu podataka
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    checkSQL("Connect");
+    
+    // Deklarisemo kursor koji za dati broj indeksa nalazi sve polozene ispite
+    EXEC SQL 
+        DECLARE cPassedExams CURSOR FOR 
+        SELECT  NAZIV, 
+                DATPOLAGANJA, 
+                OCENA 
+        FROM    DA.ISPIT I JOIN
+                DA.PREDMET P ON I.IDPREDMETA = P.ID
+        WHERE   INDEKS = :hIndex AND
+                OCENA > 5 AND
+                STATUS = 'o';
+    checkSQL("Declare cursor");
+    
+    printf("Unesite broj indeksa studenta:\n");
+    scanf("%d", &hIndex);
+
+    // Otvaramo kursor
+    EXEC SQL OPEN cPassedExams;
+    checkSQL("Open cursor");
+    
+    printf("+--------------------------------------------------+----------+-----+\n");
+    printf("|NAZIV                                             |DATUM     |OCENA|\n");
+    printf("+--------------------------------------------------+----------+-----+\n");
+    
+    for(;;) {
+        // Smestamo naredni red rezultata upita u odgovarajuce maticne promenljive
+        EXEC SQL 
+            FETCH   cPassedExams
+            INTO    :hCourseName, 
+                    :hExamDate :hIndExamDate, 
+                    :hGrade :hIndGrade;
+        checkSQL("Fetch cursor");
+
+        // Ako smo stigli do kraja kursora, izlazimo iz petlje
+        if (SQLCODE == 100) {
+            break;
+        }
+
+        // Inace, stampamo naredni ispit
+        printf("|%-50.50s|%10s|%5hd|\n", 
+               hCourseName, (hIndExamDate > 0) ? hExamDate : "NULL", (hIndGrade > 0) ? hGrade : -1);
+    }
+
+    printf("+--------------------------------------------------+----------+-----+\n");
+    
+    // Zatvaramo kursor
+    EXEC SQL CLOSE cPassedExams;
+    checkSQL("Close cursor");
+
+    // Za datog studenta racunamo prosecnu ocenu
+    EXEC SQL 
+        SELECT  COALESCE(AVG(OCENA + 0.0), 5.0) 
+        INTO    :hAverageGrade 
+        FROM    DA.ISPIT
+        WHERE   INDEKS = :hIndex AND
+                OCENA > 5 AND
+                STATUS = 'o';
+    checkSQL("Select into");
+    
+    printf("Prosecna ocena je: %.2f.\n", hAverageGrade);
+
+    // Raskidamo konekciju sa bazom podataka
+    EXEC SQL CONNECT RESET;
+    checkSQL("Connect reset");
+    
+    return 0;
+}

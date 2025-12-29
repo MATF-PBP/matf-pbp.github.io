@@ -1,0 +1,118 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 hStudyProgramId;
+char hStudyProgramLabel[11];
+char hStudyProgramName[201];
+short hDegreeLevelId;
+short hESPB;
+char hStudyProgramTitle[101];
+struct {
+   short int length;
+   char data[32700];
+} hStudyProgramDesc;
+short hIndStudyProgramDesc;
+EXEC SQL END DECLARE SECTION;
+
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main() {
+    // Konektujemo se na bazu podataka
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    checkSQL("Connect");
+    
+    // Deklarisemo kursor koji prolazi tabelom STUDIJSKIPROGRAM.
+    // Primetite da upit zadovoljava ogranicenje za koriscenje pozicionirajuce UPDATE naredbe.
+    EXEC SQL 
+        DECLARE cStudyPrograms CURSOR FOR 
+        SELECT  ID, 
+                OZNAKA, 
+                NAZIV, 
+                IDNIVOA, 
+                OBIMESPB,
+                ZVANJE,
+                OPIS
+        FROM    DA.STUDIJSKIPROGRAM
+        FOR     UPDATE OF OBIMESPB; // Na ovaj nacin najavljujemo SUBP
+                                    // da cemo vrsiti promenu kolone "OBIMESPB"
+    checkSQL("Declare cursor cStudyPrograms");
+    
+    EXEC SQL OPEN cStudyPrograms;
+    checkSQL("Open cursor cStudyPrograms");
+    
+    printf("+---------------------------------------------------------------------------------------------------------------------------------------+\n");
+    printf("|                                                           STUDIJSKI PROGRAM                                                           |\n");
+    printf("+-----+------+------------------------------+----+----+------------------------------+--------------------------------------------------+\n");
+    printf("|ID   |OZNAKA|NAZIV                         |NIVO|OBIM|ZVANJE                        |OPIS                                              |\n");
+    printf("|-----+------+------------------------------+----+----+------------------------------+--------------------------------------------------+\n");
+
+    for(;;) {
+        EXEC SQL 
+            FETCH   cStudyPrograms
+            INTO    :hStudyProgramId, 
+                    :hStudyProgramLabel, 
+                    :hStudyProgramName, 
+                    :hDegreeLevelId, 
+                    :hESPB,
+                    :hStudyProgramTitle,
+                    :hStudyProgramDesc :hIndStudyProgramDesc;
+        checkSQL("Fetch from cursor cStudyPrograms");
+
+        if (SQLCODE == 100) {
+            break;
+        }
+
+        printf("|%-5d|%-6s|%-30.30s|%-4hd|%-4hd|%-30.30s|%-50.50s|\n", 
+               hStudyProgramId, hStudyProgramLabel, hStudyProgramName, hDegreeLevelId, hESPB, hStudyProgramTitle, 
+               (hIndStudyProgramDesc > 0) ? hStudyProgramDesc.data : "NULL");
+        printf("|-----+------+------------------------------+----+----+------------------------------+--------------------------------------------------+\n");
+        
+        // Sada mozemo da iskoristimo cinjenicu da se nalazimo na redu u kursoru za studijski program 
+        // cije smo podatke ispisali iznad, pa mozemo da iskoristimo pozicionirajucu UPDATE naredbu.
+        // Naravno, ovo radimo samo ako korisnik potvrdi da zeli da izmeni tekuci red.
+        printf("\tDa li zelite da povecate broj ESPB za 10? [d/n] ");
+        char userResponse;
+        scanf("%c", &userResponse);
+        getchar(); // Da bismo procitali i znak za novi red
+        
+        // Ukoliko korisnik zeli izmenu...
+        if (userResponse == 'd') {
+            // Izvrsavamo pozicionirajucu UPDATE naredbu
+            EXEC SQL 
+                UPDATE  DA.STUDIJSKIPROGRAM
+                SET     OBIMESPB = OBIMESPB + 10
+                WHERE   CURRENT OF cStudyPrograms; // Na ovaj nacin kazemo da zelimo izmenu 
+                                                   // nad trenutnim redom u kursoru cStudyPrograms
+            checkSQL("Update");
+            
+            // Dohvatamo azuriranu vrednost iz BP
+            EXEC SQL 
+                SELECT  OBIMESPB
+                INTO    :hESPB
+                FROM    DA.STUDIJSKIPROGRAM
+                WHERE   ID = :hStudyProgramId;
+            checkSQL("Select into");
+            
+            printf("\tBroj bodova je sada %hd\n", hESPB);
+            printf("|-----+------+------------------------------+----+----+------------------------------+--------------------------------------------------+\n");
+        }
+    }
+
+    EXEC SQL CLOSE cStudyPrograms;
+    checkSQL("Close cursor cStudyPrograms");
+
+    EXEC SQL CONNECT RESET;
+    checkSQL("Connect reset");
+    
+    return 0;
+}
