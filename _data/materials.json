@@ -116,32 +116,18 @@
         ],
         "webex": [
             {
-                "teacher": "Isidora Burmaz",
+                "teacher": "Robert Doža",
                 "day": "Ponedeljak",
-                "groups": ["3I1A"],
-                "time": "10h - 13h",
-                "location": "718"
+                "groups": ["4r, 4r15"],
+                "time": "16č - 18č",
+                "location": "N225"
             },
             {
-                "teacher": "Marija Marković",
-                "day": "Utorak",
-                "groups": ["3I2B"],
-                "time": "12h - 15h",
-                "location": "N202"
-            },
-            {
-                "teacher": "Isidora Burmaz",
-                "day": "Utorak",
-                "groups": ["3I2A"],
-                "time": "12h - 15h",
-                "location": "N201"
-            },
-            {
-                "teacher": "Isidora Burmaz",
+                "teacher": "Petar Đorđević",
                 "day": "Petak",
-                "groups": ["3I1B"],
-                "time": "12h - 15h",
-                "location": "718"
+		"groups": ["3i1a, 3i1b, 3i2a, 3i2b"],
+                "time": "8č - 11č",
+                "location": "JAG2"
             }
         ]
     }
