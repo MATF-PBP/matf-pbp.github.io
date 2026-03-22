@@ -20,7 +20,22 @@
             }
 
 	  ],
-        "webex": []
+        "webex": [
+            {
+                "teacher": "Nina Radojičić Matić",
+                "day": "Ponedeljak",
+                "groups": ["4r, 4r15"],
+                "time": "18č - 20č",
+                "location": "N253"
+            },
+            {
+                "teacher": "Saša Malkov",
+                "day": "Četvrtak",
+                "groups": ["3i1a, 3i1b, 3i2a, 3i2b"],
+                "time": "9č - 11č",
+                "location": "830"
+            }
+        ]
     },
     "lab": {
         "bibliography": [
