@@ -10,7 +10,7 @@ Nije obavezan i na završnom ispitu je moguće ostvariti svih 100 poena na zavr�
 Gradivo koje se proverava na kolokvijumu je isključivo gradivo obrađeno na časovima vežbi, i to iz prve oblasti (C/SQL).
 Kolokvijum ukupno vredi 20 poena, a, da bi se smatrao "položenim", potrebno je na njemu ostvariti barem 8 poena.
 "Položen" kolokvijum podrazumeva poseban način polaganja ispita (videti niže).
-Kolokvijum će biti održan u subotu, 30. maja 2026. godine.
+Kolokvijum će biti održan u subotu, 30. maja 2026. godine u 14 časova, u zgradi na Studentskom trgu.
 
 ### Završni ispit
 
