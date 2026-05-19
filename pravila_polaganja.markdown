@@ -1,5 +1,5 @@
 ---
-layout: page
+layout: notification
 title: Predispitne obaveze, struktura ispita i pravila polaganja u školskoj 2025/2026. godini
 ---
 
