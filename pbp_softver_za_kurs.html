@@ -1,0 +1,102 @@
+<h1 id="spisak-alata">Spisak alata</h1>
+<p>Za praktičan deo kursa Programiranje baze podataka koristi se:</p>
+<ul>
+<li>IBM Db2 sistem za upravljanje bazama podataka<br />
+</li>
+<li>IBM Data Studio alat za rad sa bazama podataka<br />
+</li>
+<li>studentska baza STUD2020<br />
+</li>
+<li>biblioteka Hibernate ORM 5.4: <a href="https://hibernate.org/orm/">https://hibernate.org/orm/</a></li>
+</ul>
+<h1 id="baza-podataka-stud2020">Baza podataka STUD2020</h1>
+<p>Za bolje upoznavanje sa bazom podataka STUD2020 pogledajte opis na adresi <a href="https://matf-pbp.github.io/vezbe/poglavlja/1/#14-baza-podataka-stud2020">https://matf-pbp.github.io/vezbe/poglavlja/1/#14-baza-podataka-stud2020</a>.</p>
+<p>Skriptovi za pravljenje baze podataka mogu se preuzeti sa linka <a href="http://www.matf.bg.ac.rs/~mirjana/stud2020.zip">http://www.matf.bg.ac.rs/~mirjana/stud2020.zip</a></p>
+<p>Baza podataka STUD2020 sadrži dve sheme:</p>
+<ul>
+<li><strong>DA</strong> u kojoj su podaci zapisani ASCII kodnom šemom<br />
+</li>
+<li><strong>DB</strong> u kojoj su podaci zapisani UTF-8 kodnom šemom.</li>
+</ul>
+<h1 id="virtualna-mašina-bazepodataka2020">Virtualna mašina BazePodataka2020</h1>
+<p>Napravljena je virtualna mašina BazePodataka2020 za potrebe kursa Relacione baze podataka i Programiranje baza podataka. Na VM je instalirana verzija IBM Db2 11.5 i Data Studio 4.1.3.</p>
+<p>Podaci za studentski nalog su:</p>
+<ul>
+<li>korisnik: <strong>student</strong><br />
+</li>
+<li>lozinka: <strong>abcdef</strong></li>
+</ul>
+<p>Lokacije za preuzimanje VM:</p>
+<ul>
+<li><a href="http://enastava.matf.bg.ac.rs/~mirjana/BazePodataka2020_nova.zip">link</a> (pročitati <strong>uputstvo.txt</strong>)</li>
+</ul>
+<p>Na VM, ako želite da obrišete postojeću i napravite novu (čistu) bazu podataka STUD2020, potrebno je da se u terminalu pozicionirate u direktorijum “~/Desktop/materijali/baze” i odatle pokrenete skript “./create.sh” (što traje nekoliko minuta).</p>
+<p>Na VM je nakon logovanja uvek potrebno pokrenuti Db2 SUBP pozivom “db2start” u terminalu, a pre izvršavanja bilo kojih drugih SQL naredbi.</p>
+<p>Komande za Db2 se na OS Linux izvršavaju u terminalu, a na OS Windows u DB2 Command Window (ili Command Prompt, pa otkucajte “db2cmd”, ali moraju biti podešene odgovarajuće promenljive okruženja, kao što je PATH da bi mogle biti pronađene odgovarajuće Db2 naredbe). Instrukcije za pravljenje studentske baze podataka na Vašim host operativnim sistemima:</p>
+<ul>
+<li>nakon preuzimanja i raspakivanja materijala za baze podataka (videti iznad), pozicionirajte se preko terminala ili db2cmd u raspakovani direktorijum stud2020<br />
+</li>
+<li>na OS Linux pokrenite skript “./create.sh”<br />
+</li>
+<li>na OS Windows pokrenite “create.cmd”</li>
+</ul>
+<p>Napomena: Ako koristite stariju verziju VMware plejera i dobijate grešku pri pokretanju VM, potrebno je da otvorite .vmx datoteku i promenite vrednost za virtualHW.version na Vašu verziju plejera, npr. ako je 15 postavite</p>
+<p>virtualHW.version = “15”</p>
+<h1 id="lokalna-instalacija-umesto-vm">Lokalna instalacija (umesto VM)</h1>
+<p>Ukoliko ne želite da koristite VM, sa IBM sajta možete preuzeti IBM Db2 Community Edition, kao i alat Data Studio. Preporuka je da napravite nalog na IBM sajtu korišćenjem studentske adrese. Detaljnije informacije o instalaciji potrebnog softvera možete pronaći na adresi <a href="https://matf-pbp.github.io/vezbe/poglavlja/1/#13-podešavanje-okruženja-za-rad">https://matf-pbp.github.io/vezbe/poglavlja/1/#13-podešavanje-okruženja-za-rad</a>.</p>
+<h1 id="korišćenje-docker-kontejnera-umesto-vm">Korišćenje Docker kontejnera (umesto VM)</h1>
+<p>Zvanična dokumentacija: <a href="https://hub.docker.com/r/ibmcom/db2">https://hub.docker.com/r/ibmcom/db2</a></p>
+<h2 id="instalacija">Instalacija</h2>
+<ul>
+<li>Instalirati alat Docker: <a href="https://docs.docker.com/get-docker/">https://docs.docker.com/get-docker/</a><br />
+</li>
+<li><p>Iz terminala pokrenuti sledeću naredbu:</p>
+<p><strong>docker volume create bazepodatakavolume</strong></p></li>
+<li><p>Iz terminala pokrenuti sledeću naredbu:</p>
+<p><strong>docker run -itd --name bazepodataka --privileged=true -p 50000:50000 -e LICENSE=accept -e DB2INSTANCE=student -e DB2INST1_PASSWORD=abcdef -e DBNAME=stud2020 -v bazepodatakavolume:/database ibmcom/db2</strong></p></li>
+<li><p>Kada se preuzme Docker slika, pokrenuti narednu naredbu da biste videli logove iz kontejnera:</p>
+<p><strong>docker logs -f bazepodataka</strong></p>
+<p>U trenutku pokretanja ćete najverovatnije dobiti informaciju kako se kreira baza podataka STUD2020. Sačekajte nekoliko minuta dok se u logu ne pojavi poruka “Setup has completed” (verovatno neće biti poslednja linija u logovima). Kada se poruka ipak pojavi, pritisnite CTRL + C da prekinete gledanje logova.</p></li>
+</ul>
+<p>Sada je Docker kontejner spreman za rad.</p>
+<h2 id="podešavanje-bp">Podešavanje BP</h2>
+<p>Proverite da li je kontejner pokrenut naredbom:</p>
+<p><strong>docker ps</strong></p>
+<p>Ako ne vidite kontejner, onda je potrebno da ga pokrenete naredbom:</p>
+<p><strong>docker start bazepodataka</strong></p>
+<p>Sada možemo pristupiti terminalu iz kontejnera naredbom:</p>
+<p><strong>docker exec -ti bazepodataka bash -c “su - ${DB2INSTANCE}”</strong></p>
+<p>Da biste preuzeli i instalirali BP STUD2020 u kontejneru, pokrenite naredne naredbe:</p>
+<p><strong>pwd</strong><br />
+<strong>wget <a href="http://www.matf.bg.ac.rs/~mirjana/stud2020.zip">http://www.matf.bg.ac.rs/~mirjana/stud2020.zip</a></strong><br />
+<strong>unzip stud2020.zip</strong><br />
+<strong>cd stud2020</strong><br />
+<strong>chmod +x create.sh</strong><br />
+<strong>chmod +x Stud2020_Ascii/create.sh</strong><br />
+<strong>chmod +x Stud2020_utf8/create.sh</strong><br />
+<strong>./create.sh</strong></p>
+<p>Prva naredba je tu samo da bi prikazala direktorijum u kojem se nalazite.</p>
+<p>Zatvaranje terminala se vrši naredbom:</p>
+<p><strong>exit</strong></p>
+<p>Gašenje kontejnera se vrši naredbom:</p>
+<p><strong>docker stop bazepodataka</strong></p>
+<h2 id="pokretanje-csql-primera-u-kontejneru">Pokretanje C/SQL primera u kontejneru</h2>
+<p>Proverite da li je kontejner pokrenut naredbom:</p>
+<p><strong>docker ps</strong></p>
+<p>Ako ne vidite kontejner, onda je potrebno da ga pokrenete naredbom:</p>
+<p><strong>docker start bazepodataka</strong></p>
+<p>Sada možemo pristupiti terminalu iz kontejnera naredbom:</p>
+<p><strong>docker exec -ti bazepodataka bash -c “su - ${DB2INSTANCE}”</strong></p>
+<p>Da biste preuzeli C/SQL primere, pokrenite naredne naredbe:</p>
+<p><strong>wget <a href="https://matf-pbp.github.io/resources/primeri.tar.gz">https://matf-pbp.github.io/resources/primeri.tar.gz</a></strong><br />
+<strong>tar -xf primeri.tar.gz</strong><br />
+<strong>cd vezve/primeri</strong><br />
+<strong>ls</strong></p>
+<p>U ovom direktorijumu se nalaze svi primeri. Prevođenje, na primer, zadatka 2.1 se može izvršiti na sledeći način:</p>
+<p><strong>cd poglavlje_2</strong><br />
+<strong>chmod +x prevodjenje</strong><br />
+<strong>./prevodjenje zadatak_2_1 stud2020 student abcdef</strong></p>
+<h2 id="pokretanje-javajdbc-primera-u-kontejneru">Pokretanje Java/JDBC primera u kontejneru</h2>
+<p>TODO</p>
+<h2 id="pokretanje-hibernate-primera-u-kontejneru">Pokretanje Hibernate primera u kontejneru</h2>
+<p>TODO</p>

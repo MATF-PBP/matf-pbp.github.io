@@ -1,0 +1,98 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+short hSchoolYear;
+char hFinalsName[31],
+     hFinalsLabel[21];
+EXEC SQL END DECLARE SECTION;
+
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL ROLLBACK;
+
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main() {
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    checkSQL("Connect");
+
+    // Primetimo da smo morali da navedemo klauzu WITH HOLD ovde
+    // zato sto vrsimo potvrdjivanje izmena tokom obrade kursora.
+    EXEC SQL 
+        DECLARE cFinals CURSOR WITH HOLD FOR 
+        SELECT  NAZIV,
+                SKGODINA,
+                OZNAKAROKA
+        FROM    DA.ISPITNIROK IR
+        WHERE   EXISTS (
+                    SELECT  *
+                    FROM    DA.ISPIT I
+                    WHERE   I.SKGODINA = IR.SKGODINA AND
+                            I.OZNAKAROKA = IR.OZNAKAROKA
+                );
+    checkSQL("Declare");
+
+    EXEC SQL OPEN cFinals;
+    checkSQL("Open");
+
+    for(;;) {
+        EXEC SQL 
+            FETCH   cFinals 
+            INTO    :hFinalsName,
+                    :hSchoolYear,
+                    :hFinalsLabel;
+        checkSQL("Fetch");
+
+        if(SQLCODE == 100) {
+            break;
+        }
+
+        printf("Obradjujem ispitni rok %s u %hd. godini\n"
+            "Da li zelite da obrisete polaganja u ovom ispitnom roku? [d/n] ", hFinalsName, hSchoolYear);
+            
+        char userResponse;
+        scanf("%c", &userResponse);
+        getchar(); // Za citanje novog reda
+
+        if (userResponse == 'n') {
+            printf("Preskacem obradu za ovaj ispitni rok\n\n");
+            
+            continue;
+        }
+        
+        EXEC SQL
+            DELETE  FROM DA.ISPIT
+            WHERE   SKGODINA = :hSchoolYear AND
+                    OZNAKAROKA = :hFinalsLabel;
+        checkSQL("Delete");
+        
+        // Da nismo naveli klauzu WITH HOLD pri deklaraciji kursora, 
+        // onda bi naredni poziv naredbe COMMIT zatvorio kursor,
+        // pa bi poziv FETCH naredbe u narednoj iteraciji petlje prijavio gresku 
+        // (jer dohvatamo podatak nad zatvorenim kursorom).
+        EXEC SQL COMMIT;
+        checkSQL("Commit");
+        
+        printf("Podaci su uspesno obrisani\n\n");
+    }
+
+    EXEC SQL CLOSE cFinals;    
+    checkSQL("Close");
+
+    EXEC SQL COMMIT;
+    checkSQL("Potvrdjivanje izmena");
+    
+    EXEC SQL CONNECT RESET;
+    checkSQL("Connect reset");
+
+    return 0;
+}
+ 
