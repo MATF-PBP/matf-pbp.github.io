@@ -3,6 +3,8 @@ layout: notification
 title: Softver za kurs Programiranje baza podataka
 ---
 
+U slučaju da uočite neki problem na ovoj stranici, molimo da nam to javite mejlom na adresu: robert.doza@matf.bg.ac.rs.
+
 ## Spisak alata
 
 Za praktični deo kursa Programiranje baza podataka koristi se:
@@ -23,18 +25,17 @@ Baza podataka STUD2020 sadrži dve sheme:
 - shemu `DA`, u kojoj su podaci zapisani ASCII kodnom šemom;
 - shemu `DB`, u kojoj su podaci zapisani UTF-8 kodnom šemom.
 
-## Virtualna mašina BazePodataka2020
+## Virtualna mašina BazePodataka2025
 
-Napravljena je virtualna mašina BazePodataka2020 za potrebe kursa Relacione baze podataka i Programiranje baza podataka.
+Napravljena je virtualna mašina BazePodataka2025 za potrebe kursa Relacione baze podataka i Programiranje baza podataka.
 Na VM je instalirana verzija IBM Db2 11.5 i Data Studio 4.1.3.
 
 Podaci za studentski nalog su:
 - korisnik: `student`;
 - lozinka: `abcdef`.
 
-Lokacije za preuzimanje VM:
-- <http://enastava.matf.bg.ac.rs/~mirjana/BazePodataka2020_nova.zip>
-(pročitati `uputstvo.txt`)
+Lokacija za preuzimanje VM:
+- <https://enastava.matf.bg.ac.rs/~mirjana.maljkovic/BazePodataka2025.zip>
 
 Na VM, ako želite da obrišete postojeću i napravite novu (čistu) bazu podataka STUD2020, potrebno je da se u terminalu pozicionirate u direktorijum:
 ```
