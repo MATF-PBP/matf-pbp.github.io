@@ -1,0 +1,5 @@
+SELECT  INDEKS,
+        IME,
+        PREZIME
+FROM    DA.DOSIJE
+WHERE   IDPROGRAMA = ?
