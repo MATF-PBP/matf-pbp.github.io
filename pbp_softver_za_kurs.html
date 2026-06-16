@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="rs">
+<head>
+    <title>Softver za kurs Programiranje baza podataka | Programiranje baza podataka</title>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" type="text/css" href="/resources/semantic/semantic.min.css">
+    <script src="/resources/jquery/jquery-3.5.1.min.js"></script>
+    <script src="/resources/semantic/semantic.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+    <script src="https://semantic-ui.com/javascript/library/highlight.min.js"></script>
+    <script>
+        hljs.initHighlightingOnLoad();
+        $(document).ready(() => {
+            $("table").addClass('ui celled table');
+        });
+    </script>
+</head>
+
+<body>
+    <div class="ui grid">
+        <div class="thirteen wide centered column">
+            <img class="ui centered small image" src="/resources/matf-srb.png">
+            <header class="ui center aligned block header">
+                <h1><a href="/">Programiranje baza podataka</a></h1>
+            </header>
+
+            <div class="ui divider"></div>
+
+            <h2 class="ui center aligned header">Softver za kurs Programiranje baza podataka</h2>
+
+<div class="ui piled segment">
+    <h4 class="ui header"> </h4>
+    <p>U slučaju da uočite neki problem na ovoj stranici, molimo da nam to javite mejlom na adresu: robert.doza@matf.bg.ac.rs.</p>
+
+<h2 id="spisak-alata">Spisak alata</h2>
+
+<p>Za praktični deo kursa Programiranje baza podataka koristi se:</p>
+<ul>
+  <li>sistem IBM Db2 za upravljanje bazama podataka;</li>
+  <li>alat IBM Data Studio za rad sa bazama podataka;</li>
+  <li>studentska baza STUD2020;</li>
+  <li>biblioteka Hibernate ORM 5.4: <a href="https://hibernate.org/orm/">https://hibernate.org/orm/</a>.</li>
+</ul>
+
+<h2 id="baza-podataka-stud2020">Baza podataka STUD2020</h2>
+
+<p>Za bolje upoznavanje sa bazom podataka STUD2020 pogledajte opis na adresi
+<a href="https://matf-pbp.github.io/vezbe/poglavlja/1/#14-baza-podataka-stud2020">https://matf-pbp.github.io/vezbe/poglavlja/1/#14-baza-podataka-stud2020</a>.</p>
+
+<p>Skriptovi za pravljenje baze podataka mogu se preuzeti sa linka
+<a href="http://www.matf.bg.ac.rs/~mirjana/stud2020.zip">http://www.matf.bg.ac.rs/~mirjana/stud2020.zip</a>.</p>
+
+<p>Baza podataka STUD2020 sadrži dve sheme:</p>
+<ul>
+  <li>shemu <code class="language-plaintext highlighter-rouge">DA</code>, u kojoj su podaci zapisani ASCII kodnom šemom;</li>
+  <li>shemu <code class="language-plaintext highlighter-rouge">DB</code>, u kojoj su podaci zapisani UTF-8 kodnom šemom.</li>
+</ul>
+
+<h2 id="virtualna-mašina-bazepodataka2025">Virtualna mašina BazePodataka2025</h2>
+
+<p>Napravljena je virtualna mašina BazePodataka2025 za potrebe kursa Relacione baze podataka i Programiranje baza podataka.
+Na VM je instalirana verzija IBM Db2 11.5 i Data Studio 4.1.3.</p>
+
+<p>Podaci za studentski nalog su:</p>
+<ul>
+  <li>korisnik: <code class="language-plaintext highlighter-rouge">student</code>;</li>
+  <li>lozinka: <code class="language-plaintext highlighter-rouge">abcdef</code>.</li>
+</ul>
+
+<p>Lokacija za preuzimanje VM:</p>
+<ul>
+  <li><a href="https://enastava.matf.bg.ac.rs/~mirjana.maljkovic/BazePodataka2025.zip">https://enastava.matf.bg.ac.rs/~mirjana.maljkovic/BazePodataka2025.zip</a></li>
+</ul>
+
+<p>Na VM, ako želite da obrišete postojeću i napravite novu (čistu) bazu podataka STUD2020, potrebno je da se u terminalu pozicionirate u direktorijum:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>~/Desktop/materijali/baze
+</code></pre></div></div>
+<p>i odatle pokrenete skript <code class="language-plaintext highlighter-rouge">./create.sh</code> (što traje nekoliko minuta).</p>
+
+<p>Na VM je nakon logovanja uvek potrebno pokrenuti Db2 SUBP pozivom <code class="language-plaintext highlighter-rouge">db2start</code> u terminalu, a pre izvršavanja bilo kojih drugih SQL naredbi.</p>
+
+<p>Komande za Db2 se na OS Linux izvršavaju u terminalu, a na OS Windows u DB2 Command Window (ili Command Prompt, pa otkucajte “db2cmd”, ali moraju biti podešene odgovarajuće promenljive okruženja, kao što je PATH da bi mogle biti pronađene odgovarajuće Db2 naredbe).
+Instrukcije za pravljenje studentske baze podataka na Vašim host operativnim sistemima:</p>
+
+<ul>
+  <li>nakon preuzimanja i raspakivanja materijala za baze podataka (videti iznad), pozicionirajte se preko terminala ili <code class="language-plaintext highlighter-rouge">db2cmd</code> u raspakovani direktorijum <code class="language-plaintext highlighter-rouge">stud2020</code></li>
+  <li>na OS Linux pokrenite skript <code class="language-plaintext highlighter-rouge">create.sh</code></li>
+  <li>na OS Windows pokrenite <code class="language-plaintext highlighter-rouge">create.cmd</code></li>
+</ul>
+
+<p>Napomena: Ako koristite stariju verziju VMware plejera i dobijate grešku pri pokretanju VM, potrebno je da otvorite .vmx datoteku i promenite vrednost za virtualHW.version na Vašu verziju plejera, npr. ako je 15 postavite:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>virtualHW.version = “15”
+</code></pre></div></div>
+
+<h2 id="lokalna-instalacija-umesto-vm">Lokalna instalacija (umesto VM)</h2>
+
+<p>Ukoliko ne želite da koristite VM, sa IBM sajta možete preuzeti IBM Db2 Community Edition, kao i alat Data Studio.
+Preporuka je da napravite nalog na IBM sajtu korišćenjem studentske adrese.
+Detaljnije informacije o instalaciji potrebnog softvera možete pronaći na adresi
+<a href="https://matf-pbp.github.io/vezbe/poglavlja/1/#13-podešavanje-okruženja-za-rad">https://matf-pbp.github.io/vezbe/poglavlja/1/#13-podešavanje-okruženja-za-rad</a>.</p>
+
+
+</div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="rs">
+<head>
+    <title>10. Uvod u razvojno okruženje Hibernate | Programiranje baza podataka</title>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" type="text/css" href="/resources/semantic/semantic.min.css">
+    <script src="/resources/jquery/jquery-3.5.1.min.js"></script>
+    <script src="/resources/semantic/semantic.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+    <script src="https://semantic-ui.com/javascript/library/highlight.min.js"></script>
+    <script>
+        hljs.initHighlightingOnLoad();
+        $(document).ready(() => {
+            $("table").addClass('ui celled table');
+        });
+    </script>
+</head>
+
+<body>
+    <div class="ui sticky black big launch right attached fixed button" id="pageSticky">
+        <i class="content icon"></i>
+        <span class="text">Prikaži sadržaj</span>
+    </div>
+
+    <div class="ui sidebar vertical menu" id="sideMenu">
+        <div class="item">
+            <h3>Sadržaj</h3>
+        </div>
+        <a class="item" href="/vezbe/predgovor">Predgovor</a>
+        <a class="item" href="/vezbe/poglavlja/1">1. Uvod u programiranje baza podataka</a>
+        <a class="item" href="/vezbe/poglavlja/2">2. Osnovni koncepti programiranja C/SQL aplikacija</a>
+        <a class="item" href="/vezbe/poglavlja/3">3. Programiranje korišćenjem kursora</a>
+        <a class="item" href="/vezbe/poglavlja/4">4. Aplikacije sa dinamičkim SQL naredbama</a>
+        <a class="item" href="/vezbe/poglavlja/5">5. Implementiranje transakcija</a>
+        <a class="item" href="/vezbe/poglavlja/6">6. Aplikacije u višekorisničkom okruženju</a>
+        <a class="item" href="/vezbe/poglavlja/7">7. Povezivanje aplikacija na više baza podataka</a>
+        <a class="item" href="/vezbe/poglavlja/8">8. Osnovni koncepti programiranja Java/SQL aplikacija sa
+            dinamičkim SQL naredbama (JDBC)</a>
+        <a class="item" href="/vezbe/poglavlja/9">9. Napredne tehnike razvijanja Java/SQL aplikacija</a>
+        <a class="item" href="/vezbe/poglavlja/10">10. Uvod u razvojno okruženje Hibernate</a>
+        <a class="item" href="/vezbe/poglavlja/11">11. Napredna objektno-relaciona preslikavanja</a>
+        <a class="item" href="/vezbe/poglavlja/12">12. Napredno kreiranje upita pomoću JPA Criteria API</a>
+        <a class="item" href="/vezbe/poglavlja/13">13. Programiranje SQL rutina</a>
+        <a class="item" href="/vezbe/poglavlja/14">14. Korisnički-definisane funkcije</a>
+        <a class="item" href="/vezbe/poglavlja/15">15. Ugrađene procedure</a>
+        <a class="item" href="/vezbe/poglavlja/16">16. Okidači</a>
+    </div>
+
+    <div class="ui justified container">
+        <img class="ui centered small image" src="/resources/matf-srb.png">
+        <header class="ui center aligned block header">
+            <h1><a href="/">Programiranje baza podataka</a></h1>
+        </header>
+
+        <div class="ui divider"></div>
+
+        <div id="pageContent">
+            <h2>10. Uvod u razvojno okruženje Hibernate</h2>
+
+
+<div class="ui warning message">
+    <div class="header">
+        Ova stranica je pod konstrukcijom!
+    </div>
+    Ako pronađete grešku ili propust, molimo Vas da nam skrenete pažnju otvaranjem primedbe na <a href="https://github.com/MATF-PBP/matf-pbp.github.io"><i class="github icon"></i>zvaničnom GitHub repozitorijumu</a>.
+</div>
+
+
+<p>Prilikom izrade aplikacija, Java programeri se oslanjaju na objektno-orijentisane koncepte
+koji, kako im i samo ime kaže, počivaju na upotrebi objekata (i naravno, ostalih koncepata
+koji se dalje zasnivaju na njima, poput klase, učauravanja, interfejsi i drugi). Ovi objekti
+modeliraju poslovnu logiku iz realnog sveta, definisanu od strane naručilaca proizvoda.
+Podaci u memoriji, sa kojima aplikacija upravlja, nisu korisni ukoliko se ne mogu negde
+trajno skladištiti. Dodatno, veliki broj podataka počiva upravo iz nekih skladišta podataka,
+te je potrebno da aplikacije pristupaju takvim izvorima informacija. Tradicionalno,
+ali i dalje u ogromnoj meri, ovi podaci se zapisuju u relacionim bazama podataka zbog
+različitih prednosti koje su nam poznate iz dobro razrađene teorije relacionog računa na
+kojima ove baze podataka počivaju.</p>
+
+<p>Ovim se otvara naredno pitanje — ako Java aplikacije rade sa podacima u memoriji koji su
+zapisani kao objekti, a naši podaci od interesa se skladište u relacionim bazama podataka
+koji su zapisani u tabelama, da li je moguće dizajnirati sistem koji će automatski izvršiti
+prevođenje podataka iz jednog oblika u drugi i obrnuto? Ovaj problem se naziva problem
+objektno-relacionog preslikavanja (engl. Object-Relation Mapping problem) i odgovor na
+pitanje je da može. U ovom poglavlju biće predstavljeno okruženje za razvoj Hibernate,
+koje omogućava Java programerima da u svojim aplikacijama implementiraju poslovnu
+logiku, dok se operacije niskog nivoa, kao što su čitanje, skladištenje, brisanje i menjanje
+podataka, izvršavaju u pozadini, čime se veliki deo posla olakšava.</p>
+
+<p>In this chapter, we’ll think of the problems of data storage and sharing in the context of
+an object-oriented application that uses a domain model. Instead of directly working
+with the rows and columns of a java.sql.ResultSet, the business logic of an application interacts with the application-specific object-oriented domain model. If the SQL
+database schema of an online auction system has ITEM and BID tables, for example,
+the Java application defines Item and Bid classes. Instead of reading and writing the
+value of a particular row and column with the ResultSet API, the application loads
+and stores instances of Item and Bid classes.</p>
+
+<p>At runtime, the application therefore operates with instances of these classes.
+Each instance of a Bid has a reference to an auction Item, and each Item may have a
+collection of references to Bid instances. The business logic isn’t executed in the
+database (as an SQL stored procedure); it’s implemented in Java and executed in the
+application tier. This allows business logic to use sophisticated object-oriented concepts such as inheritance and polymorphism.</p>
+
+<p>Upotreba Hibernate okruženja za razvoj će biti prikazana kroz jedan veći primer, koji će
+biti izrađen deo-po-deo. Ovo znači da, pored toga što će se u projektu povećavati broj
+klasa sa (gotovo) svakim zahtevom, i same klase će biti proširivane kako bi zadovoljile sve
+zahteve.</p>
+
+<p>Cilj ovog poglavlja jeste razvoj aplikacije koja ispunjava naredne zahteve (svi zahtevi se
+implementiraju nad poznatom bazom podataka <code class="language-plaintext highlighter-rouge">STUD2020</code>):</p>
+
+<ol>
+  <li>Unos podataka o novom studijskom programu u tabelu <code class="language-plaintext highlighter-rouge">STUDIJSKIPROGRAM</code> sa narednim podacima:</li>
+</ol>
+
+<table>
+  <thead>
+    <tr>
+      <th>Kolona</th>
+      <th>Vrednost</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Identifikator</td>
+      <td>102</td>
+    </tr>
+    <tr>
+      <td>Oznaka</td>
+      <td>MATF_2020</td>
+    </tr>
+    <tr>
+      <td>Naziv</td>
+      <td>Novi MATF studijski program u 2020. godini</td>
+    </tr>
+    <tr>
+      <td>ESPB</td>
+      <td>240</td>
+    </tr>
+    <tr>
+      <td>Nivo</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>Zvanje</td>
+      <td>Diplomirani informaticar</td>
+    </tr>
+    <tr>
+      <td>Opis</td>
+      <td>Novi studijski program na Matematickom fakultetu</td>
+    </tr>
+  </tbody>
+</table>
+
+<ol start="2">
+  <li>Čitanje podataka o prethodno unetom studijskom programu iz tabele <code class="language-plaintext highlighter-rouge">STUDIJSKIPROGRAM</code>.</li>
+  <li>Ažuriranje podataka o prethodno unetom studijskom programu iz tabele <code class="language-plaintext highlighter-rouge">STUDIJSKIPROGRAM</code>.</li>
+  <li>Brisanje podataka o prethodno unetom studijskom programu iz tabele <code class="language-plaintext highlighter-rouge">STUDIJSKIPROGRAM</code>.</li>
+  <li>Unos podataka o novom ispitnom roku (jun 2020. godine) u tabelu <code class="language-plaintext highlighter-rouge">ISPITNIROK</code>.</li>
+  <li>Brisanje podataka o prethodno unetom ispitnom roku iz tabele <code class="language-plaintext highlighter-rouge">ISPITNIROK</code>.</li>
+  <li>Ispisivanje podataka o svim ispitnim rokovima.</li>
+  <li>Ispisivanje podataka o ispitnom roku čija se oznaka roka i godina roka unose sa standarnog ulaza.</li>
+  <li>Ispisivanje naziva svih studijskih programa. Nakon svakog naziva studijskog programa, ispisuju se indeks, ime i prezime svih studenata na tom studijskom programu. Dopuniti ispis o studentu tako da se za svakog studenta ispisuje i prosek.</li>
+  <li>Za zadati indeks studenta ispisati nazive svih položenih predmeta i dobijene ocene. Implementirati dva metoda — jedan koji ne koristi Hibernate JPA Criteria API i drugi koji ga koristi.</li>
+</ol>
+
+<p>Takođe, omogućiti da obrada svakog zahteva predstavlja zasebnu transakciju.</p>
+
+<h2 id="101-podešavanje-hibernate-projekta">10.1 Podešavanje Hibernate projekta</h2>
+
+<p>Hibernate biblioteka se veoma jednostavno instalira. Sa veze <a href="https://hibernate.org/orm/">https://hibernate.org/orm/</a> potrebno je preuzeti odgovarajuću verziju biblioteke. Mi ćemo raditi sa poslednjom stabilnom verzijom, a to je verzija 5.4 koja se može preuzeti klikom na dugme <em>Download Zip archive</em> sa <a href="https://hibernate.org/orm/releases/5.4/">ove veze</a>. Preuzetu arhivu je potrebno otpakovati na neku lokaciju. Na virtualnoj mašini “BazePodataka2020”, ta lokacija je <code class="language-plaintext highlighter-rouge">/opt/hibernate-5.4.22/</code>. Dodatno, Java projekat koji budemo kreirali mora da sadrži informaciju i o implementaciji JDBC drajvera za DB2. Podešavanje Java projekta sa podrškom za razvoj Hibernate aplikacija se vrši narednim koracima:</p>
+
+<ol>
+  <li>Otvoriti IBM Data Studio.</li>
+  <li>Iz glavnog menija odabrati <em>Window</em> -&gt; <em>Perspective</em> -&gt; <em>Open Perspective</em> -&gt; <em>Other</em> -&gt; <em>Java</em> -&gt; <em>OK</em></li>
+  <li>
+    <p>Iz glavnog menija odabrati <em>File</em> -&gt; <em>New</em> -&gt; <em>Java Project</em></p>
+
+    <ol>
+      <li>U polje <em>Project name</em> uneti naziv Java projekta: <code class="language-plaintext highlighter-rouge">poglavlje_10</code>.</li>
+      <li>Iz padajuće liste u tački <em>Use an execution environment JRE</em> odabrati <em>JavaSE-1.8</em>.</li>
+      <li>Odabrati <em>Finish</em>.</li>
+    </ol>
+  </li>
+  <li>
+    <p>Desni klik na projekat koji je napravljen u <em>Package Explorer</em> -&gt; <em>Properties</em></p>
+
+    <ol>
+      <li>Odabrati iz leve liste tab <em>Java Build Path</em>.</li>
+      <li>Odabrati iz gornje liste karticu <em>Libraries</em>.</li>
+      <li>
+        <p>Podesiti podršku za JDBC:</p>
+
+        <ol>
+          <li>Odabrati <em>Add External JARS</em>.</li>
+          <li>U prozoru koji se otvori odabrati: <em>Other Locations</em> -&gt; <em>Computer</em> -&gt; <em>opt</em> -&gt; <em>ibm</em> -&gt; <em>db2</em> -&gt; <em>V11.5</em> -&gt; <em>java</em>.</li>
+          <li>Sa ove lokacije označiti datoteke <em>db2jcc4.jar</em> i <em>db2jcc_licence_cu.jar</em>, pa odabrati <em>OK</em>.</li>
+        </ol>
+      </li>
+      <li>
+        <p>Podesiti podršku za Hibernate:</p>
+
+        <ol>
+          <li>Odabrati <em>Add Library</em>.</li>
+          <li>U prozoru koji se otvori odabrati: <em>User Library</em> -&gt; <em>Next</em> -&gt; <em>User Libraries</em> -&gt; <em>New</em> -&gt; Uneti naziv <em>Hibernate</em> -&gt; <em>OK</em>.</li>
+          <li>
+            <p>Sada je potrebno dodati sve pakete koji se nalaze u poddirektorijumima <code class="language-plaintext highlighter-rouge">envers</code>, <code class="language-plaintext highlighter-rouge">jpa-metamodel-generator</code>, <code class="language-plaintext highlighter-rouge">osgi</code> i <code class="language-plaintext highlighter-rouge">required</code> na putanji <code class="language-plaintext highlighter-rouge">/opt/hibernate-5.4.10/lib/</code>. Postupak će biti opisan za direktorijum <code class="language-plaintext highlighter-rouge">envers</code>, a Vi treba da ga ponovite korak-po-korak za sve ostale navedene direktorijume.</p>
+
+            <ol>
+              <li>Kliknuti na napravljenu biblioteku <em>Hibernate</em> (da bi Vam bilo omogućeno dugme <em>Add External JARS</em>).</li>
+              <li>Odabrati <em>Add External JARS</em>.</li>
+              <li>U prozoru koji se otvori odabrati: <em>Other Locations</em> -&gt; <em>Computer</em> -&gt; <em>opt</em> -&gt; <em>hibernate-5.4.10</em> -&gt; <em>lib</em> -&gt; <em>envers</em>.</li>
+              <li>Sa ove lokacije označiti sve datoteke, pa odabrati <em>OK</em>.</li>
+            </ol>
+          </li>
+          <li>Kada su svi potrebni paketi uključeni, odabrati <em>OK</em> -&gt; <em>Finish</em> -&gt; <em>OK</em>.</li>
+        </ol>
+      </li>
+      <li>Ovim ste uspešno dodali podršku za JDBC i Hibernate aplikacije u Vašem projektu.</li>
+    </ol>
+  </li>
+</ol>
+
+<h2 id="102-podešavanje-konekcije-na-bazu-podataka">10.2 Podešavanje konekcije na bazu podataka</h2>
+
+<p>To create a connection to the database, Hibernate must know the details of our database,
+tables, classes, and other mechanics. This information is ideally provided as an XML file
+(usually named <code class="language-plaintext highlighter-rouge">hibernate.cfg.xml</code>) or as a simple text file with name/value pairs (usually
+named <code class="language-plaintext highlighter-rouge">hibernate.properties</code>).</p>
+
+<p>For this exercise, we use XML style. We name this file <code class="language-plaintext highlighter-rouge">hibernate.cfg.xml</code> so the framework
+can load this file automatically.</p>
+
+<p>The following snippet describes such a configuration file. Because we are using IBM DB2
+as the database, the connection details for the IBM DB2 database are declared in this
+<code class="language-plaintext highlighter-rouge">hibernate.cfg.xml</code> file.</p>
+
+<p>Da bismo napravili ovu datoteku, potrebno je da desnim klikom na naziv projekta otvorimo
+padajući meni iz kojeg biramo <em>New</em> -&gt; <em>Other</em> i onda pronađemo <em>XML File</em> iz filtera
+<em>XML</em>. Klikom na <em>Next</em>, potrebno je da unesemo naziv datoteke — u ovom slučaju, to je
+<em>hibernate.cfg.xml</em>, odaberemo da se datoteka smesti u direktorijum <em>src</em> i odaberemo
+<em>Finish</em>.</p>
+
+<p>Ova datoteka će se automatski otvoriti u XML pregledaču, ali je nama neophodno da
+bude otvorena kao tekstualna datoteka. Ovo se može uraditi desnim klikom na naziv
+datoteke <code class="language-plaintext highlighter-rouge">hibernate.cfg.xml</code> u <em>Package Explorer</em> pogledu, a zatim biranjem 
+<em>Open with</em> -&gt; <em>Text Editor</em>. U ovu datoteku je potrebno smestiti sledeće:</p>
+
+<p><strong>Datoteka: <code class="language-plaintext highlighter-rouge">vezbe/primeri/poglavlje_10/src/hibernate.cfg.xml</code></strong>:</p>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span>
+<span class="nt">&lt;hibernate-configuration&gt;</span>
+       <span class="nt">&lt;session-factory&gt;</span>
+           <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"connection.url"</span><span class="nt">&gt;</span>
+               jdbc:db2://localhost:50000/STUD2020
+           <span class="nt">&lt;/property&gt;</span>
+        <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"connection.driver_class"</span><span class="nt">&gt;</span>
+            com.ibm.db2.jcc.DB2Driver
+        <span class="nt">&lt;/property&gt;</span>
+           <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"hibernate.connection.username"</span><span class="nt">&gt;</span>
+               student
+           <span class="nt">&lt;/property&gt;</span>
+           <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"hibernate.connection.password"</span><span class="nt">&gt;</span>
+               abcdef
+           <span class="nt">&lt;/property&gt;</span>
+           <span class="nt">&lt;property</span> <span class="na">name=</span><span class="s">"hibernate.dialect"</span><span class="nt">&gt;</span>
+               org.hibernate.dialect.DB2Dialect
+           <span class="nt">&lt;/property&gt;</span>
+    <span class="nt">&lt;/session-factory&gt;</span>
+<span class="nt">&lt;/hibernate-configuration&gt;</span>
+
+</code></pre></div></div>
+
+<p>This file has enough information to get a live connection to an IBM DB2 database.</p>
+
+<p>The preceding properties can also be expressed as name/value pairs. For example, here’s
+the same information represented as name/value pairs in a text file titled <code class="language-plaintext highlighter-rouge">hibernate.properties</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>hibernate.connection.driver_class = com.ibm.db2.jcc.DB2Driver
+hibernate.dialect = org.hibernate.dialect.DB2Dialect
+hibernate.connection.url = jdbc:db2://localhost:50000/STUD2020
+hibernate.connection.username = student
+hibernate.connection.password = abcdef
+</code></pre></div></div>
+
+<p>Property <code class="language-plaintext highlighter-rouge">connection.url</code> indicates the URL to which we should be connected; <code class="language-plaintext highlighter-rouge">driver_class</code>
+represents the relevant <code class="language-plaintext highlighter-rouge">Driver</code> class to make a connection, and the <code class="language-plaintext highlighter-rouge">dialect</code> indicates which
+database dialect we are using (IBM DB2, in this case). Similarly, <code class="language-plaintext highlighter-rouge">connection.username</code>
+and <code class="language-plaintext highlighter-rouge">connection.password</code> specifies the username and password for connecting to a database.</p>
+
+<p>If you are following the <code class="language-plaintext highlighter-rouge">hibernate.properties</code> file approach, note that all the properties
+are prefixed with “<code class="language-plaintext highlighter-rouge">hibernate</code>” and follow a pattern — <code class="language-plaintext highlighter-rouge">hibernate.* = value</code>.</p>
+
+<h2 id="103-fabrika-sesija">10.3 Fabrika sesija</h2>
+
+<p>Pre nego što pređemo na implementiranje klasa i definisanje preslikavanja između tabela
+u bazi podataka i klasa u programskom jeziku Java, pogledajmo kako se može kreirati
+jednostavan klijent koji će koristiti informacije iz <code class="language-plaintext highlighter-rouge">hibernate.cfg.xml</code> datoteke
+za kreiranje konekcije ka bazi podataka.</p>
+
+<p>Hibernate’s native bootstrap API is split into several stages, each giving you access
+to certain configuration aspects. Building a <code class="language-plaintext highlighter-rouge">SessionFactory</code> looks like this:</p>
+
+<p><strong>Datoteka: <code class="language-plaintext highlighter-rouge">vezbe/primeri/poglavlje_10/src/zadatak_10_1/HibernateUtil.java</code></strong>:</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">zadatak_10_1</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.hibernate.SessionFactory</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.hibernate.boot.MetadataSources</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.hibernate.boot.registry.StandardServiceRegistry</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.hibernate.boot.registry.StandardServiceRegistryBuilder</span><span class="o">;</span>
+
+<span class="kd">class</span> <span class="nc">HibernateUtil</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="nc">SessionFactory</span> <span class="n">sessionFactory</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+
+    <span class="kd">static</span> <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="nc">StandardServiceRegistry</span> <span class="n">registry</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">StandardServiceRegistryBuilder</span><span class="o">().</span><span class="na">configure</span><span class="o">().</span><span class="na">build</span><span class="o">();</span>
+            <span class="n">sessionFactory</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MetadataSources</span><span class="o">(</span><span class="n">registry</span><span class="o">).</span><span class="na">addAnnotatedClass</span><span class="o">(</span><span class="nc">StudijskiProgram</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">buildMetadata</span><span class="o">()</span>
+                    <span class="o">.</span><span class="na">buildSessionFactory</span><span class="o">();</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Throwable</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">err</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Session factory error"</span><span class="o">);</span>
+            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+
+            <span class="nc">System</span><span class="o">.</span><span class="na">exit</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">static</span> <span class="nc">SessionFactory</span> <span class="nf">getSessionFactory</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">sessionFactory</span><span class="o">;</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<p>First, create a <code class="language-plaintext highlighter-rouge">StandardServiceRegistry</code>:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">StandardServiceRegistry</span> <span class="n">registry</span> <span class="o">=</span> 
+        <span class="k">new</span> <span class="nf">StandardServiceRegistryBuilder</span><span class="o">()</span>
+            <span class="o">.</span><span class="na">configure</span><span class="o">()</span>
+            <span class="o">.</span><span class="na">build</span><span class="o">();</span>
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">StandardServiceRegistryBuilder</code> helps you create the immutable service registry with chained method calls. Configure the services registry by calling the method <code class="language-plaintext highlighter-rouge">configure</code> on it. Finally, call the method <code class="language-plaintext highlighter-rouge">build</code> to create said service registry.</p>
+
+<p>With the <code class="language-plaintext highlighter-rouge">StandardServiceRegistry</code> built and immutable, you can move on to the next
+stage: telling Hibernate which persistent classes are part of your mapping metadata.
+Configure the metadata sources as follows:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">MetadataSources</span> <span class="n">metadataSources</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MetadataSources</span><span class="o">(</span><span class="n">serviceRegistry</span><span class="o">);</span>
+<span class="n">metadataSources</span><span class="o">.</span><span class="na">addAnnotatedClass</span><span class="o">(</span><span class="nc">StudijskiProgram</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+<span class="nc">MetadataBuilder</span> <span class="n">metadataBuilder</span> <span class="o">=</span> <span class="n">metadataSources</span><span class="o">.</span><span class="na">getMetadataBuilder</span><span class="o">();</span>
+</code></pre></div></div>
+
+<p>The <code class="language-plaintext highlighter-rouge">MetadataSources</code> API has many methods for adding mapping sources; check the
+Javadoc for more information. The next stage of the boot procedure is building all
+the metadata needed by Hibernate, with the <code class="language-plaintext highlighter-rouge">MetadataBuilder</code> you obtained from the
+metadata sources.</p>
+
+<p>You can then query the metadata to interact with Hibernate’s completed configuration programmatically, or continue and build the final <code class="language-plaintext highlighter-rouge">SessionFactory</code>:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">Metadata</span> <span class="n">metadata</span> <span class="o">=</span> <span class="n">metadataBuilder</span><span class="o">.</span><span class="na">build</span><span class="o">();</span>
+<span class="nc">SessionFactory</span> <span class="n">sessionFactory</span> <span class="o">=</span> <span class="n">metadata</span><span class="o">.</span><span class="na">buildSessionFactory</span><span class="o">();</span>
+</code></pre></div></div>
+
+<p>This builder helps you create the immutable service registry with chained method calls.</p>
+
+<p>Opisani kod stavljamo u statički blok klase <code class="language-plaintext highlighter-rouge">HibernateUtil</code> kako bi se on izvršio prvi put kada se ova klasa bude koristila. U našem slučaju, to podrazumeva prvi put kada instanca fabrike sesija bude bila iskorišćena u <code class="language-plaintext highlighter-rouge">main</code> funkciji naše aplikacije.</p>
+
+<p>Note that we don’t have to explicitly mention the mapping or configuration or properties
+files, because the Hibernate runtime looks for default filenames, such as <code class="language-plaintext highlighter-rouge">hibernate.cfg.xml</code>
+or <code class="language-plaintext highlighter-rouge">hibernate.properties</code>, in the classpath and loads them. If we have a nondefault
+name, make sure you pass that as an argument — like <code class="language-plaintext highlighter-rouge">configure("my-hib-cfg.xml")</code>, for example.</p>
+
+<h2 id="104-objektno-relaciono-preslikavanje-jedne-klase">10.4 Objektno-relaciono preslikavanje jedne klase</h2>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 10.1</strong>: Napisati Java aplikaciju koja korišćenjem biblioteke Hibernate redom:</p>
+
+  <ol>
+    <li>unosi podatak o novom studijskom programu u tabeli <code class="language-plaintext highlighter-rouge">STUDIJSKIPROGRAM</code> sa podacima iz naredne tabele,</li>
+    <li>čita podatke o studijskom programu sa identifikatorom <code class="language-plaintext highlighter-rouge">102</code> iz tabele <code class="language-plaintext highlighter-rouge">STUDIJSKIPROGRAM</code>,</li>
+    <li>ažurira podatke o studijskom programu sa identifikatorom <code class="language-plaintext highlighter-rouge">102</code> iz tabele <code class="language-plaintext highlighter-rouge">STUDIJSKIPROGRAM</code>,</li>
+    <li>čita podatke o studijskom programu sa identifikatorom <code class="language-plaintext highlighter-rouge">102</code> iz tabele <code class="language-plaintext highlighter-rouge">STUDIJSKIPROGRAM</code>,</li>
+    <li>briše podatke o studijskom programu sa identifikatorom <code class="language-plaintext highlighter-rouge">102</code> iz tabele <code class="language-plaintext highlighter-rouge">STUDIJSKIPROGRAM</code>,</li>
+    <li>čita podatke o studijskom programu sa identifikatorom <code class="language-plaintext highlighter-rouge">102</code> iz tabele <code class="language-plaintext highlighter-rouge">STUDIJSKIPROGRAM</code>.</li>
+  </ol>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Kolona</th>
+      <th>Vrednost</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Identifikator</td>
+      <td>102</td>
+    </tr>
+    <tr>
+      <td>Oznaka</td>
+      <td>MATF_2020</td>
+    </tr>
+    <tr>
+      <td>Naziv</td>
+      <td>Novi MATF studijski program u 2020. godini</td>
+    </tr>
+    <tr>
+      <td>ESPB</td>
+      <td>240</td>
+    </tr>
+    <tr>
+      <td>Nivo</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <td>Zvanje</td>
+      <td>Diplomirani informaticar</td>
+    </tr>
+    <tr>
+      <td>Opis</td>
+      <td>Novi studijski program na Matematickom fakultetu</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Rešenje: Da bismo rešili ovaj zadatak, potrebno je da kreiramo klasu <code class="language-plaintext highlighter-rouge">StudijskiProgram</code> i da joj dodamo svojstva koja odgovaraju kolonama u tabeli <code class="language-plaintext highlighter-rouge">STUDIJSKIPROGRAM</code>:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">zadatak_10_1</span><span class="o">;</span>
+
+<span class="kd">class</span> <span class="nc">StudijskiProgram</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="nc">Oznaka</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="nc">Naziv</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="no">ESPB</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="nc">Integer</span> <span class="nc">Nivo</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="nc">Zvanje</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="nc">Opis</span><span class="o">;</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Primetimo da je klasa <code class="language-plaintext highlighter-rouge">StudijskiProgram</code> definisana na nivou vidljivosti paketa. Za ovo smo se opredelili zbog toga što će implementacija svakog novog zahteva zahtevati novi paket u projektu <code class="language-plaintext highlighter-rouge">poglavlje_10</code>. Trenutne klase koje smo napisali - <code class="language-plaintext highlighter-rouge">HibernateUtil</code> i <code class="language-plaintext highlighter-rouge">StudijskiProgram</code> - čuvaju se u paketu <code class="language-plaintext highlighter-rouge">zadatak_10_1</code> i važe samo za njega, tako da nema potrebe da budu javne vidljivosti.</p>
+
+<p>Sada je potrebno da definišemo objektno-relaciono preslikavanje između klase <code class="language-plaintext highlighter-rouge">StudijskiProgram</code> i tabele <code class="language-plaintext highlighter-rouge">STUDIJSKIPROGRAM</code> u bazi podataka.</p>
+
+<p>U Hibernate radnom okviru je moguće korišćenje dva pristupa za definisanje preslikavanja:</p>
+
+<ol>
+  <li>
+    <p>Korišćenjem XML datoteka — Za svaku tabelu se definiše XML datoteka koja je struktuirana na odgovarajući način i koristi XML elemente i njihove atribute za definisanje preslikavanja.</p>
+  </li>
+  <li>
+    <p>Korišćenjem Java anotacija — Koriste se Java konstrukti oblika  <code class="language-plaintext highlighter-rouge">@NazivAnotacije</code> i njihova svojstva za definisanje preslikavanja.</p>
+  </li>
+</ol>
+
+<p>Mi ćemo u daljem tekstu koristiti pristup zasnovan na Java anotacijama.</p>
+
+<p>Hibernate uses the Java Persistence API (JPA) annotations. JPA is the standard specification dictating the persistence of Java objects. So the preceding annotations are imported from the <code class="language-plaintext highlighter-rouge">javax.persistence</code> package.</p>
+
+<p>Each persistent object is tagged (at a class level) with an <code class="language-plaintext highlighter-rouge">@Entity</code> annotation. The <code class="language-plaintext highlighter-rouge">@Table</code> annotation declares our database table where these entities will be stored. Ideally, we should not have to provide the <code class="language-plaintext highlighter-rouge">@Table</code> annotation if the name of the class and the table name are the same (in our example, the class is <code class="language-plaintext highlighter-rouge">StudijskiProgram</code>, whereas the table name is <code class="language-plaintext highlighter-rouge">STUDIJSKIPROGRAM</code>, which is fine):</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Entity</span>
+<span class="nd">@Table</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"DA.STUDIJSKIPROGRAM"</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">StudijskiProgram</span> <span class="o">{</span>
+    <span class="o">...</span>
+</code></pre></div></div>
+
+<p>Sada je potrebno da definišemo preslikavanje kolona. All persistent entities must have their identifiers defined. The <code class="language-plaintext highlighter-rouge">@Id</code> annotation indicates that the variable is the unique identifier of the object instance (in other words, a primary key). When we annotate the id variable with the <code class="language-plaintext highlighter-rouge">@Id</code> annotation, as in the preceding example, Hibernate maps a field called <code class="language-plaintext highlighter-rouge">id</code> from our table <code class="language-plaintext highlighter-rouge">StudijskiProgram</code> to the <code class="language-plaintext highlighter-rouge">id</code> variable on the <code class="language-plaintext highlighter-rouge">StudijskiProgram</code> class:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Entity</span>
+<span class="nd">@Table</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"DA.STUDIJSKIPROGRAM"</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">StudijskiProgram</span> <span class="o">{</span>
+    <span class="nd">@Id</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="o">;</span>
+    <span class="o">...</span>
+</code></pre></div></div>
+
+<p>If your variable doesn’t match the column name, you must specify the column name using the <code class="language-plaintext highlighter-rouge">@Column</code> annotation. Dodatno, ukoliko kolona ne može imati <code class="language-plaintext highlighter-rouge">NULL</code> vrednosti u bazi podataka, potrebno je postaviti još i svojstvo <code class="language-plaintext highlighter-rouge">nullable</code> na vrednost <code class="language-plaintext highlighter-rouge">false</code> u anotaciji <code class="language-plaintext highlighter-rouge">@Column</code>:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Entity</span>
+<span class="nd">@Table</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"DA.STUDIJSKIPROGRAM"</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">StudijskiProgram</span> <span class="o">{</span>
+    <span class="nd">@Id</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="o">;</span>
+
+    <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"oznaka"</span><span class="o">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="nc">Oznaka</span><span class="o">;</span>
+
+    <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"naziv"</span><span class="o">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="nc">Naziv</span><span class="o">;</span>
+
+    <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"obimespb"</span><span class="o">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="nc">Integer</span> <span class="no">ESPB</span><span class="o">;</span>
+
+    <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"idnivoa"</span><span class="o">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="nc">Integer</span> <span class="nc">Nivo</span><span class="o">;</span>
+
+    <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"zvanje"</span><span class="o">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="nc">Zvanje</span><span class="o">;</span>
+
+    <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"opis"</span><span class="o">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="nc">Opis</span><span class="o">;</span>
+    <span class="o">...</span>
+</code></pre></div></div>
+
+<p>Takođe, s obzirom da su ova svojstva deklarisana modifikatorom <code class="language-plaintext highlighter-rouge">private</code>, potrebno je implementirati metode za postavljanje i dohvatanje njihovih vrednosti. U ovu svrhu, može nam pomoći alat IBM Data Studio:</p>
+
+<ul>
+  <li>Desni klik na prazan deo koda -&gt; <em>Source</em> -&gt; <em>Generate Getters and Setters</em> -&gt; <em>Select All</em> -&gt; <em>OK</em></li>
+</ul>
+
+<p>Ovim će nam biti generisane odgovarajuće metode. Možete istražiti sve mogućnosti ove opcije, kao što su generisanje samo postavljačkih ili dohvatačkih metoda, generisanje metoda samo za neka svojstva i drugo.</p>
+
+<p>Cela implementacija klase <code class="language-plaintext highlighter-rouge">StudijskiProgram</code> data je u nastavku.</p>
+
+<p><strong>Datoteka: <code class="language-plaintext highlighter-rouge">vezbe/primeri/poglavlje_10/src/zadatak_10_1/StudijskiProgram.java</code></strong>:</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">zadatak_10_1</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">javax.persistence.Column</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">javax.persistence.Entity</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">javax.persistence.Id</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">javax.persistence.Table</span><span class="o">;</span>
+
+<span class="c1">// Svaki trajni objekat mora biti dekorisan anotacijom @Entity. </span>
+<span class="c1">// Anotacija @Table je neophodna iako se ime klase i ime tabele ne razlikuju jer moramo specifikovati koja se shema koristi.</span>
+<span class="nd">@Entity</span>
+<span class="nd">@Table</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"DA.STUDIJSKIPROGRAM"</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">StudijskiProgram</span> <span class="o">{</span>
+    <span class="c1">// Anotacija @Id znaci da svojstvo koje ono dekorise</span>
+    <span class="c1">// predstavlja jedinstveni identifikator instance objekta (tj. primarni</span>
+    <span class="c1">// kljuc).</span>
+    <span class="c1">// Ime polja i ime kolone u bazi je isto u ovom slucaju.</span>
+    <span class="nd">@Id</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">id</span><span class="o">;</span>
+
+    <span class="c1">// Za svojstvo Oznaka, ime kolone u bazi podataka je "oznaka",</span>
+    <span class="c1">// pa je dodatno ime kolone naglaseno kroz svojstvo name anotacije @Column.</span>
+    <span class="c1">// Dodatno, u bazi oznaka ova kolona ne moze biti null,</span>
+    <span class="c1">// pa dodajemo svojstvo nullable = false anotaciji @Column.</span>
+    <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"OZNAKA"</span><span class="o">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="nc">Oznaka</span><span class="o">;</span>
+
+    <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"NAZIV"</span><span class="o">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="nc">Naziv</span><span class="o">;</span>
+
+    <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"OBIMESPB"</span><span class="o">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="nc">Integer</span> <span class="nc">Espb</span><span class="o">;</span>
+
+    <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"IDNIVOA"</span><span class="o">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="nc">Integer</span> <span class="nc">Nivo</span><span class="o">;</span>
+
+    <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"ZVANJE"</span><span class="o">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="nc">Zvanje</span><span class="o">;</span>
+
+    <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"OPIS"</span><span class="o">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="kc">true</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="nc">Opis</span><span class="o">;</span>
+
+
+    <span class="kd">public</span> <span class="nf">StudijskiProgram</span><span class="o">()</span> <span class="o">{</span>
+    <span class="o">}</span>
+    
+    <span class="kd">public</span> <span class="nf">StudijskiProgram</span><span class="o">(</span><span class="kt">int</span> <span class="n">id</span><span class="o">,</span> <span class="nc">String</span> <span class="n">oznaka</span><span class="o">,</span> <span class="nc">String</span> <span class="n">naziv</span><span class="o">,</span> <span class="nc">Integer</span> <span class="n">espb</span><span class="o">,</span> <span class="nc">Integer</span> <span class="n">nivo</span><span class="o">,</span>
+            <span class="nc">String</span> <span class="n">zvanje</span><span class="o">,</span> <span class="nc">String</span> <span class="n">opis</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">id</span><span class="o">;</span>
+        <span class="nc">Oznaka</span> <span class="o">=</span> <span class="n">oznaka</span><span class="o">;</span>
+        <span class="nc">Naziv</span> <span class="o">=</span> <span class="n">naziv</span><span class="o">;</span>
+        <span class="nc">Espb</span> <span class="o">=</span> <span class="n">espb</span><span class="o">;</span>
+        <span class="nc">Nivo</span> <span class="o">=</span> <span class="n">nivo</span><span class="o">;</span>
+        <span class="nc">Zvanje</span> <span class="o">=</span> <span class="n">zvanje</span><span class="o">;</span>
+        <span class="nc">Opis</span> <span class="o">=</span> <span class="n">opis</span><span class="o">;</span>
+    <span class="o">}</span>
+
+
+    <span class="c1">// Automatski generisani dohvatacki i postavljacki metodi:</span>
+    <span class="c1">// 1. Desni klik na prazan deo koda</span>
+    <span class="c1">// 2. Source &gt; Generate Getters and Setters...</span>
+    <span class="c1">// 3. Select All</span>
+    <span class="c1">// 4. OK</span>
+
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getId</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">id</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setId</span><span class="o">(</span><span class="kt">int</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">id</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">getOznaka</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nc">Oznaka</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setOznaka</span><span class="o">(</span><span class="nc">String</span> <span class="n">oznaka</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Oznaka</span> <span class="o">=</span> <span class="n">oznaka</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">getNaziv</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nc">Naziv</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setNaziv</span><span class="o">(</span><span class="nc">String</span> <span class="n">naziv</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Naziv</span> <span class="o">=</span> <span class="n">naziv</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="nc">Integer</span> <span class="nf">getEspb</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nc">Espb</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setEspb</span><span class="o">(</span><span class="nc">Integer</span> <span class="n">espb</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Espb</span> <span class="o">=</span> <span class="n">espb</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="nc">Integer</span> <span class="nf">getNivo</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nc">Nivo</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setNivo</span><span class="o">(</span><span class="nc">Integer</span> <span class="n">nivo</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Nivo</span> <span class="o">=</span> <span class="n">nivo</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">getZvanje</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nc">Zvanje</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setZvanje</span><span class="o">(</span><span class="nc">String</span> <span class="n">zvanje</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Zvanje</span> <span class="o">=</span> <span class="n">zvanje</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">getOpis</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nc">Opis</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setOpis</span><span class="o">(</span><span class="nc">String</span> <span class="n">opis</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Opis</span> <span class="o">=</span> <span class="n">opis</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">toString</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="s">"Studijski program [id="</span> <span class="o">+</span> <span class="n">id</span> <span class="o">+</span> <span class="s">", Oznaka="</span> <span class="o">+</span> <span class="nc">Oznaka</span> <span class="o">+</span> <span class="s">", Naziv="</span> <span class="o">+</span> <span class="nc">Naziv</span>
+                <span class="o">+</span> <span class="s">", Espb="</span> <span class="o">+</span> <span class="nc">Espb</span> <span class="o">+</span> <span class="s">", Nivo="</span> <span class="o">+</span> <span class="nc">Nivo</span> <span class="o">+</span> <span class="s">", Zvanje="</span> <span class="o">+</span> <span class="nc">Zvanje</span> <span class="o">+</span> <span class="s">", Opis="</span> <span class="o">+</span> <span class="nc">Opis</span> <span class="o">+</span> <span class="s">"]"</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<h2 id="105-unos-jednog-sloga">10.5 Unos jednog sloga</h2>
+
+<p>Napišimo sada i klasu <code class="language-plaintext highlighter-rouge">Main</code> koja će sadržati statički metod <code class="language-plaintext highlighter-rouge">main</code> u kojem ćemo testirati rad naše aplikacije. Trenutno, metod <code class="language-plaintext highlighter-rouge">main</code> će uraditi dve stvari: prva je pozivanje statičke funkcije za unos novog studijskog programa, a druga je zatvaranje fabrike sesija:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">zadatak_10_1</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.hibernate.Session</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.hibernate.Transaction</span><span class="o">;</span>
+
+<span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+    
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Pocetak rada...\n"</span><span class="o">);</span>
+        
+        <span class="n">insertStudijskiProgram</span><span class="o">();</span>
+        
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Zavrsetak rada.\n"</span><span class="o">);</span>
+        
+        <span class="c1">// Zatvaranje fabrike sesija</span>
+        <span class="nc">HibernateUtil</span><span class="o">.</span><span class="na">getSessionFactory</span><span class="o">().</span><span class="na">close</span><span class="o">();</span>
+    <span class="o">}</span>
+    
+    <span class="o">...</span>
+</code></pre></div></div>
+
+<p>Sada prelazimo na implementaciju metoda <code class="language-plaintext highlighter-rouge">insertStudijskiProgram</code> koji treba da unese novi red u tabelu <code class="language-plaintext highlighter-rouge">STUDIJSKIPROGRAM</code>.</p>
+
+<p>Sve akcije nad bazom podataka se izvršavaju u okviru tzv. <em>sesija</em> (engl. <em>session</em>). Da bismo mogli da radimo sa bazom podataka, potrebno je da otvorimo novu sesiju, što nam je omogućeno metodom <code class="language-plaintext highlighter-rouge">openSession</code> iz klase <code class="language-plaintext highlighter-rouge">SessionFactory</code>.</p>
+
+<p>Sledeći korak jeste kreiranje objekta klase <code class="language-plaintext highlighter-rouge">StudijskiProgram</code> i postavljanje odgovarajućih vrednosti. Na ovaj način smo podatke smestili u memoriju računara. Ono što je potrebno uraditi da bi se oni trajno skladištili u bazu podataka jeste pozvati metod <code class="language-plaintext highlighter-rouge">save</code> nad objektom sesije (tj. instancom klase <code class="language-plaintext highlighter-rouge">Session</code> koju smo dobili pozivom <code class="language-plaintext highlighter-rouge">openSession</code>). Na kraju, potrebno je da zatvorimo sesiju. Kod bi mogao da izgleda kao u nastavku:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">insertStudijskiProgram</span><span class="o">()</span> <span class="o">{</span>
+    <span class="nc">Session</span> <span class="n">session</span> <span class="o">=</span> <span class="nc">HibernateUtil</span><span class="o">.</span><span class="na">getSessionFactory</span><span class="o">().</span><span class="na">openSession</span><span class="o">();</span>
+    <span class="nc">StudijskiProgram</span> <span class="n">studijskiProgram</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">StudijskiProgram</span><span class="o">();</span>
+    
+    <span class="n">studijskiProgram</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="mi">102</span><span class="o">);</span>
+    <span class="n">studijskiProgram</span><span class="o">.</span><span class="na">setOznaka</span><span class="o">(</span><span class="s">"MATF_2020"</span><span class="o">);</span>
+    <span class="n">studijskiProgram</span><span class="o">.</span><span class="na">setNaziv</span><span class="o">(</span><span class="s">"Novi MATF studijski program u 2020. godini"</span><span class="o">);</span>
+    <span class="n">studijskiProgram</span><span class="o">.</span><span class="na">setESPB</span><span class="o">(</span><span class="mi">240</span><span class="o">);</span>
+    <span class="n">studijskiProgram</span><span class="o">.</span><span class="na">setNivo</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+    <span class="n">studijskiProgram</span><span class="o">.</span><span class="na">setZvanje</span><span class="o">(</span><span class="s">"Diplomirani informaticar"</span><span class="o">);</span>
+    <span class="n">studijskiProgram</span><span class="o">.</span><span class="na">setOpis</span><span class="o">(</span><span class="s">"Novi studijski program na Matematickom fakultetu"</span><span class="o">);</span>
+    
+    <span class="n">session</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">studijskiProgram</span><span class="o">);</span>
+    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Studijski program je sacuvan"</span><span class="o">);</span>
+    
+    <span class="n">session</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Iz ovog dela koda vidimo koliko je jednostavno trajno skladištiti podatke u bazu podataka, koji su se nalazili u memoriji računara. Ipak, postoji još jedna stvar kojom treba dopuniti prethodni kod.</p>
+
+<h2 id="106-implementacija-transakcija">10.6 Implementacija transakcija</h2>
+
+<p>Napomenuli smo na početku poglavlja da aplikacija koju budemo kreirali mora da radi tako da svaki zahtev predstavlja jednu transakciju. Ono što je dobra vest jeste da je definisanje transakcija u Hibernate radnom okviru veoma jednostavna procedura. Pogledajmo naredni kod:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">Session</span> <span class="n">session</span> <span class="o">=</span> <span class="nc">HibernateUtil</span><span class="o">.</span><span class="na">getSessionFactory</span><span class="o">().</span><span class="na">openSession</span><span class="o">();</span>
+<span class="nc">StudijskiProgram</span> <span class="n">studijskiProgram</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">StudijskiProgram</span><span class="o">();</span>
+
+<span class="c1">// Postavljanje odgovarajucih vrednosti za studijskiProgram ide ovde ...</span>
+
+<span class="nc">Transaction</span> <span class="no">TR</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+<span class="k">try</span> <span class="o">{</span>
+    <span class="no">TR</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">beginTransaction</span><span class="o">();</span>
+    
+    <span class="n">session</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">studijskiProgram</span><span class="o">);</span>
+    
+    <span class="no">TR</span><span class="o">.</span><span class="na">commit</span><span class="o">();</span>
+    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Studijski program je sacuvan"</span><span class="o">);</span>
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Cuvanje studijskog programa nije uspelo! Transakcija se ponistava!"</span><span class="o">);</span>
+    
+    <span class="k">if</span> <span class="o">(</span><span class="no">TR</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="no">TR</span><span class="o">.</span><span class="na">rollback</span><span class="o">();</span>
+    <span class="o">}</span>
+<span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+    <span class="n">session</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Transakcije se u Hibernate radnom okviru predstavljaju klasom <code class="language-plaintext highlighter-rouge">Transaction</code>. We initiate a transaction by invoking the <code class="language-plaintext highlighter-rouge">session.beginTrasaction()</code> method, which creates a new <code class="language-plaintext highlighter-rouge">Transaction</code> object and returns the reference to us. It gets associated with the session and is open until that transaction is committed or rolled back.</p>
+
+<p>We perform the required work in a transaction, then issue a commit on this transaction. At this stage, the entities are persisted to the database. While persisting, if for whatever reason there are any errors, the Hibernate runtime will catch and throw a <code class="language-plaintext highlighter-rouge">HibernateException</code> (which is an unchecked <code class="language-plaintext highlighter-rouge">RuntimeException</code>). We then have to catch the exception and roll back the transaction.</p>
+
+<h2 id="107-dohvatanje-jednog-sloga">10.7 Dohvatanje jednog sloga</h2>
+
+<p>S obzirom da smo u prethodnom primeru postavili sva preslikavanja i pripremne korake,
+ispostaviće se da se dohvatanje jednog sloga iz baze podataka sastoji u jednostavnom
+pozivanju odgovarajućih metoda. Nakon što dohvatimo jedan slog, možemo ga menjati ili
+obrisati, o čemu će biti reči u narednoj sekciji.</p>
+
+<p>Ukoliko je potrebno da pronađemo (dohvatimo) red iz tabele sa odgovarajućim primarnim
+ključem, na raspolaganju nam je metod <code class="language-plaintext highlighter-rouge">load()</code> definisan nad objektima klase <code class="language-plaintext highlighter-rouge">Session</code>.
+Postoji više preopterećenja ovog metoda, a ono koje ćemo mi koristiti jeste potpisa:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">load</span><span class="o">(</span><span class="nc">Object</span> <span class="n">object</span><span class="o">,</span> <span class="nc">Serializable</span> <span class="n">id</span><span class="o">)</span>
+</code></pre></div></div>
+
+<p>Prvi argument ovog metoda bi trebalo da bude prazna instanca klase reda koji želimo da
+učitamo, a drugi argument je instanca primarnog ključa. Nakon izvršavanja ovog metoda,
+objekat object će biti popunjen vrednostima iz kolona reda čiji je primarni ključ zadat sa
+<code class="language-plaintext highlighter-rouge">id</code>.</p>
+
+<p>Ukoliko nismo sigurni da slog sa zadatim primarnim ključem postoji u tabeli, nije dobro
+koristiti metod <code class="language-plaintext highlighter-rouge">load()</code>. U tom slučaju, bolje je koristiti metod <code class="language-plaintext highlighter-rouge">get()</code>. Razlika je u tome
+što, ukoliko primarni ključ nije pronađen u bazi podataka, metod <code class="language-plaintext highlighter-rouge">load()</code> će izbaciti izuzetak,
+dok će metod <code class="language-plaintext highlighter-rouge">get()</code> vratiti null referencu, što je lakše za korišćenje. Ipak, njegova
+upotreba je nešto drugačija jer su nam na raspolaganju naredna dva preopterećenja:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="no">T</span> <span class="nf">get</span><span class="o">(</span><span class="nc">Class</span><span class="o">&lt;</span><span class="no">T</span><span class="o">&gt;</span> <span class="n">clazz</span><span class="o">,</span> <span class="nc">Serializable</span> <span class="n">id</span><span class="o">)</span>
+<span class="kd">public</span> <span class="nc">Object</span> <span class="nf">get</span><span class="o">(</span><span class="nc">String</span> <span class="n">entityName</span><span class="o">,</span> <span class="nc">Serializable</span> <span class="n">id</span><span class="o">)</span>
+</code></pre></div></div>
+
+<p>Prvi od njih je šablonskog tipa i koristi klasu da odredi iz koje tabele dohvata slog, a drugi
+koristi naziv entiteta, koji je moguće dobiti poziv metoda <code class="language-plaintext highlighter-rouge">getEntityName()</code> nad objektom
+klase <code class="language-plaintext highlighter-rouge">Session</code>:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="nc">String</span> <span class="nf">getEntityName</span><span class="o">(</span><span class="nc">Object</span> <span class="n">object</span><span class="o">)</span>
+</code></pre></div></div>
+
+<p>Slede primeri kodova koji koriste metod <code class="language-plaintext highlighter-rouge">get()</code>:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Get an id from some other Java class,</span>
+<span class="c1">// for instance, through a web application</span>
+<span class="nc">Supplier</span> <span class="n">supplier</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="nc">Supplier</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">id</span><span class="o">);</span>
+<span class="k">if</span> <span class="o">(</span><span class="n">supplier</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+    <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Supplier not found for id "</span> <span class="o">+</span> <span class="n">id</span><span class="o">);</span>
+    <span class="k">return</span><span class="o">;</span>
+<span class="o">}</span>
+
+<span class="c1">// ili...</span>
+
+<span class="nc">String</span> <span class="n">entityName</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">getEntityName</span><span class="o">(</span><span class="n">supplier</span><span class="o">);</span>
+<span class="nc">Supplier</span> <span class="n">secondarySupplier</span> <span class="o">=</span>
+        <span class="o">(</span><span class="nc">Supplier</span><span class="o">)</span> <span class="n">session</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">entityName</span><span class="o">,</span> <span class="n">id</span><span class="o">);</span>
+</code></pre></div></div>
+
+<h2 id="108-brisanje-jednog-sloga">10.8 Brisanje jednog sloga</h2>
+
+<p>Brisanje slogova iz baze podataka se jednostavno vrši pozivanjem metoda <code class="language-plaintext highlighter-rouge">delete()</code> nad
+objektom klase <code class="language-plaintext highlighter-rouge">Session</code>:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kt">void</span> <span class="nf">delete</span><span class="o">(</span><span class="nc">Object</span> <span class="n">object</span><span class="o">)</span>
+</code></pre></div></div>
+
+<p>Argument ovog metoda je trajni objekat. Naravno, postoje i složeniji metodi brisanja
+podataka.</p>
+
+<p>Cela implementacija klase <code class="language-plaintext highlighter-rouge">Main</code> data je u nastavku.</p>
+
+<p><strong>Datoteka: <code class="language-plaintext highlighter-rouge">vezbe/primeri/poglavlje_10/src/zadatak_10_1/Main.java</code></strong>:</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">zadatak_10_1</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.hibernate.Session</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.hibernate.Transaction</span><span class="o">;</span>
+
+<span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+    
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Pocetak rada...\n"</span><span class="o">);</span>
+        
+        <span class="n">insertStudijskiProgram</span><span class="o">();</span>
+        <span class="n">readStudijskiProgram</span><span class="o">();</span>
+        <span class="n">updateStudijskiProgram</span><span class="o">();</span>
+        <span class="n">deleteStudijskiProgram</span><span class="o">();</span>
+        <span class="n">readStudijskiProgram</span><span class="o">();</span>
+        
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Zavrsetak rada.\n"</span><span class="o">);</span>
+        
+        <span class="c1">// Zatvaranje fabrike sesija</span>
+        <span class="nc">HibernateUtil</span><span class="o">.</span><span class="na">getSessionFactory</span><span class="o">().</span><span class="na">close</span><span class="o">();</span>
+    <span class="o">}</span>
+    
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">insertStudijskiProgram</span><span class="o">()</span> <span class="o">{</span>
+        <span class="c1">// Otvaranje sesije</span>
+        <span class="nc">Session</span> <span class="n">session</span> <span class="o">=</span> <span class="nc">HibernateUtil</span><span class="o">.</span><span class="na">getSessionFactory</span><span class="o">().</span><span class="na">openSession</span><span class="o">();</span>
+        <span class="c1">// Kreiranje objekta klase StudijskiProgram.</span>
+        <span class="c1">// U ovom objektu ce biti zapisane sve informacije o novom studijskom programu,</span>
+        <span class="c1">// koje ce zatim biti skladistene u bazi podataka.</span>
+        <span class="nc">StudijskiProgram</span> <span class="n">studijskiProgram</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">StudijskiProgram</span><span class="o">();</span>
+        
+        <span class="c1">// Postavljanje odgovarajucih vrednosti za studijski program</span>
+        <span class="n">studijskiProgram</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="mi">102</span><span class="o">);</span>
+        <span class="n">studijskiProgram</span><span class="o">.</span><span class="na">setOznaka</span><span class="o">(</span><span class="s">"MATF_2020"</span><span class="o">);</span>
+        <span class="n">studijskiProgram</span><span class="o">.</span><span class="na">setNaziv</span><span class="o">(</span><span class="s">"Novi MATF studijski program u 2020. godini"</span><span class="o">);</span>
+        <span class="n">studijskiProgram</span><span class="o">.</span><span class="na">setEspb</span><span class="o">(</span><span class="mi">240</span><span class="o">);</span>
+        <span class="n">studijskiProgram</span><span class="o">.</span><span class="na">setNivo</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+        <span class="n">studijskiProgram</span><span class="o">.</span><span class="na">setZvanje</span><span class="o">(</span><span class="s">"Diplomirani informaticar"</span><span class="o">);</span>
+        <span class="n">studijskiProgram</span><span class="o">.</span><span class="na">setOpis</span><span class="o">(</span><span class="s">"Novi studijski program na Matematickom fakultetu"</span><span class="o">);</span>
+        
+        <span class="c1">// Alternativno, mozemo iskoristiti konstruktor koji prima vrednosti za sva polja</span>
+        <span class="c1">// StudijskiProgram studijskiProgram = new StudijskiProgram(102, "MATF_2020", "Novi MATF studijski program u 2020. godini", 240, 1, "Diplomirani informaticar", "Novi studijski program na Matematickom fakultetu");</span>
+        
+        <span class="nc">Transaction</span> <span class="no">TR</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="c1">// Zapocinjemo novu transakciju</span>
+            <span class="no">TR</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">beginTransaction</span><span class="o">();</span>
+            
+            <span class="c1">// Skladistimo kreirani studijski program u tabelu STUDIJSKIPROGRAM u bazi podataka</span>
+            <span class="n">session</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">studijskiProgram</span><span class="o">);</span>
+            <span class="c1">// Pohranjivanje izmena i zavrsavanje transakcije</span>
+            <span class="no">TR</span><span class="o">.</span><span class="na">commit</span><span class="o">();</span>
+            
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Studijski program je sacuvan"</span><span class="o">);</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="c1">// Doslo je do greske: ponistavamo izmene u transakciji</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Cuvanje studijskog programa nije uspelo! Transakcija se ponistava!"</span><span class="o">);</span>
+            
+            <span class="k">if</span> <span class="o">(</span><span class="no">TR</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="no">TR</span><span class="o">.</span><span class="na">rollback</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+            <span class="c1">// Bilo da je doslo do uspeha ili do neuspeha,</span>
+            <span class="c1">// duzni smo da zatvorimo sesiju</span>
+            <span class="n">session</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">readStudijskiProgram</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">Session</span> <span class="n">session</span> <span class="o">=</span> <span class="nc">HibernateUtil</span><span class="o">.</span><span class="na">getSessionFactory</span><span class="o">().</span><span class="na">openSession</span><span class="o">();</span>
+        
+        <span class="c1">// Ucitavanje (dohvatanje) studijskog programa na osnovu primarnog kljuca</span>
+        <span class="nc">StudijskiProgram</span> <span class="n">s</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="nc">StudijskiProgram</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="mi">102</span><span class="o">);</span>
+
+        <span class="c1">// Provera da li postoji odgovarajuci slog u tabeli</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">s</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">else</span> <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Studijski program ne postoji!"</span><span class="o">);</span>
+        <span class="o">}</span>
+
+        <span class="c1">// Zatvaramo sesiju</span>
+        <span class="n">session</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+    <span class="o">}</span>
+    
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">updateStudijskiProgram</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">Session</span> <span class="n">session</span> <span class="o">=</span> <span class="nc">HibernateUtil</span><span class="o">.</span><span class="na">getSessionFactory</span><span class="o">().</span><span class="na">openSession</span><span class="o">();</span>
+
+        <span class="c1">// Ucitavanje (dohvatanje) studijskog programa na osnovu primarnog kljuca</span>
+        <span class="nc">StudijskiProgram</span> <span class="n">s</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="nc">StudijskiProgram</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="mi">102</span><span class="o">);</span>
+
+        <span class="nc">Transaction</span> <span class="no">TR</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="no">TR</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">beginTransaction</span><span class="o">();</span>
+            
+            <span class="k">if</span> <span class="o">(</span><span class="n">s</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="c1">// Azuriranje odgovarajucih polja</span>
+                <span class="n">s</span><span class="o">.</span><span class="na">setEspb</span><span class="o">(</span><span class="mi">180</span><span class="o">);</span>
+            
+                <span class="c1">// Potvrdjivanje izmena i zavrsavanje transakcije</span>
+                <span class="no">TR</span><span class="o">.</span><span class="na">commit</span><span class="o">();</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Studijski program azuriran!"</span><span class="o">);</span>
+            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Studijski program ne postoji!"</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Azuriranje studijskog programa nije uspelo! Ponistavanje transakcije!"</span><span class="o">);</span>
+            
+            <span class="k">if</span> <span class="o">(</span><span class="no">TR</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="no">TR</span><span class="o">.</span><span class="na">rollback</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+            <span class="n">session</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">deleteStudijskiProgram</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">Session</span> <span class="n">session</span> <span class="o">=</span> <span class="nc">HibernateUtil</span><span class="o">.</span><span class="na">getSessionFactory</span><span class="o">().</span><span class="na">openSession</span><span class="o">();</span>
+        <span class="nc">StudijskiProgram</span> <span class="n">studijskiProgram</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">StudijskiProgram</span><span class="o">();</span>
+
+        <span class="nc">Transaction</span> <span class="no">TR</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="no">TR</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">beginTransaction</span><span class="o">();</span>
+
+            <span class="c1">// Ucitavanje (dohvatanje) studijskog programa na osnovu primarnog kljuca</span>
+            <span class="n">session</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">studijskiProgram</span><span class="o">,</span> <span class="mi">102</span><span class="o">);</span>
+            <span class="c1">// Brisanje ucitanog studijskog programa iz baze</span>
+            <span class="n">session</span><span class="o">.</span><span class="na">delete</span><span class="o">(</span><span class="n">studijskiProgram</span><span class="o">);</span>
+
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Studijski program obrisan!"</span><span class="o">);</span>
+
+            <span class="c1">// Potvrdjivanje i zavrsavanje transakcije</span>
+            <span class="no">TR</span><span class="o">.</span><span class="na">commit</span><span class="o">();</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">err</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Brisanje studijskog programa nije uspelo! Ponistavanje transakcije!"</span><span class="o">);</span>
+
+            <span class="k">if</span> <span class="o">(</span><span class="no">TR</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="no">TR</span><span class="o">.</span><span class="na">rollback</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+            <span class="n">session</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<h2 id="109-složeni-ključ">10.9 Složeni ključ</h2>
+
+<p>Upravljanje tabelama koje imaju jednostavne primarne ključeve, kao što je to tabela <code class="language-plaintext highlighter-rouge">STUDIJSKIPROGRAM</code>,
+vrlo je jednostavno. Nešto složenije je rukovati tabelom čiji se primarni ključ sastoji od
+nekoliko kolona. Takvi primarni ključevi se nazivaju <em>složeni ključevi</em> (engl. <em>compound primary key</em>).</p>
+
+<p>You must create a class to represent this primary key. It will not require a primary key
+of its own, of course, but it must be visible to entity class, must have a default constructor,
+must be serializable, and must implement <code class="language-plaintext highlighter-rouge">hashCode()</code> and <code class="language-plaintext highlighter-rouge">equals()</code> methods to allow the
+Hibernate code to test for primary key collisions (i.e., they must be implemented with the
+appropriate database semantics for the primary key values).</p>
+
+<p>Your three strategies for using this primary key class once it has been created are as
+follows:</p>
+
+<ol>
+  <li>
+    <p>Mark it as <code class="language-plaintext highlighter-rouge">@Embeddable</code> and add to your entity class a normal property for it, marked
+with <code class="language-plaintext highlighter-rouge">@Id</code>.</p>
+  </li>
+  <li>
+    <p>Add to your entity class a normal property for it, marked with <code class="language-plaintext highlighter-rouge">@EmbeddableId</code>.</p>
+  </li>
+  <li>
+    <p>Add properties to your entity class for all of its fields, mark them with <code class="language-plaintext highlighter-rouge">@Id</code>, and
+mark your entity class with <code class="language-plaintext highlighter-rouge">@IdClass</code>, supplying the class of your primary key class.</p>
+  </li>
+</ol>
+
+<p>Hajde da prođemo kroz svaku od opisanih strategija i prikažemo njihove primere.</p>
+
+<h3 id="1091-prva-strategija---embeddable-i-id">10.9.1 Prva strategija - <code class="language-plaintext highlighter-rouge">@Embeddable</code> i <code class="language-plaintext highlighter-rouge">@Id</code></h3>
+
+<p>The use of <code class="language-plaintext highlighter-rouge">@Id</code> with a class marked as <code class="language-plaintext highlighter-rouge">@Embeddable</code>, as shown in the following example, is
+the most natural approach. The <code class="language-plaintext highlighter-rouge">@Embeddable</code> annotation allows you to treat the compound
+primary key as a single property, and it permits the reuse of the <code class="language-plaintext highlighter-rouge">@Embeddable</code> class in other
+tables.</p>
+
+<p>Iz <code class="language-plaintext highlighter-rouge">CPKBook.java</code> datoteke:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Ovo je klasa koja ima slozeni kljuc ISBN</span>
+<span class="nd">@Entity</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">CPKBook</span> <span class="o">{</span>
+    <span class="nd">@Id</span>
+    <span class="no">ISBN</span> <span class="n">id</span><span class="o">;</span>
+    
+    <span class="o">...</span>
+    
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Iz <code class="language-plaintext highlighter-rouge">ISBN.java</code> datoteke:</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// Ovo je klasa koja predstavlja slozeni kljuc:</span>
+<span class="c1">// 1. Anotiramo je anotacijom @Embeddable</span>
+<span class="nd">@Embeddable</span>
+<span class="c1">// 2. Implementira interfejs java.io.Serializable</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">ISBN</span> <span class="kd">implements</span> <span class="nc">Serializable</span> <span class="o">{</span>
+    <span class="c1">// Naziv "group" je nevalidan naziv kolone u SQL-u</span>
+    <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span><span class="o">=</span><span class="s">"group_number"</span><span class="o">)</span> 
+    <span class="kt">int</span> <span class="n">group</span><span class="o">;</span>
+    <span class="kt">int</span> <span class="n">publisher</span><span class="o">;</span>
+    <span class="kt">int</span> <span class="n">title</span><span class="o">;</span>
+    <span class="kt">int</span> <span class="n">checkdigit</span><span class="o">;</span>
+    
+    <span class="c1">// 3. Ima podrazumevani konstruktor</span>
+    <span class="kd">public</span> <span class="nf">ISBN</span><span class="o">()</span> <span class="o">{</span>
+    <span class="o">}</span>
+    
+    <span class="c1">// Get i set metodi</span>
+    <span class="o">...</span>
+    
+    <span class="c1">// 4. Prevazilazi metode equals i hashCode</span>
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">equals</span><span class="o">(</span><span class="nc">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="k">this</span> <span class="o">==</span> <span class="n">o</span><span class="o">)</span> <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(!(</span><span class="n">o</span> <span class="k">instanceof</span> <span class="no">ISBN</span><span class="o">))</span> <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        
+        <span class="no">ISBN</span> <span class="n">isbn</span> <span class="o">=</span> <span class="o">(</span><span class="no">ISBN</span><span class="o">)</span> <span class="n">o</span><span class="o">;</span>
+    
+        <span class="k">if</span> <span class="o">(</span><span class="n">checkdigit</span> <span class="o">!=</span> <span class="n">isbn</span><span class="o">.</span><span class="na">checkdigit</span><span class="o">)</span> <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">group</span> <span class="o">!=</span> <span class="n">isbn</span><span class="o">.</span><span class="na">group</span><span class="o">)</span> <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">publisher</span> <span class="o">!=</span> <span class="n">isbn</span><span class="o">.</span><span class="na">publisher</span><span class="o">)</span> <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">title</span> <span class="o">!=</span> <span class="n">isbn</span><span class="o">.</span><span class="na">title</span><span class="o">)</span> <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+    
+        <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="o">}</span>
+    
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">hashCode</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nc">Objects</span><span class="o">.</span><span class="na">hash</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">group</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">publisher</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">title</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">checkdigit</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="1092-druga-strategija---embeddedid">10.9.2 Druga strategija - <code class="language-plaintext highlighter-rouge">@EmbeddedId</code></h3>
+
+<p>The next most natural approach is the use of the <code class="language-plaintext highlighter-rouge">@EmbeddedId</code> annotation. Here, the primary key
+class cannot be used in other tables since it is not an <code class="language-plaintext highlighter-rouge">@Embeddable</code> entity, but it does allow
+us to treat the key as a single attribute of the “table class”.</p>
+
+<p>Često se ovakva klasa implementira kao deo klase koja preslikava tabelu, upravo iz razloga što 
+predstavlja njen deo, tj. neće se koristiti kao primarni ključ neke druge klase.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Entity</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">EmbeddedPKBook</span> <span class="o">{</span>
+    <span class="nd">@EmbeddedId</span>
+    <span class="nc">EmbeddedISBN</span> <span class="n">id</span><span class="o">;</span>
+
+    <span class="nd">@Column</span>
+    <span class="nc">String</span> <span class="n">name</span><span class="o">;</span>
+    
+    <span class="c1">// Get/set metodi</span>
+
+    <span class="kd">static</span> <span class="kd">class</span> <span class="nc">EmbeddedISBN</span> <span class="kd">implements</span> <span class="nc">Serializable</span> <span class="o">{</span>
+        <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span><span class="o">=</span><span class="s">"group_number"</span><span class="o">)</span>
+        <span class="kt">int</span> <span class="n">group</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">publisher</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">title</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">checkdigit</span><span class="o">;</span>
+        
+        <span class="kd">public</span> <span class="nf">ISBN</span><span class="o">()</span> <span class="o">{</span>
+        <span class="o">}</span>
+        
+        <span class="c1">// Get/set metodi, equals, hashCode...</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<h3 id="1093-treća-strategija---idclass-i-id">10.9.3 Treća strategija - <code class="language-plaintext highlighter-rouge">@IdClass</code> i <code class="language-plaintext highlighter-rouge">@Id</code></h3>
+
+<p>Finally, the use of the <code class="language-plaintext highlighter-rouge">@IdClass</code> and <code class="language-plaintext highlighter-rouge">@Id</code> annotations allows us to map the compound
+primary key class using properties of the entity itself corresponding to the names of the
+properties in the primary key class. The names must correspond (there is no mechanism
+for overriding this), and the primary key class must honor the same obligations as with
+the other two techniques. The only advantage to this approach is its ability to “hide” the
+use of the primary key class from the interface of the enclosing entity.</p>
+
+<p>The <code class="language-plaintext highlighter-rouge">@IdClass</code> annotation takes a value parameter of <code class="language-plaintext highlighter-rouge">Class</code> type, which must be the class
+to be used as the compound primary key. The fields that correspond to the properties of
+the primary key class to be used must all be annotated with <code class="language-plaintext highlighter-rouge">@Id</code> — note in the following
+code example that the class properties <code class="language-plaintext highlighter-rouge">group</code>, <code class="language-plaintext highlighter-rouge">publisher</code>, <code class="language-plaintext highlighter-rouge">title</code> and <code class="language-plaintext highlighter-rouge">checkdigit</code> are so
+annotated, and the <code class="language-plaintext highlighter-rouge">EmbeddedISBN</code> class is not mapped as <code class="language-plaintext highlighter-rouge">@Embeddable</code>, but it is supplied as
+the value of the <code class="language-plaintext highlighter-rouge">@IdClass</code> annotation.</p>
+
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nd">@Entity</span>
+<span class="nd">@IdClass</span><span class="o">(</span><span class="nc">IdClassBook</span><span class="o">.</span><span class="na">EmbeddedISBN</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">IdClassBook</span> <span class="o">{</span>
+    <span class="nd">@Id</span>
+    <span class="kt">int</span> <span class="n">group</span><span class="o">;</span>
+    <span class="nd">@Id</span>
+    <span class="kt">int</span> <span class="n">publisher</span><span class="o">;</span>
+    <span class="nd">@Id</span>
+    <span class="kt">int</span> <span class="n">title</span><span class="o">;</span>
+    <span class="nd">@Id</span>
+    <span class="kt">int</span> <span class="n">checkdigit</span><span class="o">;</span>
+    <span class="nc">String</span> <span class="n">name</span><span class="o">;</span>
+    
+    <span class="kd">public</span> <span class="nf">IdClassBook</span><span class="o">()</span> <span class="o">{</span>
+    <span class="o">}</span>
+    
+    <span class="c1">// Get/set metodi</span>
+    
+    <span class="kd">static</span> <span class="kd">class</span> <span class="nc">EmbeddedISBN</span> <span class="kd">implements</span> <span class="nc">Serializable</span> <span class="o">{</span>
+        <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span><span class="o">=</span><span class="s">"group_number"</span><span class="o">)</span>
+        <span class="kt">int</span> <span class="n">group</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">publisher</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">title</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">checkdigit</span><span class="o">;</span>
+        
+        <span class="kd">public</span> <span class="nf">ISBN</span><span class="o">()</span> <span class="o">{</span>
+        <span class="o">}</span>
+        
+        <span class="c1">// Get/set metodi, equals, hashCode...</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</code></pre></div></div>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 10.2</strong>: Napisati Java aplikaciju koja korišćenjem biblioteke Hibernate implementira unos podataka o novom ispitnom roku (jun 2020. godine) u tabelu <code class="language-plaintext highlighter-rouge">ISPITNIROK</code>, a zatim briše podatke o unetom ispitnom roku iz tabele <code class="language-plaintext highlighter-rouge">ISPITNIROK</code>.</p>
+</div>
+
+<p>Rešenje: Potrebno je da prvo napravimo klasu
+koja će predstavljati složeni ključ. Nazovimo je <code class="language-plaintext highlighter-rouge">IspitniRokId</code>. U nastavku je data njena
+implementacija. Obratiti pažnju na metode <code class="language-plaintext highlighter-rouge">equals()</code> i <code class="language-plaintext highlighter-rouge">hashCode()</code>. Definicije ovih metoda
+će biti gotovo identične za sve klase koje ih prevazilaze iz klase <code class="language-plaintext highlighter-rouge">Object</code>:</p>
+
+<ul>
+  <li>
+    <p>Metod <code class="language-plaintext highlighter-rouge">equals()</code> prvo ispituje da li je reference objekata <code class="language-plaintext highlighter-rouge">this</code> i <code class="language-plaintext highlighter-rouge">o</code> (koji se prosleđuje
+kao argument metoda) poklapaju. Zatim proverava da li drugi objekat (<code class="language-plaintext highlighter-rouge">o</code>) predstavlja referencu 
+iste klase kao objekat sa kojim se poredi (<code class="language-plaintext highlighter-rouge">this</code>). Zatim proverava da
+li se svi atributi objekata poklapaju pozivajući metod <code class="language-plaintext highlighter-rouge">Objects.equals</code> za svaki par
+atributa.</p>
+  </li>
+  <li>
+    <p>Metod <code class="language-plaintext highlighter-rouge">hashCode()</code> jednostavno poziva metod <code class="language-plaintext highlighter-rouge">Objects.hash</code> koja prima proizvoljni
+broj argumenata i vraća heš vrednost na osnovu njihovih vrednosti. Obično je bolje
+koristiti ovaj metod nego implementirati svoju heš funkciju.</p>
+  </li>
+</ul>
+
+<p>Cela implementacija je data u nastavku:</p>
+
+<p><strong>Datoteka: <code class="language-plaintext highlighter-rouge">vezbe/primeri/poglavlje_10/src/zadatak_10_2/IspitniRokId.java</code></strong>:</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">zadatak_10_2</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.io.Serializable</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Objects</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">javax.persistence.Embeddable</span><span class="o">;</span>
+
+<span class="c1">// Tabela ISPITNI_ROK ima primarni kljuc koji se sastoji od dve kolone. </span>
+<span class="c1">// Ovakav primarni kljuc se naziva slozeni kljuc.</span>
+<span class="c1">// Za slozeni kljuc je potrebno da se kreira posebna klasa </span>
+<span class="c1">// koja mora da implementira interfejs java.io.Serializable. </span>
+<span class="c1">// Stoga moraju biti definisana i naredna dva metoda: equals() i hashCode(). </span>
+<span class="c1">// Takodje, neophodno je da ima definisan i podrazumevani konstruktor.</span>
+
+<span class="c1">// S obzirom da se ova klasa koristi kao primarni kljuc za drugu klasu,</span>
+<span class="c1">// onda je ne anotiramo pomocu @Entity,</span>
+<span class="c1">// vec koristimo anotaciju @Embeddable</span>
+<span class="nd">@Embeddable</span>
+<span class="kd">class</span> <span class="nc">IspitniRokId</span> <span class="kd">implements</span> <span class="nc">Serializable</span> <span class="o">{</span>
+
+    <span class="c1">// Podrazumevani serijski ID verzije</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="kt">long</span> <span class="n">serialVersionUID</span> <span class="o">=</span> <span class="mi">1L</span><span class="o">;</span>
+
+    <span class="c1">// Kolone koje ulaze u primarni kljuc</span>
+    <span class="kd">private</span> <span class="nc">Integer</span> <span class="n">skGodina</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="n">oznakaRoka</span><span class="o">;</span>
+
+    <span class="c1">// Podrazumevani konstruktor</span>
+    <span class="kd">public</span> <span class="nf">IspitniRokId</span><span class="o">()</span> <span class="o">{</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="nf">IspitniRokId</span><span class="o">(</span><span class="nc">Integer</span> <span class="n">godina</span><span class="o">,</span> <span class="nc">String</span> <span class="n">oznaka</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">skGodina</span> <span class="o">=</span> <span class="n">godina</span><span class="o">;</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">oznakaRoka</span> <span class="o">=</span> <span class="n">oznaka</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="c1">// Autogenerisani get/set metodi</span>
+    <span class="kd">public</span> <span class="nc">Integer</span> <span class="nf">getSkGodina</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">skGodina</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setSkGodina</span><span class="o">(</span><span class="nc">Integer</span> <span class="n">godina</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">skGodina</span> <span class="o">=</span> <span class="n">godina</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">getOznakaRoka</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">oznakaRoka</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setOznakaRoka</span><span class="o">(</span><span class="nc">String</span> <span class="n">oznaka</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">oznakaRoka</span> <span class="o">=</span> <span class="n">oznaka</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="c1">// Prevazilazenje metoda radi testiranja kolizije primarnih kljuceva</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">equals</span><span class="o">(</span><span class="nc">Object</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="k">this</span> <span class="o">==</span> <span class="n">o</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="kc">true</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="k">if</span> <span class="o">(!(</span><span class="n">o</span> <span class="k">instanceof</span> <span class="nc">IspitniRokId</span><span class="o">))</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="nc">IspitniRokId</span> <span class="n">irOther</span> <span class="o">=</span> <span class="o">(</span><span class="nc">IspitniRokId</span><span class="o">)</span> <span class="n">o</span><span class="o">;</span>
+
+        <span class="k">return</span> <span class="nc">Objects</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">skGodina</span><span class="o">,</span> <span class="n">irOther</span><span class="o">.</span><span class="na">getSkGodina</span><span class="o">())</span> <span class="o">&amp;&amp;</span> <span class="nc">Objects</span><span class="o">.</span><span class="na">equals</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">oznakaRoka</span><span class="o">,</span> <span class="n">irOther</span><span class="o">.</span><span class="na">getOznakaRoka</span><span class="o">());</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">hashCode</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nc">Objects</span><span class="o">.</span><span class="na">hash</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">skGodina</span><span class="o">,</span> <span class="k">this</span><span class="o">.</span><span class="na">oznakaRoka</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<p>Zatim je potrebno specifikovati instancu ove klase kao primarni ključ klase <code class="language-plaintext highlighter-rouge">IspitniRok.java</code>, 
+koju takođe kreiramo:</p>
+
+<p><strong>Datoteka: <code class="language-plaintext highlighter-rouge">vezbe/primeri/poglavlje_10/src/zadatak_10_2/IspitniRok.java</code></strong>:</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">zadatak_10_2</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">javax.persistence.Column</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">javax.persistence.Entity</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">javax.persistence.Id</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">javax.persistence.Table</span><span class="o">;</span>
+
+<span class="nd">@Entity</span>
+<span class="c1">// Anotacija @Table je neophodna jer se ime klase i ime tabele razlikuju.</span>
+<span class="nd">@Table</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"DA.ISPITNIROK"</span><span class="o">)</span>
+<span class="kd">class</span> <span class="nc">IspitniRok</span> <span class="o">{</span>
+    <span class="c1">// Za primarni kljuc koristimo instancu klase IspitniRokId,</span>
+    <span class="c1">// s obzirom da ova tabela ima slozeni kljuc.</span>
+    <span class="c1">// Pogledati klasu IspitniRokId za jos informacija.</span>
+
+    <span class="nd">@Id</span>
+    <span class="kd">private</span> <span class="nc">IspitniRokId</span> <span class="n">id</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+
+    <span class="c1">// Ostale kolone</span>
+
+    <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"NAZIV"</span><span class="o">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="nc">Naziv</span><span class="o">;</span>
+
+    <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"DATPOCETKA"</span><span class="o">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="nc">Pocetak</span><span class="o">;</span>
+
+    <span class="nd">@Column</span><span class="o">(</span><span class="n">name</span> <span class="o">=</span> <span class="s">"DATKRAJA"</span><span class="o">,</span> <span class="n">nullable</span> <span class="o">=</span> <span class="kc">false</span><span class="o">)</span>
+    <span class="kd">private</span> <span class="nc">String</span> <span class="nc">Kraj</span><span class="o">;</span>
+
+    <span class="c1">// Autogenerisani Get/Set metodi</span>
+
+    <span class="kd">public</span> <span class="nc">IspitniRokId</span> <span class="nf">getId</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">id</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setId</span><span class="o">(</span><span class="nc">IspitniRokId</span> <span class="n">id</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">id</span> <span class="o">=</span> <span class="n">id</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">getNaziv</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nc">Naziv</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setNaziv</span><span class="o">(</span><span class="nc">String</span> <span class="n">naziv</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Naziv</span> <span class="o">=</span> <span class="n">naziv</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">getPocetak</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nc">Pocetak</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setPocetak</span><span class="o">(</span><span class="nc">String</span> <span class="n">pocetak</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Pocetak</span> <span class="o">=</span> <span class="n">pocetak</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="nc">String</span> <span class="nf">getKraj</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="nc">Kraj</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setKraj</span><span class="o">(</span><span class="nc">String</span> <span class="n">kraj</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">Kraj</span> <span class="o">=</span> <span class="n">kraj</span><span class="o">;</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<p>Ne zaboravimo da dodamo <code class="language-plaintext highlighter-rouge">IspitniRok</code> kao anotiranu klasu u konfiguraciju:</p>
+
+<p><strong>Datoteka: <code class="language-plaintext highlighter-rouge">vezbe/primeri/poglavlje_10/src/zadatak_10_2/HibernateUtil.java</code></strong>:</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">zadatak_10_2</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.hibernate.SessionFactory</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.hibernate.boot.MetadataSources</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.hibernate.boot.registry.StandardServiceRegistry</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.hibernate.boot.registry.StandardServiceRegistryBuilder</span><span class="o">;</span>
+
+<span class="kd">class</span> <span class="nc">HibernateUtil</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="kd">static</span> <span class="nc">SessionFactory</span> <span class="n">sessionFactory</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+
+    <span class="kd">static</span> <span class="o">{</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="nc">StandardServiceRegistry</span> <span class="n">registry</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">StandardServiceRegistryBuilder</span><span class="o">().</span><span class="na">configure</span><span class="o">().</span><span class="na">build</span><span class="o">();</span>
+            <span class="n">sessionFactory</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">MetadataSources</span><span class="o">(</span><span class="n">registry</span><span class="o">).</span><span class="na">addAnnotatedClass</span><span class="o">(</span><span class="nc">StudijskiProgram</span><span class="o">.</span><span class="na">class</span><span class="o">)</span>
+                    <span class="o">.</span><span class="na">addAnnotatedClass</span><span class="o">(</span><span class="nc">IspitniRok</span><span class="o">.</span><span class="na">class</span><span class="o">).</span><span class="na">buildMetadata</span><span class="o">().</span><span class="na">buildSessionFactory</span><span class="o">();</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Throwable</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">err</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Session factory error"</span><span class="o">);</span>
+            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+
+            <span class="nc">System</span><span class="o">.</span><span class="na">exit</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">static</span> <span class="nc">SessionFactory</span> <span class="nf">getSessionFactory</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">sessionFactory</span><span class="o">;</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+</code></pre></div></div>
+
+<p>Definisane klase se sada jednostavno koriste u metodima <code class="language-plaintext highlighter-rouge">insertIspitniRok()</code> i <code class="language-plaintext highlighter-rouge">deleteIspitniRok()</code> proširene klase <code class="language-plaintext highlighter-rouge">Main.java</code> iz prethodnog primera:</p>
+
+<p><strong>Datoteka: <code class="language-plaintext highlighter-rouge">vezbe/primeri/poglavlje_10/src/zadatak_10_2/Main.java</code></strong>:</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">package</span> <span class="nn">zadatak_10_2</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">org.hibernate.Session</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.hibernate.Transaction</span><span class="o">;</span>
+
+<span class="kd">class</span> <span class="nc">Main</span> <span class="o">{</span>
+    
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="nc">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Pocetak rada...\n"</span><span class="o">);</span>
+
+        <span class="n">insertIspitniRok</span><span class="o">();</span>
+        <span class="n">deleteIspitniRok</span><span class="o">();</span>
+        
+        <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Zavrsetak rada.\n"</span><span class="o">);</span>
+        <span class="nc">HibernateUtil</span><span class="o">.</span><span class="na">getSessionFactory</span><span class="o">().</span><span class="na">close</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">insertIspitniRok</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">Session</span> <span class="n">session</span> <span class="o">=</span> <span class="nc">HibernateUtil</span><span class="o">.</span><span class="na">getSessionFactory</span><span class="o">().</span><span class="na">openSession</span><span class="o">();</span>
+        
+        <span class="c1">// Kreiramo praznu instancu objekta ispitnog roka </span>
+        <span class="c1">// koju cemo popuniti vrednostima koje treba sacuvati</span>
+        <span class="nc">IspitniRok</span> <span class="n">ir</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">IspitniRok</span><span class="o">();</span>
+        
+        <span class="c1">// Kreiramo prvo identifikator, tj. slozeni kljuc,</span>
+        <span class="c1">// a zatim i ostale podatke</span>
+        <span class="nc">IspitniRokId</span> <span class="n">id</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">IspitniRokId</span><span class="o">(</span><span class="mi">2020</span><span class="o">,</span> <span class="s">"jun"</span><span class="o">);</span>
+        <span class="n">ir</span><span class="o">.</span><span class="na">setId</span><span class="o">(</span><span class="n">id</span><span class="o">);</span>
+        <span class="n">ir</span><span class="o">.</span><span class="na">setNaziv</span><span class="o">(</span><span class="s">"Jun 2021"</span><span class="o">);</span>
+        <span class="n">ir</span><span class="o">.</span><span class="na">setPocetak</span><span class="o">(</span><span class="s">"6/1/2021"</span><span class="o">);</span>
+        <span class="n">ir</span><span class="o">.</span><span class="na">setKraj</span><span class="o">(</span><span class="s">"6/22/2021"</span><span class="o">);</span>
+        
+        <span class="c1">// Procedura za cuvanje je ista kao i do sada</span>
+        <span class="nc">Transaction</span> <span class="no">TR</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="no">TR</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">beginTransaction</span><span class="o">();</span>
+            
+            <span class="n">session</span><span class="o">.</span><span class="na">save</span><span class="o">(</span><span class="n">ir</span><span class="o">);</span>
+            
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Ispitni rok je sacuvan!"</span><span class="o">);</span>
+            <span class="no">TR</span><span class="o">.</span><span class="na">commit</span><span class="o">();</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">err</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Cuvanje ispitnog roka nije uspelo! Ponistavanje transakcije!"</span><span class="o">);</span>
+            
+            <span class="k">if</span> <span class="o">(</span><span class="no">TR</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="no">TR</span><span class="o">.</span><span class="na">rollback</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+            <span class="n">session</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">deleteIspitniRok</span><span class="o">()</span> <span class="o">{</span>
+        <span class="nc">Session</span> <span class="n">session</span> <span class="o">=</span> <span class="nc">HibernateUtil</span><span class="o">.</span><span class="na">getSessionFactory</span><span class="o">().</span><span class="na">openSession</span><span class="o">();</span>
+        
+        <span class="nc">IspitniRok</span> <span class="n">ir</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">IspitniRok</span><span class="o">();</span>
+        <span class="nc">IspitniRokId</span> <span class="n">id</span> <span class="o">=</span> <span class="k">new</span> <span class="nc">IspitniRokId</span><span class="o">(</span><span class="mi">2020</span><span class="o">,</span> <span class="s">"jun"</span><span class="o">);</span>
+        
+        <span class="nc">Transaction</span> <span class="no">TR</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+        <span class="k">try</span> <span class="o">{</span>
+            <span class="no">TR</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="na">beginTransaction</span><span class="o">();</span>
+            
+            <span class="n">session</span><span class="o">.</span><span class="na">load</span><span class="o">(</span><span class="n">ir</span><span class="o">,</span> <span class="n">id</span><span class="o">);</span>
+            <span class="n">session</span><span class="o">.</span><span class="na">delete</span><span class="o">(</span><span class="n">ir</span><span class="o">);</span>
+            
+            <span class="nc">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Ispitni rok je obrisan!"</span><span class="o">);</span>
+            <span class="no">TR</span><span class="o">.</span><span class="na">commit</span><span class="o">();</span>
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="nc">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+            <span class="nc">System</span><span class="o">.</span><span class="na">err</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">"Brisanje ispitnog roka nije uspelo! Ponistavanje transakcije!"</span><span class="o">);</span>
+        
+            <span class="k">if</span> <span class="o">(</span><span class="no">TR</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="no">TR</span><span class="o">.</span><span class="na">rollback</span><span class="o">();</span>
+            <span class="o">}</span>
+        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+            <span class="n">session</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+        <span class="o">}</span>        
+    <span class="o">}</span>
+
+<span class="o">}</span>
+
+</code></pre></div></div>
+
+<h2 id="1010-zadaci-za-vežbu">10.10 Zadaci za vežbu</h2>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 10.3</strong>: Napisati Java aplikaciju koja koriš’cenjem biblioteke Hibernate redom:</p>
+  <ol>
+    <li>Unosi podatak o novom novou kvalifikacije u tabelu <code class="language-plaintext highlighter-rouge">NIVOKVALIFIKACIJE</code> sa podacima iz naredne tabele.</li>
+    <li>Ispisuje podatake o novou kvalifikacije sa identifikatorom <code class="language-plaintext highlighter-rouge">42</code> iz tabele <code class="language-plaintext highlighter-rouge">NIVOKVALIFIKACIJE</code>.</li>
+    <li>Ažurira stepen za nivo kvalifikacije sa identifikatorom <code class="language-plaintext highlighter-rouge">42</code> iz tabele <code class="language-plaintext highlighter-rouge">NIVOKVALIFIKACIJE</code>. Naziv postaviti na vrednost <code class="language-plaintext highlighter-rouge">Novi nivo kvalifikacije</code>.</li>
+    <li>Ispisuje podatake o novou kvalifikacije sa identifikatorom <code class="language-plaintext highlighter-rouge">42</code> iz tabele <code class="language-plaintext highlighter-rouge">NIVOKVALIFIKACIJE</code>.</li>
+    <li>Briše podatake o novou kvalifikacije sa identifikatorom <code class="language-plaintext highlighter-rouge">42</code> iz tabele <code class="language-plaintext highlighter-rouge">NIVOKVALIFIKACIJE</code>.</li>
+    <li>Ispisuje podatake o novou kvalifikacije sa identifikatorom <code class="language-plaintext highlighter-rouge">42</code> iz tabele <code class="language-plaintext highlighter-rouge">NIVOKVALIFIKACIJE</code>.</li>
+  </ol>
+
+  <p>Svaki zahtev implementirati kao posebnu transakciju.</p>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Kolona</th>
+      <th>Vrednost</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Identifikator</td>
+      <td>42</td>
+    </tr>
+    <tr>
+      <td>Naziv</td>
+      <td>Novi nivo</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="ui stacked segment">
+  <p><strong>Zadatak 10.4</strong>: Napisati Java aplikaciju koja korišćenjem biblioteke Hibernate redom:</p>
+  <ol>
+    <li>Unosi podatak o novom predmetu u tabelu <code class="language-plaintext highlighter-rouge">PREDMET</code> sa identifikatorom predmeta <code class="language-plaintext highlighter-rouge">id</code> i ostalim podacima koji se unose sa standardnog ulaza.</li>
+    <li>Ispisuje podatake o predmetu sa identifikatorom <code class="language-plaintext highlighter-rouge">id</code> iz tabele <code class="language-plaintext highlighter-rouge">PREDMET</code>.</li>
+    <li>Proverava da li korisnik želi da ažurira broj ESPB bodova za predmet sa identifikatorom <code class="language-plaintext highlighter-rouge">id</code> u tabeli <code class="language-plaintext highlighter-rouge">PREDMET</code>. Ukoliko korisnik odgovori potvrdno, izvršava odgovarajuće ažuriranje. Novi broj bodova unosi se sa standardnog ulaza.</li>
+    <li>Ispisuje podatake o predmetu sa identifikatorom <code class="language-plaintext highlighter-rouge">id</code> iz tabele <code class="language-plaintext highlighter-rouge">PREDMET</code>.</li>
+    <li>Briše podatake o predmetu sa identifikatorom <code class="language-plaintext highlighter-rouge">id</code> iz tabele <code class="language-plaintext highlighter-rouge">PREDMET</code>.</li>
+    <li>Ispisuje podatake o predmetu sa identifikatorom <code class="language-plaintext highlighter-rouge">id</code> iz tabele <code class="language-plaintext highlighter-rouge">PREDMET</code>.</li>
+  </ol>
+
+  <p>Svaki zahtev implementirati kao posebnu transakciju.</p>
+</div>
+
+
+        </div>
+    </div>
+
+    <script>
+        $('#pageSticky').sticky({
+            context: '#pageContent'
+        });
+
+        $('#pageSticky').click(function () {
+            $('#sideMenu').sidebar('toggle');
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,74 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 hCourseId;
+char hCourseLabel[11];
+char hCourseName[201];
+short hCourseESPB;
+EXEC SQL END DECLARE SECTION;
+
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL ROLLBACK;
+
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main() {
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    checkSQL("Connect");
+    
+    // Zakljucavamo tabelu PREDMET u deljenom rezimu
+    EXEC SQL LOCK TABLE DA.PREDMET IN SHARE MODE;
+    checkSQL("Lock table");
+    
+    EXEC SQL 
+        DECLARE cCourses CURSOR FOR 
+        SELECT  ID, 
+                OZNAKA, 
+                NAZIV, 
+                ESPB
+        FROM    DA.PREDMET;
+    checkSQL("Declare cursor");
+    
+    EXEC SQL OPEN cCourses;
+    checkSQL("Open cursor");
+    
+    for(;;) {
+        EXEC SQL 
+            FETCH   cCourses
+            INTO    :hCourseId, 
+                    :hCourseLabel, 
+                    :hCourseName, 
+                    :hCourseESPB;
+        checkSQL("Fetch cursor");
+    
+        if (SQLCODE == 100)
+        {
+            break;
+        }
+
+        printf("%4.4d %-10.10s %-30.30s %d\n", hCourseId, hCourseLabel, hCourseName, hCourseESPB);
+
+        printf("Pritisnite ENTER za dalje citanje\n");
+        getchar();
+    }
+
+    EXEC SQL CLOSE cCourses;
+    checkSQL("Close cursor");
+    
+    EXEC SQL COMMIT;
+    checkSQL("Potvrdjivanje izmena");
+
+    EXEC SQL CONNECT RESET;
+    checkSQL("Connect reset");
+    
+    return 0;
+}
