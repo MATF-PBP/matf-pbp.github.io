@@ -1,7 +1,7 @@
 ---
 layout: notification
 title: "[Matematičari] Jun 2 - rezultati"
-time: "22:45"
+time: "23:00"
 ---
 
 Rezutlati oba dela ispita u ispitnom roku Jun 2 se mogu videti na narednom linku: 
@@ -12,4 +12,4 @@ Za uvid u radove sa teorijskog dela ispita, javite se predmetnom nastavniku, mej
 
 Zainteresovani za upis ocena u indeks mogu se javiti mejlom. Upis ocena u indeks nije obavezan da bi ocena bila upisana u Hypatiju i može se obaviti i kasnije u okviru termina za neki naredni ispitni rok.
 
-Ko želi da poništi ispit treba da se javi predmetnom nastavniku do 16.8. u 09.00.
+Ko želi da poništi ispit treba da se javi predmetnom nastavniku do 15.8. u 23.59.
