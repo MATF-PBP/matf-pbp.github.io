@@ -1,0 +1,150 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+short hSumESPB; 
+sqlint32 hStudyProgramId;
+sqlint32 hIndex;
+
+char hLastExamDate[11];
+EXEC SQL END DECLARE SECTION;
+
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+void declareMaxSumESPBCursor();
+void declareLastExamsCursor();
+void iterOverMaxSumESPBCursor();
+void iterOverLastExamsCursor();
+
+int main() {
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;  
+    checkSQL("Konekcija na bazu");
+    
+    declareMaxSumESPBCursor();
+    declareLastExamsCursor();    
+    
+    iterOverMaxSumESPBCursor();
+
+    EXEC SQL CONNECT RESET;
+    checkSQL("Diskonekcija sa baze");
+    
+    return 0;
+}
+
+void declareMaxSumESPBCursor() {
+    EXEC SQL 
+        DECLARE cMaxSumESPB CURSOR FOR 
+        WITH POMOCNA AS (
+            SELECT      D.IDPROGRAMA, 
+                        D.INDEKS, 
+                        SUM(P.ESPB) SUMA
+            FROM        DA.DOSIJE D JOIN
+                        DA.ISPIT I ON I.INDEKS = D.INDEKS JOIN
+                        DA.PREDMET P ON P.ID = I.IDPREDMETA
+            WHERE       OCENA > 5 AND
+                        STATUS = 'o'
+            GROUP BY    D.IDPROGRAMA, 
+                        D.INDEKS
+        )
+        SELECT      POM.SUMA, 
+                    D.INDEKS, 
+                    POM.IDPROGRAMA
+        FROM        POMOCNA POM JOIN
+                    DA.DOSIJE D ON D.INDEKS = POM.INDEKS 
+        WHERE       POM.SUMA IN (
+                        SELECT  MAX(SUMA) 
+                        FROM    POMOCNA POM1 
+                        WHERE   POM1.IDPROGRAMA = POM.IDPROGRAMA
+                    )
+        ORDER BY    IDPROGRAMA;
+    checkSQL("Deklaracija kursora - cMaxSumESPB");
+}
+
+void declareLastExamsCursor() {
+    EXEC SQL 
+        DECLARE cLastExams CURSOR FOR 
+        WITH POMOCNA AS (
+            SELECT      I.INDEKS, 
+                        MAX(DATPOLAGANJA) DATUMPOSLEDNJEG
+            FROM        DA.ISPIT I JOIN
+                        DA.DOSIJE D ON D.INDEKS = I.INDEKS
+            WHERE       OCENA > 5 AND
+                        STATUS = 'o'
+            GROUP BY    I.INDEKS
+            HAVING      MAX(DATPOLAGANJA) IS NOT NULL
+        )
+        SELECT  I.INDEKS
+        FROM    DA.ISPIT I
+        WHERE   I.INDEKS = :hIndex AND
+                EXISTS (
+                    SELECT  * 
+                    FROM    POMOCNA PO 
+                    WHERE   PO.INDEKS = I.INDEKS AND
+                            PO.DATUMPOSLEDNJEG = DATPOLAGANJA
+                )
+        FOR     UPDATE OF NAPOMENA;
+    checkSQL("Deklaracija kursora - cLastExams");
+}
+
+void iterOverMaxSumESPBCursor() {
+    EXEC SQL OPEN cMaxSumESPB;
+    checkSQL("Otvaranje kursora - cMaxSumESPB");
+
+    for(;;) {
+        EXEC SQL 
+            FETCH   cMaxSumESPB                
+            INTO    :hSumESPB, 
+                    :hIndex, 
+                    :hStudyProgramId;
+        checkSQL("Dohvatanje podataka iz kursora - cMaxSumESPB");
+
+        if(SQLCODE == 100) {
+            break;
+        }
+        
+        // Stampamo informaciju o studentu koji ima najvise kredita na smeru
+        printf("Student sa brojem hIndexa %d na smeru %d ima polozeno %d bodova!\n", 
+               hIndex, hStudyProgramId, hSumESPB);
+        
+        iterOverLastExamsCursor();
+    }
+
+    EXEC SQL CLOSE cMaxSumESPB;
+    checkSQL("Zatvaranje kursora - cMaxSumESPB");
+}
+
+void iterOverLastExamsCursor() {
+    EXEC SQL OPEN cLastExams;
+    checkSQL("Otvaranje kursora - cLastExams");
+    
+    for(;;) {
+        EXEC SQL 
+            FETCH   cLastExams
+            INTO    :hIndex, 
+                    :hLastExamDate;
+        checkSQL("Dohvatanje podataka iz kursora - cLastExams");
+
+        if(SQLCODE == 100) {
+            break;
+        }
+        
+        // Pokusavamo da unesemo novi red u tabelu DOSIJEEXT
+        EXEC SQL 
+            UPDATE  DA.ISPIT
+            SET     NAPOMENA = 'Ovo je student koji ima najvise polozenih kredita na svom smeru'
+            WHERE   CURRENT OF cLastExams;
+        checkSQL("Update ISPIT");
+    }
+    
+    EXEC SQL CLOSE cLastExams;
+    checkSQL("Zatvaranje kursora - cLastExams");
+}

@@ -1,0 +1,99 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <sql.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+char hStatementString[255];
+
+sqlint32 hStudyProgramId;
+char hStudyProgramLabel[11];
+char hStudyProgramName[51];
+short hDegreeLevelId;
+EXEC SQL END DECLARE SECTION;
+
+void checkSQL(const char *str) {
+    if(sqlca.sqlcode < 0) {
+        char buffer[1024];
+        short bufferSize = sizeof(buffer);
+        short lineWidth = 50;
+        sqlaintp(buffer, bufferSize, lineWidth, &sqlca);
+
+        fprintf(stderr, "Greska %d: %s\n", sqlca.sqlcode, str);
+        fprintf(stderr, "%s\n", buffer);
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main() {
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    checkSQL("Connect");
+    
+    // Kreiranje tekstualne reprezentacije naredbe sa tipiziranom parametarskom oznakom.
+    // Primetite da se na kraju svakog reda nalazi karakter razmaka.
+    // Ovo je neophodno zato sto ce C kompilator samo nadovezati ove niske,
+    // pa ako ne navedemo razmake, onda ce "slepiti" imena kolona i klauza.
+    sprintf(hStatementString, 
+        "SELECT ID, "
+        "       OZNAKA, "
+        "       RTRIM(NAZIV) "
+        "FROM   DA.STUDIJSKIPROGRAM "
+        "WHERE  IDNIVOA = CAST(? AS SMALLINT)");
+    
+    // Prevodjenje tekstualne reprezentacije naredbe u pripremljenu naredbu
+    EXEC SQL 
+        PREPARE pStatement 
+        FROM    :hStatementString;
+    checkSQL("Prepare");
+
+    // S obzirom da koristimo SELECT naredbu, ne mozemo da koristimo EXECUTE.
+    // Umesto toga, moramo da deklarisemo kursor na osnovu pripremljene naredbe.
+    // Ne navodimo dvotacku ispred pStatement jer je to identifikator, a ne maticna promenljiva.
+    EXEC SQL 
+        DECLARE cStudyPrograms CURSOR FOR 
+        pStatement;
+    checkSQL("Declare cursor");
+
+    printf("Unesite identifikator nivoa studija: ");
+    scanf("%hd", &hDegreeLevelId);
+
+    // Otvaranje kursora i navodjenje vrednosti parametarske oznake
+    EXEC SQL 
+        OPEN    cStudyPrograms 
+        USING   :hDegreeLevelId;
+    checkSQL("Open cursor");
+    
+    printf("+-------------------------------------------+\n");
+    printf("|             STUDIJSKI PROGRAM             |\n");
+    printf("+-----+------+------------------------------+\n");
+    printf("|ID   |OZNAKA|NAZIV                         |\n");
+    printf("|-----+------+------------------------------+\n");
+
+    for(;;) {
+        EXEC SQL 
+            FETCH   cStudyPrograms
+            INTO    :hStudyProgramId, 
+                    :hStudyProgramLabel, 
+                    :hStudyProgramName;
+        checkSQL("Fetch cursor");
+
+        if (SQLCODE == 100) {
+            break;
+        }
+
+        printf("|%-5d|%-6s|%30.30s|\n", hStudyProgramId, hStudyProgramLabel, hStudyProgramName);
+        printf("+-----+------+------------------------------+\n");
+    }
+    
+    printf("+-----+------+------------------------------+\n");
+
+    EXEC SQL CLOSE cStudyPrograms;
+    checkSQL("Close cursor");
+
+    EXEC SQL CONNECT RESET;
+    checkSQL("Connect reset");
+    
+    return 0;
+}

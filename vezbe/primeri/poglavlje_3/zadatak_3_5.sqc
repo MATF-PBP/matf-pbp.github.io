@@ -1,0 +1,115 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 hStudyProgramId;
+char hStudyProgramName[201];
+
+sqlint32 hIndex;
+char hName[21];
+char hSurname[21];
+EXEC SQL END DECLARE SECTION;
+
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main() {
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;  
+    checkSQL("Konekcija na bazu");
+    
+    EXEC SQL 
+        DECLARE cStudyPrograms CURSOR FOR 
+        SELECT      ID, 
+                    NAZIV
+        FROM        DA.STUDIJSKIPROGRAM
+        ORDER BY    NAZIV;
+    checkSQL("Deklaracija kursora - cStudyPrograms");
+    
+    EXEC SQL 
+        DECLARE cFailedExams CURSOR FOR 
+        SELECT      INDEKS, 
+                    IME, 
+                    PREZIME
+        FROM        DA.DOSIJE D 
+        WHERE       D.IDPROGRAMA = :hStudyProgramId AND
+                    EXISTS (
+                        SELECT  * 
+                        FROM    DA.ISPIT
+                        WHERE   INDEKS = D.INDEKS AND
+                                OCENA = 5 AND
+                                STATUS = 'o'
+                    )
+        ORDER BY    INDEKS;
+    checkSQL("Deklaracija kursora - cFailedExams");
+    
+    /////////////////////////////////////
+    // Pocetak obrade spoljasnjeg kursora
+
+    EXEC SQL OPEN cStudyPrograms;
+    checkSQL("Otvaranje kursora - cStudyPrograms");
+
+    for(;;) {
+        EXEC SQL 
+            FETCH   cStudyPrograms
+            INTO    :hStudyProgramId, 
+                    :hStudyProgramName;
+        checkSQL("Dohvatanje podataka iz kursora - cStudyPrograms");
+
+        if(SQLCODE == 100) {
+            break;
+        }
+        
+        // Stampamo sekciju za smer
+        printf("\n********************************************************************************\n"
+               "*Studenti sa studijskog programa %-4.4d: %-40.40s*\n"
+               "********************************************************************************\n",
+               hStudyProgramId, hStudyProgramName);
+        
+        /////////////////////////////////////
+        // Pocetak obrade unutrasnjeg kursora
+
+        EXEC SQL OPEN cFailedExams;
+        checkSQL("Otvaranje kursora - cFailedExams");
+        
+        for(;;) {
+            EXEC SQL 
+                FETCH   cFailedExams
+                INTO    :hIndex, 
+                        :hName, 
+                        :hSurname;
+            checkSQL("Dohvatanje podataka iz kursora - cFailedExams");
+
+            if(SQLCODE == 100) {
+                break;
+            }
+            
+            // Stampamo informacije o studentu
+            printf("Student %s %s sa brojem hIndexa %d\n", hName, hSurname, hIndex);    
+        }
+        
+        EXEC SQL CLOSE cFailedExams;
+        checkSQL("Zatvaranje kursora - cFailedExams");
+        
+        // Kraj obrade unutrasnjeg kursora
+        //////////////////////////////////
+    }
+
+    EXEC SQL CLOSE cStudyPrograms;
+    checkSQL("Zatvaranje kursora - cStudyPrograms");
+
+    // Kraj obrade spoljasnjeg kursora
+    //////////////////////////////////
+
+    EXEC SQL CONNECT RESET;
+    checkSQL("Connect reset");
+    
+    return 0;
+}
