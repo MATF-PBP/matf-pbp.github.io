@@ -1,0 +1,117 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 hIndex;
+EXEC SQL END DECLARE SECTION;
+
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        // U funkciju za obradu greske dodajemo naredbu ROLLBACK
+        // da bismo ponistili eventualne izmene u bazi podataka
+        // ukoliko zaista dodje do greske.
+        EXEC SQL ROLLBACK;
+
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main() {
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    checkSQL("Connect");
+    
+    EXEC SQL 
+        SELECT  MAX(INDEKS) 
+        INTO    :hIndex 
+        FROM    DA.ISPIT;
+    checkSQL("Select 1");
+    
+    // Ako nema studenata u tabeli ISPIT, zavrsi program
+    if(SQLCODE == 100) {
+        printf("Tabela je prazna!\n");
+        
+        EXEC SQL CONNECT RESET;
+        checkSQL("Connect reset - SQLCODE 100 - 1");
+        
+        return 0;
+    }
+    
+    // Inace, ispisi maksimalni index, pa ga obrisi iz tabele ISPIT
+    printf("Maksimalni index je %d.\n", hIndex);
+
+    EXEC SQL 
+        DELETE  FROM DA.ISPIT 
+        WHERE   INDEKS = :hIndex;
+    checkSQL("Delete");
+
+    printf("Uspesno je obrisan podatak");
+
+    // Ispisivanje najveceg index iz tabele ISPIT
+    EXEC SQL 
+        SELECT  MAX(INDEKS) 
+        INTO    :hIndex 
+        FROM    DA.ISPIT;
+    checkSQL("Select 2");
+    
+    if(SQLCODE == 100) {
+        printf("Tabela je prazna!\n");
+    }
+    else {
+        printf("Maximalni index je %d.\n", hIndex);
+    }
+    
+    // Pitamo korisnika za dalju akciju
+    printf("Izaberite jednu od dve akcije:\n"
+        "1. Potvrdjivanje izmena\n"
+        "2. Ponistavanje izmena\n");
+
+    short userResponse;
+    scanf("%hd", &userResponse);
+
+    if (userResponse == 1) {
+        // Potvrdjujemo izmene naredbom COMMIT
+        EXEC SQL COMMIT;
+        checkSQL("Commit");
+    }
+    else {
+        // Ponistavamo izmene naredbom ROLLBACK
+        EXEC SQL ROLLBACK;
+        checkSQL("Rollback");
+    }
+
+    printf("Vasa akcija je izvrsena!\n");
+    
+    // Ispisujemo najveci index ponovo
+    EXEC SQL 
+        SELECT  MAX(INDEKS) 
+        INTO    :hIndex 
+        FROM    DA.ISPIT;
+    checkSQL("Select 3");
+    
+    if(SQLCODE != 100) {
+        printf("Maximalni index je %d.\n", hIndex);
+    }
+    else {
+        printf("Tabela je prazna!\n");
+    }   
+
+    // U slucaju uspesnog izvrsavanja programa,
+    // potvrdjujemo sve akcije koje je nas program izvrsio
+    // pre nego sto zatvorimo konekciju.
+    EXEC SQL COMMIT;
+    checkSQL("Commit - kraj programa");
+    
+    // Iako u ovom slucaju nismo imali nikakvu izmenu od poslednje COMMIT ili ROLLBACK naredbe do ovde, 
+    // potvrdjivanje izmena tik pred raskidanje konekcije se smatra dobrom praksom
+    // tako da cemo ovo ponasanje usvojiti u svim nasim aplikacijama nadalje!
+
+    EXEC SQL CONNECT RESET;
+    checkSQL("Connect reset");
+
+    return 0;
+}

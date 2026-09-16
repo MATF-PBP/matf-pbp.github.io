@@ -1,0 +1,181 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+// U ovom primeru ilustrujemo kako je moguce smestiti jedan red iz tabele u C strukturu.
+// S obzirom da ova struktura predstavlja jedan ceo red u tabeli DA.ISPITNIROK,
+// neophodno je da redosled polja u strukturi odgovara redosledu kolona u tabeli
+// (iako imena polja i kolona ne moraju da budu identicna).
+EXEC SQL BEGIN DECLARE SECTION;
+struct final {
+    sqlint32 schoolYear;
+    char finalsLabel[21];
+    char finalsName[31];
+    char finalsStartDate[11];
+    char finalsEndDate[11];
+} hFinal;
+EXEC SQL END DECLARE SECTION;
+
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL ROLLBACK;
+
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+// Funkcija za pripremanje niza struktura
+// koje sadrze podatke o ispitnim rokovima.
+void prepareFinalsArray(struct final finalsArr[], const int n);
+
+int main() {
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    checkSQL("Connect");
+
+    // Pripremamo niz ispitnih rokova.
+    // Naredni niz ce cuvati generisane ispitne rokove za tekucu godinu.
+    struct final finalsArr[12];
+    const int n = sizeof(finalsArr)/sizeof(struct final);
+    prepareFinalsArray(finalsArr, n);
+    
+    // S obzirom da se podaci o jednom ispitnom roku smestaju u strukturu struct final,
+    // potrebno je da redosled kolona u projekciji odgovara redosledu polja u strukturi.
+    EXEC SQL 
+        DECLARE cFinals CURSOR WITH HOLD FOR
+        SELECT  SKGODINA,
+                OZNAKAROKA,
+                NAZIV,
+                DATPOCETKA,
+                DATKRAJA
+        FROM    DA.ISPITNIROK;
+    checkSQL("Declare");
+    
+    printf("Unesite obavezan broj ispitnih rokova: ");
+    short numOfFinals;
+    scanf("%hd", &numOfFinals);
+    getchar(); // novi red
+
+    int i;
+    for (i = 0; i < numOfFinals; ++i) {
+        // Pripremamo maticnu promenljivu tako sto kopiramo vrednosti iz jedne-po-jedne strukture u nizu
+        hFinal.schoolYear = finalsArr[i].schoolYear;
+        strcpy(hFinal.finalsLabel, finalsArr[i].finalsLabel);
+        strcpy(hFinal.finalsName, finalsArr[i].finalsName);
+        strcpy(hFinal.finalsStartDate, finalsArr[i].finalsStartDate);
+        strcpy(hFinal.finalsEndDate, finalsArr[i].finalsEndDate);
+            
+        // Maticna promenljiva tipa struct final se moze koristiti kao i bilo koja druga maticna promenljiva.
+        EXEC SQL 
+            INSERT  INTO DA.ISPITNIROK
+            VALUES  (:hFinal);
+        checkSQL("Unosenje obaveznih ispitnih rokova");
+    }
+
+    // Kreiranje tacke cuvanja
+    EXEC SQL SAVEPOINT tacka_cuvanja ON ROLLBACK RETAIN CURSORS;
+    checkSQL("Savepoint");
+    
+    for (; i < n; ++i) {
+        hFinal.schoolYear = finalsArr[i].schoolYear;
+        strcpy(hFinal.finalsLabel, finalsArr[i].finalsLabel);
+        strcpy(hFinal.finalsName, finalsArr[i].finalsName);
+        strcpy(hFinal.finalsStartDate, finalsArr[i].finalsStartDate);
+        strcpy(hFinal.finalsEndDate, finalsArr[i].finalsEndDate);
+        
+        // Maticna promenljiva tipa struct final se moze koristiti i na drugi nacin:
+        // navodjenjem polja te strukture direktno.
+        // INSERT naredba ispod je ekvivalentna INSERT naredbi iznad.
+        EXEC SQL 
+            INSERT  INTO DA.ISPITNIROK
+            VALUES  (:hFinal.schoolYear, :hFinal.finalsLabel, :hFinal.finalsName, :hFinal.finalsStartDate, :hFinal.finalsEndDate);
+        checkSQL("Unosenje ostalih ispitnih rokova");
+    }
+
+    printf("----------------------------------------\n");
+    
+    EXEC SQL OPEN cFinals;
+    checkSQL("Open");
+
+    for(;;) {
+        // Prva verzija koriscenja strukture, ovoga puta u FETCH naredbi.
+        EXEC SQL 
+            FETCH   cFinals 
+            INTO    :hFinal;
+        checkSQL("Fetch");
+
+        if(SQLCODE == 100) {
+            break;
+        }
+
+        printf("%5.5d  %7.7s  %18.18s  %10.10s  %10.10s\n", 
+               hFinal.schoolYear, hFinal.finalsLabel, hFinal.finalsName, hFinal.finalsStartDate, hFinal.finalsEndDate);
+    }
+
+    EXEC SQL CLOSE cFinals;    
+    checkSQL("Close");
+    
+    printf("----------------------------------------\n");
+
+    printf("Da li zelite da ponistite unos neobaveznih ispitnih rokova? \n");
+
+    char userResponse = getchar();
+    if (userResponse == 'd' || userResponse == 'D') {
+        // Ponistavanje izmena samo do prethodno kreirane tacke cuvanja
+        EXEC SQL ROLLBACK TO SAVEPOINT tacka_cuvanja;
+        checkSQL("Rollback");
+    }
+    else {
+        EXEC SQL COMMIT;
+        checkSQL("Commit");
+    }
+
+    printf("----------------------------------------\n");
+    
+    EXEC SQL OPEN cFinals;
+    checkSQL("Open");
+
+    for(;;) {
+        // Druga verzija koriscenja strukture, ovoga puta u FETCH naredbi.
+        EXEC SQL 
+            FETCH   cFinals 
+            INTO    :hFinal;
+        checkSQL("Fetch");
+
+        if(SQLCODE == 100) {
+            break;
+        }
+
+        printf("%5.5d  %7.7s  %18.18s  %10.10s  %10.10s\n", 
+               hFinal.schoolYear, hFinal.finalsLabel, hFinal.finalsName, hFinal.finalsStartDate, hFinal.finalsEndDate);
+    }
+
+    EXEC SQL CLOSE cFinals;    
+    checkSQL("Close");
+    
+    printf("----------------------------------------\n");
+
+    EXEC SQL COMMIT;
+    checkSQL("Potvrdjivanje izmena");
+    
+    EXEC SQL CONNECT RESET;
+    checkSQL("Connect reset");
+
+    return 0;
+}
+
+void prepareFinalsArray(struct final finalsArr[], const int n) {
+    const char *monthNames[] = {"Januar", "Februar", "Mart", "April", "Maj", "Jun", "Jul", "Avgust", "Septembar", "Oktobar", "Novembar", "Decembar"};
+    int i;
+    for (i = 0; i < n; ++i) {
+        finalsArr[i].schoolYear = 2021;
+        sprintf(finalsArr[i].finalsLabel, "%.3s 21", monthNames[i]);
+        sprintf(finalsArr[i].finalsName, "%s 2021", monthNames[i]);
+        sprintf(finalsArr[i].finalsStartDate, "%2.2d/01/2021", i+1);
+        sprintf(finalsArr[i].finalsEndDate, "%2.2d/10/2021", i+1);
+    }
+}
