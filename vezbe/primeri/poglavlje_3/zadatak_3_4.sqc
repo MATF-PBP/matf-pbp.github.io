@@ -1,0 +1,109 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 hIndex;
+char hName[51];
+char hSurname[51];
+char hCourseName[151];
+char hExamDate[11];
+EXEC SQL END DECLARE SECTION;
+
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main() {
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    checkSQL("Connect");
+    
+    EXEC SQL 
+        DECLARE cFirstExams CURSOR FOR 
+        WITH POMOCNA AS (
+            SELECT      I.INDEKS, 
+                        MIN(DATPOLAGANJA) AS DATUMPRVOG
+            FROM        DA.ISPIT I JOIN
+                        DA.DOSIJE D ON D.INDEKS = I.INDEKS JOIN
+                        DA.STUDIJSKIPROGRAM S ON S.ID = D.IDPROGRAMA
+            WHERE       S.NAZIV = 'Informatika' AND
+                        OCENA > 5 AND
+                        STATUS = 'o'
+            GROUP BY    I.INDEKS
+            HAVING      MIN(DATPOLAGANJA) IS NOT NULL
+        )
+
+        SELECT  I.INDEKS,
+                (
+                    SELECT  IME 
+                    FROM    DA.DOSIJE D 
+                    WHERE   D.INDEKS = I.INDEKS
+                ), 
+                (
+                    SELECT  PREZIME 
+                    FROM    DA.DOSIJE D 
+                    WHERE   D.INDEKS = I.INDEKS
+                ), 
+                (
+                    SELECT  NAZIV
+                    FROM    DA.PREDMET P
+                    WHERE   P.ID = I.IDPREDMETA
+                ),
+                DATPOLAGANJA
+        FROM    DA.ISPIT I
+        WHERE   EXISTS (
+                    SELECT  *
+                    FROM    POMOCNA PO 
+                    WHERE   PO.INDEKS = I.INDEKS AND
+                            PO.DATUMPRVOG = I.DATPOLAGANJA
+                );
+    checkSQL("Declare cursor");
+    
+    EXEC SQL OPEN cFirstExams;
+    checkSQL("Open cursor");
+    
+    // Brojac obrisanih redova
+    int i = 0;
+
+    for(;;) {
+        EXEC SQL 
+            FETCH   cFirstExams
+            INTO    :hIndex,
+                    :hName, 
+                    :hSurname,
+                    :hCourseName,
+                    :hExamDate;
+        checkSQL("Fetch cursor");
+
+        if (SQLCODE == 100) {
+            break;
+        }
+
+        printf("Brisem polaganje studenta %-15.15s %-15.15s (%d) hExamDatea %s na predmetu %-50.50s\n", hName, hSurname, hIndex, hExamDate, hCourseName);
+
+        // Uvecavamo brojac za jedan
+        ++i;
+
+        EXEC SQL 
+            DELETE  FROM DA.ISPIT
+            WHERE   CURRENT OF cFirstExams; // Na ovaj nacin kazemo da zelimo da obrisemo 
+                                            // trenutni red u kursoru cFirstExams
+        checkSQL("Delete");
+    }
+
+    printf("\n\nObrisali smo %d redova.\n", i);
+
+    EXEC SQL CLOSE cFirstExams;
+    checkSQL("Close cursor");
+    
+    EXEC SQL CONNECT RESET;
+    checkSQL("Connect reset");
+    
+    return 0;
+}

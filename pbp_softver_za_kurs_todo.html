@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="rs">
+<head>
+    <title>Softver za kurs Programiranje baza podataka (ostalo) | Programiranje baza podataka</title>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" type="text/css" href="/resources/semantic/semantic.min.css">
+    <script src="/resources/jquery/jquery-3.5.1.min.js"></script>
+    <script src="/resources/semantic/semantic.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+    <script src="https://semantic-ui.com/javascript/library/highlight.min.js"></script>
+    <script>
+        hljs.initHighlightingOnLoad();
+        $(document).ready(() => {
+            $("table").addClass('ui celled table');
+        });
+    </script>
+</head>
+
+<body>
+    <div class="ui grid">
+        <div class="thirteen wide centered column">
+            <img class="ui centered small image" src="/resources/matf-srb.png">
+            <header class="ui center aligned block header">
+                <h1><a href="/">Programiranje baza podataka</a></h1>
+            </header>
+
+            <div class="ui divider"></div>
+
+            <h2 class="ui center aligned header">Softver za kurs Programiranje baza podataka (ostalo)</h2>
+
+<div class="ui piled segment">
+    <h4 class="ui header"> </h4>
+    <h2 id="korišćenje-docker-kontejnera-umesto-vm">Korišćenje Docker kontejnera (umesto VM)</h2>
+
+<p>Zvanična dokumentacija: <a href="https://hub.docker.com/r/ibmcom/db2">https://hub.docker.com/r/ibmcom/db2</a></p>
+
+<h3 id="instalacija">Instalacija</h3>
+
+<ul>
+  <li>Instalirati alat Docker: <a href="https://docs.docker.com/get-docker/">https://docs.docker.com/get-docker/</a></li>
+  <li>Iz terminala pokrenuti sledeću naredbu:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker volume create bazepodatakavolume
+</code></pre></div>    </div>
+  </li>
+  <li>Iz terminala pokrenuti sledeću naredbu:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker run -itd --name bazepodataka --privileged=true -p 50000:50000 -e LICENSE=accept -e DB2INSTANCE=student -e DB2INST1_PASSWORD=abcdef -e DBNAME=stud2020 -v bazepodatakavolume:/database ibmcom/db2
+</code></pre></div>    </div>
+  </li>
+  <li>Kada se preuzme Docker slika, pokrenuti narednu naredbu da biste videli logove iz kontejnera:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker logs -f bazepodataka
+</code></pre></div>    </div>
+    <p>U trenutku pokretanja ćete najverovatnije dobiti informaciju kako se kreira baza podataka STUD2020.
+Sačekajte nekoliko minuta dok se u logu ne pojavi poruka “Setup has completed” (verovatno neće biti poslednja linija u logovima).
+Kada se poruka ipak pojavi, pritisnite CTRL + C da prekinete gledanje logova.</p>
+  </li>
+</ul>
+
+<p>Sada je Docker kontejner spreman za rad.</p>
+
+<h3 id="podešavanje-bp">Podešavanje BP</h3>
+
+<p>Proverite da li je kontejner pokrenut naredbom:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker ps
+</code></pre></div></div>
+
+<p>Ako ne vidite kontejner, onda je potrebno da ga pokrenete naredbom:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker start bazepodataka
+</code></pre></div></div>
+
+<p>Sada možemo pristupiti terminalu iz kontejnera naredbom:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker exec -ti bazepodataka bash -c “su - ${DB2INSTANCE}”
+</code></pre></div></div>
+
+<p>Da biste preuzeli i instalirali BP STUD2020 u kontejneru, pokrenite naredne naredbe:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pwd
+wget http://www.matf.bg.ac.rs/~mirjana/stud2020.zip
+unzip stud2020.zip
+cd stud2020
+chmod +x create.sh
+chmod +x Stud2020_Ascii/create.sh
+chmod +x Stud2020_utf8/create.sh
+./create.sh
+</code></pre></div></div>
+<p>Prva naredba je tu samo da bi prikazala direktorijum u kojem se nalazite.</p>
+
+<p>Zatvaranje terminala se vrši naredbom:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>exit
+</code></pre></div></div>
+<p>Gašenje kontejnera se vrši naredbom:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker stop bazepodataka
+</code></pre></div></div>
+
+<h3 id="pokretanje-csql-primera-u-kontejneru">Pokretanje C/SQL primera u kontejneru</h3>
+
+<p>Proverite da li je kontejner pokrenut naredbom:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker ps
+</code></pre></div></div>
+
+<p>Ako ne vidite kontejner, onda je potrebno da ga pokrenete naredbom:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker start bazepodataka
+</code></pre></div></div>
+
+<p>Sada možemo pristupiti terminalu iz kontejnera naredbom:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>docker exec -ti bazepodataka bash -c “su - ${DB2INSTANCE}”
+</code></pre></div></div>
+
+<p>Da biste preuzeli C/SQL primere, pokrenite naredne naredbe:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>wget https://matf-pbp.github.io/resources/primeri.tar.gz
+tar -xf primeri.tar.gz
+cd vezve/primeri
+ls
+</code></pre></div></div>
+
+<p>U ovom direktorijumu se nalaze svi primeri. Prevođenje, na primer, zadatka 2.1 se može izvršiti na sledeći način:</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>cd poglavlje_2
+chmod +x prevodjenje
+./prevodjenje zadatak_2_1 stud2020 student abcdef
+</code></pre></div></div>
+
+<h3 id="pokretanje-javajdbc-primera-u-kontejneru">Pokretanje Java/JDBC primera u kontejneru</h3>
+
+<p>TODO</p>
+
+<h3 id="pokretanje-hibernate-primera-u-kontejneru">Pokretanje Hibernate primera u kontejneru</h3>
+
+<p>TODO</p>
+
+</div>
+        </div>
+    </div>
+</body>
+
+</html>
