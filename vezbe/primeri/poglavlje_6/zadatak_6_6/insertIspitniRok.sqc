@@ -1,0 +1,66 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL ROLLBACK;
+
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int waitForLock(const char *code_hint) {
+    if (-913 <= SQLCODE && SQLCODE <= -911) {
+        printf("[%s] Objekat je zakljucan od strane druge transakcije. "
+            "Sacekati neko vreme...\n", code_hint);
+
+        EXEC SQL ROLLBACK;
+        checkSQL("Rollback");
+
+        return 1;
+    }
+    return 0;
+}
+
+int main() {
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    checkSQL("Connect");
+    
+    EXEC SQL SET CURRENT LOCK TIMEOUT 5;
+    checkSQL("Set timeout");
+    
+    for (;;) {
+        EXEC SQL 
+            INSERT  INTO DA.ISPITNIROK
+            VALUES  (2021, 'Mar21', 'Mart 2021', '03/01/2022', '03/11/2022');
+            
+        if (waitForLock("INSERT")) {
+            continue;
+        }
+        
+        checkSQL("Insert");
+        
+        if (SQLCODE == 0) {
+            break;
+        }
+    };
+
+    EXEC SQL SET CURRENT LOCK TIMEOUT NULL;
+    checkSQL("Set timeout");
+    
+    printf("\nPritisnuti enter za potvrdjivanje izmena: ");
+    getchar();
+    
+    EXEC SQL COMMIT;
+    checkSQL("Potvrdjivanje izmena");
+
+    EXEC SQL CONNECT RESET;
+    checkSQL("Connect reset");
+    
+    return 0;
+}

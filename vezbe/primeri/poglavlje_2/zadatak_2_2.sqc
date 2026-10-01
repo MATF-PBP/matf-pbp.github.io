@@ -1,0 +1,60 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 hIndex;
+char hName[51];
+char hSurname[51];
+char hBirthPlace[51];
+short hIndBirthPlace;
+char hGradDate[11];
+short hIndGradDate;
+EXEC SQL END DECLARE SECTION;
+
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+int main() {
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    checkSQL("Konekcija na bazu podataka");
+
+    EXEC SQL 
+        SELECT  INDEKS, 
+                IME, 
+                PREZIME, 
+                MESTORODJENJA, 
+                DATDIPLOMIRANJA
+        INTO    :hIndex, 
+                :hName, 
+                :hSurname, 
+                :hBirthPlace :hIndBirthPlace, 
+                :hGradDate :hIndGradDate
+        FROM    DA.DOSIJE
+        WHERE   INDEKS = (SELECT MAX(INDEKS) FROM DA.DOSIJE);
+    checkSQL("Izdvajanje podatka o studentu sa najvecim indeksom");
+
+    printf("+--------------+------------------------------+\n");
+    printf("|INDEKS        |%-30d|\n", hIndex);
+    printf("|--------------|------------------------------|\n");
+    printf("|IME           |%-30s|\n", hName);
+    printf("|--------------|------------------------------|\n");
+    printf("|PREZIME       |%-30s|\n", hSurname);
+    printf("|--------------|------------------------------|\n");
+    printf("|MESTO RODJENJA|%-30s|\n", (hIndBirthPlace < 0) ? "NULL" : hBirthPlace);
+    printf("|--------------|------------------------------|\n");
+    printf("|DATUM DIPL.   |%-30s|\n", (hIndGradDate < 0) ? "NULL" : hGradDate);
+    printf("+--------------+------------------------------+\n");
+
+    EXEC SQL CONNECT RESET;
+    checkSQL("Prekidanje konekcije sa bazom podataka");
+
+    return 0;
+}

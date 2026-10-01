@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="rs">
+<head>
+    <title>1. Uvod u programiranje baza podataka | Programiranje baza podataka</title>
+    <meta charset="utf-8">
+
+    <link rel="stylesheet" type="text/css" href="/resources/semantic/semantic.min.css">
+    <script src="/resources/jquery/jquery-3.5.1.min.js"></script>
+    <script src="/resources/semantic/semantic.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css">
+    <script src="https://semantic-ui.com/javascript/library/highlight.min.js"></script>
+    <script>
+        hljs.initHighlightingOnLoad();
+        $(document).ready(() => {
+            $("table").addClass('ui celled table');
+        });
+    </script>
+</head>
+
+<body>
+    <div class="ui sticky black big launch right attached fixed button" id="pageSticky">
+        <i class="content icon"></i>
+        <span class="text">Prikaži sadržaj</span>
+    </div>
+
+    <div class="ui sidebar vertical menu" id="sideMenu">
+        <div class="item">
+            <h3>Sadržaj</h3>
+        </div>
+        <a class="item" href="/vezbe/predgovor">Predgovor</a>
+        <a class="item" href="/vezbe/poglavlja/1">1. Uvod u programiranje baza podataka</a>
+        <a class="item" href="/vezbe/poglavlja/2">2. Osnovni koncepti programiranja C/SQL aplikacija</a>
+        <a class="item" href="/vezbe/poglavlja/3">3. Programiranje korišćenjem kursora</a>
+        <a class="item" href="/vezbe/poglavlja/4">4. Aplikacije sa dinamičkim SQL naredbama</a>
+        <a class="item" href="/vezbe/poglavlja/5">5. Implementiranje transakcija</a>
+        <a class="item" href="/vezbe/poglavlja/6">6. Aplikacije u višekorisničkom okruženju</a>
+        <a class="item" href="/vezbe/poglavlja/7">7. Povezivanje aplikacija na više baza podataka</a>
+        <a class="item" href="/vezbe/poglavlja/8">8. Osnovni koncepti programiranja Java/SQL aplikacija sa
+            dinamičkim SQL naredbama (JDBC)</a>
+        <a class="item" href="/vezbe/poglavlja/9">9. Napredne tehnike razvijanja Java/SQL aplikacija</a>
+        <a class="item" href="/vezbe/poglavlja/10">10. Uvod u razvojno okruženje Hibernate</a>
+        <a class="item" href="/vezbe/poglavlja/11">11. Napredna objektno-relaciona preslikavanja</a>
+        <a class="item" href="/vezbe/poglavlja/12">12. Napredno kreiranje upita pomoću JPA Criteria API</a>
+        <a class="item" href="/vezbe/poglavlja/13">13. Programiranje SQL rutina</a>
+        <a class="item" href="/vezbe/poglavlja/14">14. Korisnički-definisane funkcije</a>
+        <a class="item" href="/vezbe/poglavlja/15">15. Ugrađene procedure</a>
+        <a class="item" href="/vezbe/poglavlja/16">16. Okidači</a>
+    </div>
+
+    <div class="ui justified container">
+        <img class="ui centered small image" src="/resources/matf-srb.png">
+        <header class="ui center aligned block header">
+            <h1><a href="/">Programiranje baza podataka</a></h1>
+        </header>
+
+        <div class="ui divider"></div>
+
+        <div id="pageContent">
+            <h2>1. Uvod u programiranje baza podataka</h2>
+
+
+<div class="ui warning message">
+    <div class="header">
+        Ova stranica je pod konstrukcijom!
+    </div>
+    Ako pronađete grešku ili propust, molimo Vas da nam skrenete pažnju otvaranjem primedbe na <a href="https://github.com/MATF-PBP/matf-pbp.github.io"><i class="github icon"></i>zvaničnom GitHub repozitorijumu</a>.
+</div>
+
+
+<p>DB2 je sistem za upravljanje relacionim bazama podataka (RSUBP) koji nudi veoma moćne softverske alate za programiranje baza podataka. Ovi alati su korisni kako administratorima baza podataka, tako i programerima aplikacija koje koriste mogućnosti relacionih baza podataka. Pod programiranjem baza podataka možemo smestiti naredne dve aktivnosti:</p>
+
+<ol>
+  <li>Programiranje na serveru, odnosno, programiranje SQL rutina.</li>
+  <li>Programiranje na klijentu kroz više programske jezike.</li>
+</ol>
+
+<p>Programiranje na klijentu podrazumeva korišćenje viših programskih jezika kao što su C, C++, Java, PHP i mnogih drugih. Često se ovi jezici nazivaju i <em>matični jezici</em> (engl. <em>host language</em>). Korišćenjem nekih od razvojnih okruženja, ti programski jezici se koriste za pristupanje interfejsu za programiranje aplikacija (engl. <em>application programming interface</em>, skr. <em>API</em>). Kroz ovaj interfejs se zatim, preko drajvera koji je dostupan programerima, aplikacija povezuje sa RSUBP i izvršava SQL upite. Ovo povezivanje sa bazom podataka se izvršava kroz mogućnosti operativnog sistema na kojem se klijentska aplikacija izvršava.</p>
+
+<p>Sa druge strane, programiranje na serveru obuhvata programiranje tzv. <em>SQL rutina</em> (engl. <em>SQL routine</em>). SQL rutina može biti: <em>ugrađena procedura</em> (engl. <em>stored procedure</em>), <em>korisnički-definisana funkcija</em> (engl. <em>user-defined function</em>) ili <em>okidač</em> (engl. <em>trigger</em>). Svi ovi tipovi SQL rutina podrazumevaju programiranje operacija koje se čuvaju u samoj bazi podataka. Programeri zatim imaju mogućnost poziva ovih sačuvanih procedura, odn. njihovog izračunavanja.</p>
+
+<p><img src="./Slike/klijent-server-arhitektura.png" alt="&quot;Dva načina za programiranje baza podataka: programiranje na klijentu (levo) i programiranje na serveru (desno).&quot;" title="Dva načina za programiranje baza podataka: programiranje na klijentu (levo) i programiranje na serveru (desno)." class="ui centered huge image" /></p>
+
+<h2 id="11-opis-razvoja-klijentskih-aplikacija">1.1 Opis razvoja klijentskih aplikacija</h2>
+
+<p>Prilikom razvijanja klijentskih aplikacija važno je odrediti viši programski jezik koji će se koristiti. Odabir konkretnog višeg programskog jezika u određenoj meri diktira proces razvoja u kontekstu API-ja koji je dostupan za dati viši programski jezik. Međutim, bez obzira koji se viši programski jezik koristi, koncepti koji se koriste za rad sa bazama podataka su isti. Ono što dodatno olakšava ovaj proces jeste postojanje različitih elemenata softverskog paketa koji se zove <em>Db2 Data Server Client</em>. Neki od elemenata ovog paketa sa kojima ćemo se susreti u ovoj knjizi su:</p>
+
+<ul>
+  <li>Prekompilatori za C/C++, COBOL i Fortran.</li>
+  <li>Podrška za ugnežđene SQL naredbe u višim programskim jezicima u vidu programerskih biblioteka, zaglavlja za uključivanje u izvorni kod i primere izvornih kodova.</li>
+  <li>Podrška za aplikacije zasnovane na ODBC i Db2 Call Level Interface (Db2 CLI) standardima.</li>
+  <li>IBM Data Server Driver za JDBC i SQLJ aplikacije.</li>
+  <li>IBM Data Studio softversko okruženje za razvoj aplikacija i radom sa Db2 bazama podataka.</li>
+</ul>
+
+<p>Opišimo sada proces razvoja klijentskih aplikacija na primeru aplikacije sa ugnežđenim SQL naredbama u programskom jeziku C. Ovaj proces će biti opisan na dovoljno apstraktnom nivou da ne ulazi u detalje programskog jezika C i detalja procesa vezanim za njega, ali će biti i dovoljno konkretan da čitalac stekne opšti utisak u način razvoja klijentskih aplikacija za rad sa Db2 bazama podataka.</p>
+
+<p>Nakon prepoznavanja problema i izvođenja njegovog rešenja u poslovnom modelu, pristupa se konstrukciji baze podataka i definisanju potrebnih SQL naredbi koje će se koristiti u njegovom rešavanju. Baza podataka se zatim instalira na Db2 serveru baze podataka, a SQL naredbe se koriste u izvornom kodu višeg programskog jezika C prateći odgovarajući C/SQL Db2 API. Aplikacija se kodira na klijentu koji ima instaliran Db2 Data Server Client softverski paket sa alatima za razvoj aplikacija. S obzirom da kod predstavlja “mešavinu” C naredbi i SQL naredbi, potrebno je izvesti iz tog koda nova dva međukoda: jedan koji ima “čiste” C naredbe i drugi koji ima “čiste” SQL naredbe. Prvi međukod se podvrgava procesu prevođenja kao i svaki drugi C program, dok se drugi kod proverava nad bazom podataka nad kojom su definisane SQL naredbe koje se koriste. Ukoliko nema grešaka, SQL naredbe se ugrađuju u bazu podataka, a od izvornog C koda se formira izvršni program.</p>
+
+<p>Izvršni program se zatim instalira na odgovarajućim uređajima gde će se koristiti (pri čemu je potrebno da ti sistemi imaju odgovarajuće Db2 drajvere za komunikaciju sa Db2 serverom baze podataka - ovo je po pravilu lakše instalirati od celog Db2 Data Server Client softverskog paketa). Prilikom pokretanja programa, aplikacija izvršava C naredbe kao i svaki drugi C program, a kada naiđe na deo koda koji upravlja bazom podataka, program vrši komunikaciju sa datom bazom podataka preko odgovarajućeg Db2 drajvera, korišćenjem mogućnosti operativnog sistema i mreže, čime se prethodno ugrađene SQL naredbe izvršavaju. Rezultati izvršavanja tih SQL naredbi se šalju nazad programu, uz eventualno izveštavanje o greškama ili upozorenjima do koje je došlo u sistemu za upravljanje bazom podataka.</p>
+
+<p><img src="./Slike/razvoj-klijentskih-aplikacija.png" alt="&quot;Konceptualni prikaz razvoja C/SQL klijentskih aplikacija sa ugnežđenim SQL naredbama.&quot;" title="Konceptualni prikaz razvoja C/SQL klijentskih aplikacija sa ugnežđenim SQL naredbama." class="ui centered huge image" /></p>
+
+<h2 id="12-opis-razvoja-serverskih-aplikacija">1.2 Opis razvoja serverskih aplikacija</h2>
+
+<h2 id="13-podešavanje-okruženja-za-rad">1.3 Podešavanje okruženja za rad</h2>
+
+<p>Za početak, neophodno je da instaliramo Db2 sistem za upravljanje bazom podataka na našem operativnom sistemu.</p>
+
+<h3 id="131-instalacija-db2-subp">1.3.1 Instalacija Db2 SUBP</h3>
+
+<p>Pakete za instalaciju je moguće preuzeti narednim koracima:</p>
+
+<ol>
+  <li>Otvoriti stranicu koja se nalazi na adresi <a href="https://www.ibm.com/products/db2-database/developers">https://www.ibm.com/products/db2-database/developers</a>.</li>
+  <li>Odabrati opciju “Try the free edition now”.</li>
+  <li>Kreirati IBM nalog i prijaviti se na sistem.</li>
+  <li>Moguće je da sistem zatraži od Vas da odaberete opcije vezane za privatnost. Odaberite opcije i nastavite dalje.</li>
+  <li>Nakon toga bi trebalo da se otvori stranica sa naslovom “IBM Db2 Download Center”, gde se može pronaći lista Db2 proizvoda za različite operativne sisteme.</li>
+  <li>Preuzeti odgovarajuću verziju “IBM Db2 v11.5.5” klikom na “Download” pored odgovarajućeg operativnog sistema.</li>
+  <li>Štiklirati “I Agree”, pa kliknuti na “Confirm” i “Continue”.</li>
+</ol>
+
+<p>Ukoliko koristite Linux OS, instalacija se vrši na sledeći način:</p>
+
+<ol>
+  <li>Otpakovati arhivu i u terminalu se pozicionirati u direktorijum koji se kreirao prilikom otpakivanja</li>
+  <li>Pokrenuti komandu:
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo</span> ./db2setup
+</code></pre></div>    </div>
+    <p>Ako pri instaliranju dobijete poruku da nedostaje biblioteka <code class="language-plaintext highlighter-rouge">libaio.so.1</code>, pokrenite komandu</p>
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>apt-­get <span class="nb">install </span>libaio1
+</code></pre></div>    </div>
+    <p>ili koristite odgovarajući upravljač paketima za Vaš sistem.</p>
+  </li>
+  <li>Pratiti uputstva u instalacionom prozoru:
+    <ol>
+      <li>Obratiti pažnju da se proizvod instalira na lokaciju <code class="language-plaintext highlighter-rouge">/opt/ibm/db2/V11.5</code> (ovo je bitno zbog skripta za prevođenje programa).</li>
+      <li>Obraditi pažnju da se odabere “Custom Install” i označiti sve opcije da se instaliraju.</li>
+      <li>Obratiti pažnju na korisnički nalog koji se kreira kao “Instance owner” (podrazumevano je “db2inst1”, što će biti korišćeno u nastavku). Zapamtite šifru koju ste ukucali za ovog korisnika.</li>
+      <li>Obeležiti opciju “Autostart the instance at system startup” da bi se server sam podizao prilikom pokretanja sistema.</li>
+    </ol>
+  </li>
+  <li>Za podešavanje da neki drugi korisnik na sistemu može da koristi DB2 RSUBP, potrebno je izvršiti naredne dodatne korake:
+    <ol>
+      <li>Kreirati novog korisnika. U nastavku će to biti korisnik <code class="language-plaintext highlighter-rouge">student</code> sa lozinkom <code class="language-plaintext highlighter-rouge">abcdef</code>. Preporučuje se da koristite iste kredencijale da bi Vam kodovi radili bez da ih menjate.</li>
+      <li>Kreirati novu grupu (u nastavku ce to biti grupa <code class="language-plaintext highlighter-rouge">pbp_db2_admin</code>):
+        <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>groupadd pbp_db2_admin
+</code></pre></div>        </div>
+      </li>
+      <li>Dodati grupi <code class="language-plaintext highlighter-rouge">pbp_db2_admin</code> korisnika <code class="language-plaintext highlighter-rouge">student</code>:
+        <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo </span>usermod -­a -­G pbp_db2_admin student
+</code></pre></div>        </div>
+      </li>
+      <li>
+        <p>Restartovati sistem i ulogovati se kao korisnik <code class="language-plaintext highlighter-rouge">db2inst1</code> sa lozinkom koju ste ukucali pri instalaciji.</p>
+      </li>
+      <li>Izvršiti narednu komandu:
+        <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>db2 update dbm cfg using SYSADM_GROUP pbp_db2_admin
+</code></pre></div>        </div>
+      </li>
+      <li>Ulogovati se kao korisnik <code class="language-plaintext highlighter-rouge">student</code> sa lozinkom <code class="language-plaintext highlighter-rouge">abcdef</code></li>
+      <li>Iz datoteke <code class="language-plaintext highlighter-rouge">/home/db2inst1/.profile</code> prekopirati tri linije koda koje se u toj datoteci nalaze nakon naredne linije:
+        <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># The following three lines have been added by IBM DB2 instance utilities.
+</code></pre></div>        </div>
+      </li>
+      <li>Zalepiti prekopirane linije na kraj datoteke <code class="language-plaintext highlighter-rouge">/home/student/.profile</code></li>
+      <li>Restartovati sistem i ulogovati se kao <code class="language-plaintext highlighter-rouge">student</code></li>
+      <li>Pokrenuti komande:
+        <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>db2start
+db2
+</code></pre></div>        </div>
+      </li>
+      <li>Ukoliko Vam se uspešno pokrenuo upravljač bazom podataka i db2 komandna linija, onda ste uspešno instalirali Db2 sistem. (Iz db2 komandne linije se izlazi naredbom <code class="language-plaintext highlighter-rouge">quit</code>).</li>
+    </ol>
+  </li>
+</ol>
+
+<p>Instalacija za Windows operativni sistem podrazumeva sličnu proceduru (nakon otpakivanja arhive, pokrenuti <code class="language-plaintext highlighter-rouge">setup.exe</code>), te je nećemo detaljnije izlagati ovde.</p>
+
+<p>Nakon instalacije Db2 SUBP na Windows sistemu, na raspolaganju nam je dostupna skript datoteka “DB2 Command Window - Administrator” za podešavanje okruženja komandne linije.</p>
+
+<p>Skript se može pronaći na narednim lokacijama (lokacije se mogu razlikovati na Vasem sistemu):</p>
+
+<ul>
+  <li>Iz Start menija:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Start &gt; IBM DB2 DB2COPY1 (Default) &gt; DB2 Command Window - Administrator
+</code></pre></div>    </div>
+  </li>
+  <li>Na lokaciji:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\ProgramData\Microsoft\Windows\Start Menu\Programs\IBM DB2 DB2COPY1 (Default)\
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p>Ovaj skript služi za inicijalizaciju Db2 okruženja.</p>
+
+<h3 id="132-korišćenje-docker-kontejnera">1.3.2 Korišćenje Docker kontejnera</h3>
+
+<p>Ukoliko ne želite da instalirate SUBP, na raspolaganju je i Docker kontejner koji se može pronaći na adresi <a href="https://hub.docker.com/r/ibmcom/db2">https://hub.docker.com/r/ibmcom/db2</a>. Detaljno uputstvo za upotrebu se nalazi u opisu Docker kontejnera na datoj adresi.</p>
+
+<h3 id="133-instalacija-ibm-data-studio-alata">1.3.3 Instalacija IBM Data Studio alata</h3>
+
+<ol>
+  <li>Otvoriti stranicu koja se nalazi na adresi <a href="https://www.ibm.com/products/ibm-data-studio">https://www.ibm.com/products/ibm-data-studio</a>.</li>
+  <li>Kliknuti na “Download product”.</li>
+  <li>Prijaviti se na sistem sa kreiranim IBM nalogom u prethodnim instrukcijama.</li>
+  <li>Prihvatiti licencu.</li>
+  <li>Nakon toga bi trebalo da se otvori stranica sa naslovom “IBM Data Studio client”.</li>
+  <li>Kliknuti na tab “Download using http”.</li>
+  <li>Preuzeti verziju alata za odgovarajući operativni sistem klikom na “Download” pored naziva verzije.</li>
+</ol>
+
+<p>U slučaju Linux operativnog sistema:</p>
+
+<ol>
+  <li>Otpakovati arhivu i u terminalu se pozicionirati u direktorijum koji se kreirao prilikom otpakivanja.</li>
+  <li>Pokrenuti komandu:
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo</span> ./launcher.sh
+</code></pre></div>    </div>
+  </li>
+  <li>Ukoliko se žali da ne može da pronađe odgovarajući veb pregledač, onda umesto prethodne komande pokrenuti narednu komandu (ignorisati eventualne greske) i malo sačekati da se pokrene “IBM Installation Manager”:
+    <div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">sudo</span> ./imLauncherLinux.sh
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>U slučaju Windows operativnog sistema:</p>
+
+<ol>
+  <li>Pokrenuti instalacionu datoteku <code class="language-plaintext highlighter-rouge">launchpad.exe</code> iz otpakovane arhive pod administratorskim privilegijama.</li>
+</ol>
+
+<p>Nakon što se otvori prozor za instalaciju:</p>
+
+<ol>
+  <li>Kliknuti na “Install”.</li>
+  <li>Prvo će se instalirati “IBM Installation Manager”, a zatim će se instalirati “IBM Data Studio”.</li>
+  <li>Prilikom instalacije “IBM Data Studio” softvera, obavezno odabrati data “Data Studio Full client” (najbolje je da štiklirate sve što Vam je ponuđeno da se instalira), da biste mogli da razvijate Java aplikacije.</li>
+  <li>Potencijalno restartovati računar nakon instalacije.</li>
+  <li>Pokrenuti Data Studio da biste proverili instalaciju.</li>
+</ol>
+
+<h3 id="134-instaliranje-cc-kompilatora-za-windows">1.3.4 Instaliranje C/C++ kompilatora za Windows</h3>
+
+<p>Većina Linux operativnih sistema već dolazi sa preinstaliranim alatima za razvoj C/C++ aplikacija. Za Windows operativne sisteme ovo nije slučaj, pa je potrebno instalirati <a href="https://visualstudio.microsoft.com/downloads/">Visual Studio okruženje za razvoj</a>. Alternativno, moguće je instalirati samo <a href="https://visualstudio.microsoft.com/downloads/">Visual C/C++ alate za razvoj iz komandne linije</a> (tražite “Build Tools for Visual Studio” na stranici).</p>
+
+<p>Nakon instalacije proizvoda, na raspolaganju nam je dostupna skript datoteka za podešavanje okruženja komandne linije (lokacija se može razlikovati ako ste odabrali drugačiju putanju prilikom instalacije):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat
+</code></pre></div></div>
+
+<p>Skript se može pronaći i:</p>
+
+<ul>
+  <li>Iz Start menija:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Start &gt; Visual Studio 2017 &gt; x64 Native Tools Command Prompt for VS 2017
+</code></pre></div>    </div>
+  </li>
+  <li>Na lokaciji:
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>C:\ProgramData\Microsoft\Windows\Start Menu\Programs\Visual Studio 2017\Visual Studio Tools\VC\
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p>Ovaj skript služi za inicijalizaciju Visual C/C++ alata za razvoj. Radi lakšeg pristupa, pretpostavimo da ste napravili prečicu do ovog skripta sa nazivom <code class="language-plaintext highlighter-rouge">x64 Native Tools Command Prompt for VS 2017.lnk</code> nalaze na <code class="language-plaintext highlighter-rouge">Desktop</code>u. Da bismo mogli da kompiliramo SQC datoteke, potrebno je da uradimo sledeće:</p>
+
+<ol>
+  <li>Otvoriti “DB2 Command Window - Administrator” sa administratorskim privilegijama.</li>
+  <li>U terminalu koji se otvorio, pokrenuti naredne komande (zameniti <code class="language-plaintext highlighter-rouge">username</code> Vašim korisničkim nalogom):
+    <div class="language-bat highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> <span class="na">/D </span><span class="kd">C</span>:\Users\username\Desktop\
+<span class="s2">"x64 Native Tools Command Prompt for VS 2017.lnk"</span>
+<span class="nb">cd</span> <span class="na">/D </span><span class="kd">C</span>:\Users\username\Desktop\
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>Sada možemo da koristimo DB2 alate i Visual C/C++ alate. Na primer, ako se na <code class="language-plaintext highlighter-rouge">Desktop</code>u nalazi datoteka <code class="language-plaintext highlighter-rouge">aplikacija.sqc</code> koju želimo da prevedemo, onda koristeći skript <code class="language-plaintext highlighter-rouge">prevodjenje.bat</code> koji je naveden ispod, prevođenje se vrši na sledeći način:</p>
+
+<div class="language-bat highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">prevodjenje</span>.bat <span class="kd">aplikacija</span> <span class="kd">stud2020</span>
+</code></pre></div></div>
+
+<p>Trebalo bi da vidimo poruku sličnu narednoj:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   Database Connection Information
+
+ Database server        = DB2/NT64 11.5.1.1
+ SQL authorization ID   = USERNAME...
+ Local database alias   = STUD2020
+
+
+LINE    MESSAGES FOR aplikacija.sqc
+------  --------------------------------------------------------------------
+        SQL0060W  The "C" precompiler is in progress.
+        SQL0091W  Precompilation or binding was ended with "0"
+                  errors and "0" warnings.
+
+LINE    MESSAGES FOR aplikacija.bnd
+------  --------------------------------------------------------------------
+        SQL0061W  The binder is in progress.
+        SQL0091N  Binding was ended with "0" errors and "0" warnings.
+Microsoft (R) C/C++ Optimizing Compiler Version 19.16.27025.1 for x64
+Copyright (C) Microsoft Corporation.  All rights reserved.
+
+aplikacija.c
+Microsoft (R) Incremental Linker Version 14.16.27025.1
+Copyright (C) Microsoft Corporation.  All rights reserved.
+</code></pre></div></div>
+
+<p>Prilikom uspešnog prevođenja, skript generiše izvršnu datoteku aplikacija.exe koju je moguće pokrenuti:</p>
+
+<div class="language-bat highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">aplikacija</span><span class="err">.exe</span>
+</code></pre></div></div>
+
+<p>Skript za prevođenje <code class="language-plaintext highlighter-rouge">prevodjenje.bat</code> dat je u nastavku:</p>
+
+<div class="language-bat highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@echo <span class="na">off</span>
+ 
+<span class="kd">set</span> <span class="kd">INCLUDE</span><span class="o">=</span><span class="vm">%DB2</span><span class="kd">PATH</span><span class="err">%</span>\include<span class="o">;</span><span class="nv">%INCLUDE%</span>
+ 
+<span class="kd">db2</span> <span class="kd">connect</span> <span class="kd">to</span> <span class="err">%</span><span class="m">2</span>
+<span class="kd">db2</span> <span class="kd">precompile</span> <span class="err">%</span><span class="m">1</span>.sqc <span class="kd">bindfile</span>
+<span class="kd">db2</span> <span class="kd">bind</span> <span class="err">%</span><span class="m">1</span>.bnd
+ 
+<span class="kd">cl</span> <span class="na">/Zi /Od /c /W</span><span class="m">3</span> <span class="err">%</span><span class="m">1</span>.c
+ 
+<span class="kd">link</span> <span class="na">-debug -out</span>:<span class="err">%</span><span class="m">1</span>.exe <span class="err">%</span><span class="m">1</span>.obj <span class="s2">"</span><span class="vm">%DB2</span><span class="s2">PATH</span><span class="err">%</span><span class="s2">\lib\db2api.lib"</span>
+</code></pre></div></div>
+
+<h3 id="135-uputstvo-za-prevođenje-sqlj-aplikacija-iz-terminala">1.3.5 Uputstvo za prevođenje SQLJ aplikacija iz terminala</h3>
+
+<p>Ukoliko se primer sastoji od samo jedne SQLJ datoteke, npr. <code class="language-plaintext highlighter-rouge">Primer.sqlj</code>, onda je dovoljno pokrenuti skript za prevođenje:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./bldsqlj Primer
+</code></pre></div></div>
+
+<p>Ako se primer sastoji od više <code class="language-plaintext highlighter-rouge">SQLJ</code> datoteka, na primer, <code class="language-plaintext highlighter-rouge">Primer.sqlj</code> (koji sadrži metod <code class="language-plaintext highlighter-rouge">main</code> i predstavlja glavni program) i <code class="language-plaintext highlighter-rouge">Iterator.sqlj</code> (koji sadrži deklaraciju iteratora koji se koristi u <code class="language-plaintext highlighter-rouge">Primer.sqlj</code>), onda je potrebno prvo transpilirati pomoćne datoteke pozivanjem:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>sqlj Iterator.sqlj
+</code></pre></div></div>
+
+<p>a zatim prevesti glavnu datoteku:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./bldsqlj Primer
+</code></pre></div></div>
+
+<p>Napomena: Potrebno je da se u istom direktorijumu gde se nalazi kod, smeste i skriptovi za prevođenje: <code class="language-plaintext highlighter-rouge">bldsqlj</code> i <code class="language-plaintext highlighter-rouge">db2customize2</code>.</p>
+
+<p>Pokretanje programa se vrši skriptom <code class="language-plaintext highlighter-rouge">pokreni</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>./pokreni Primer
+</code></pre></div></div>
+
+<p>Skriptovi za prevođenje i pokretanje se nalaze u nastavku:</p>
+
+<p>Skript <code class="language-plaintext highlighter-rouge">bldsqlj</code>:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/sh</span>
+ 
+<span class="c"># To hardcode user ID (USER) and password (PSWD)</span>
+<span class="c"># Replace "NULL" with the correct values in quotes</span>
+<span class="nv">USER</span><span class="o">=</span><span class="s2">"student"</span>
+<span class="nv">PSWD</span><span class="o">=</span><span class="s2">"abcdef"</span>
+<span class="c"># You can replace the defaults for each of the following</span>
+<span class="c"># with a new value. Note that the PORTNUM number cannot</span>
+<span class="c"># be one already used by another process.</span>
+<span class="nv">SERVER</span><span class="o">=</span>bp
+<span class="nv">PORTNUM</span><span class="o">=</span>50001
+<span class="nv">DB</span><span class="o">=</span><span class="s2">"vstud"</span>
+ 
+ 
+<span class="c"># Translate and compile the SQLJ source file</span>
+<span class="c"># and bind the package to the database.</span>
+ <span class="k">if</span> <span class="o">(</span> <span class="o">[</span> <span class="nv">$# </span><span class="nt">-eq</span> 1 <span class="o">]</span>  <span class="o">&amp;&amp;</span> <span class="o">[</span> <span class="nv">$USER</span> <span class="o">!=</span> <span class="s2">"NULL"</span> <span class="o">]</span> <span class="o">&amp;&amp;</span> <span class="o">[</span> <span class="nv">$PSWD</span> <span class="o">!=</span> <span class="s2">"NULL"</span> <span class="o">]</span> <span class="o">)</span> <span class="o">||</span> <span class="o">(</span> <span class="o">[</span> <span class="nv">$# </span><span class="nt">-ge</span> 3 <span class="o">]</span>  <span class="o">&amp;&amp;</span> <span class="o">[</span> <span class="nv">$# </span><span class="nt">-le</span> 6 <span class="o">]</span> <span class="o">)</span>
+ <span class="k">then</span>
+    <span class="c"># Remove .sqlj extension</span>
+    <span class="nv">progname</span><span class="o">=</span><span class="k">${</span><span class="nv">1</span><span class="p">%.sqlj</span><span class="k">}</span>
+ 
+    sqlj <span class="s2">"</span><span class="k">${</span><span class="nv">progname</span><span class="k">}</span><span class="s2">.sqlj"</span>
+ 
+    <span class="k">if</span> <span class="o">[</span> <span class="nv">$# </span><span class="nt">-eq</span> 1 <span class="o">]</span>
+    <span class="k">then</span>
+       ./db2sqljcustomize2 <span class="nt">-url</span> jdbc:db2://<span class="nv">$SERVER</span>:<span class="nv">$PORTNUM</span>/<span class="nv">$DB</span> <span class="se">\</span>
+       <span class="nt">-user</span> <span class="nv">$USER</span> <span class="nt">-password</span> <span class="nv">$PSWD</span> <span class="s2">"</span><span class="k">${</span><span class="nv">progname</span><span class="k">}</span><span class="s2">_SJProfile0"</span>
+    <span class="k">elif</span> <span class="o">[</span> <span class="nv">$# </span><span class="nt">-eq</span>  3 <span class="o">]</span>
+    <span class="k">then</span>
+       ./db2sqljcustomize2 <span class="nt">-url</span> jdbc:db2://<span class="nv">$SERVER</span>:<span class="nv">$PORTNUM</span>/<span class="nv">$DB</span> <span class="nt">-user</span> <span class="nv">$2</span> <span class="nt">-password</span> <span class="nv">$3</span> <span class="se">\</span>
+       <span class="s2">"</span><span class="k">${</span><span class="nv">progname</span><span class="k">}</span><span class="s2">_SJProfile0"</span>
+    <span class="k">elif</span> <span class="o">[</span> <span class="nv">$# </span><span class="nt">-eq</span> 4 <span class="o">]</span>
+    <span class="k">then</span>
+       ./db2sqljcustomize2 <span class="nt">-url</span> jdbc:db2://<span class="nv">$4</span>:<span class="nv">$PORTNUM</span>/<span class="nv">$DB</span> <span class="nt">-user</span> <span class="nv">$2</span> <span class="nt">-password</span> <span class="nv">$3</span> <span class="se">\</span>
+       <span class="s2">"</span><span class="k">${</span><span class="nv">progname</span><span class="k">}</span><span class="s2">_SJProfile0"</span>
+    <span class="k">elif</span> <span class="o">[</span> <span class="nv">$# </span><span class="nt">-eq</span> 5 <span class="o">]</span>
+    <span class="k">then</span>
+       ./db2sqljcustomize2 <span class="nt">-url</span> jdbc:db2://<span class="nv">$4</span>:<span class="nv">$5</span>/<span class="nv">$DB</span> <span class="nt">-user</span> <span class="nv">$2</span> <span class="nt">-password</span> <span class="nv">$3</span> <span class="se">\</span>
+       <span class="s2">"</span><span class="k">${</span><span class="nv">progname</span><span class="k">}</span><span class="s2">_SJProfile0"</span>
+    <span class="k">else</span>
+       ./db2sqljcustomize2 <span class="nt">-url</span> jdbc:db2://<span class="nv">$4</span>:<span class="nv">$5</span>/<span class="nv">$6</span> <span class="nt">-user</span> <span class="nv">$2</span> <span class="nt">-password</span> <span class="nv">$3</span> <span class="se">\</span>
+       <span class="s2">"</span><span class="k">${</span><span class="nv">progname</span><span class="k">}</span><span class="s2">_SJProfile0"</span>
+    <span class="k">fi
+ else
+    </span><span class="nb">echo</span> <span class="s1">'Usage: bldsqlj prog_name (requires hardcoding user ID and password)'</span>
+    <span class="nb">echo</span> <span class="s1">'       bldsqlj prog_name userid password'</span>
+    <span class="nb">echo</span> <span class="s1">'       bldsqlj prog_name userid password server_name'</span>
+    <span class="nb">echo</span> <span class="s1">'       bldsqlj prog_name userid password server_name port_number'</span>
+    <span class="nb">echo</span> <span class="s1">'       bldsqlj prog_name userid password server_name port_number db_name'</span>
+    <span class="nb">echo</span> <span class="s1">''</span>
+    <span class="nb">echo</span> <span class="s1">'       Defaults:'</span>
+    <span class="nb">echo</span> <span class="s1">'         userid      = '</span><span class="nv">$USER</span>
+    <span class="nb">echo</span> <span class="s1">'         password    = '</span><span class="nv">$PSWD</span>
+    <span class="nb">echo</span> <span class="s1">'         server_name = '</span><span class="nv">$SERVER</span>
+    <span class="nb">echo</span> <span class="s1">'         port_number = '</span><span class="nv">$PORTNUM</span>
+    <span class="nb">echo</span> <span class="s1">'         db_name     = '</span><span class="nv">$DB</span>
+ <span class="k">fi</span>
+</code></pre></div></div>
+
+<p>Skript <code class="language-plaintext highlighter-rouge">db2customize2</code>:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/sh</span>
+ 
+java com.ibm.db2.jcc.sqlj.Customizer <span class="s2">"</span><span class="nv">$@</span><span class="s2">"</span>
+</code></pre></div></div>
+
+<p>Skript <code class="language-plaintext highlighter-rouge">pokreni</code>:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/sh</span>
+ 
+java <span class="nt">-Djava</span>.library.path<span class="o">=</span><span class="s2">"/opt/ibm/db2/V10.5/lib32"</span> <span class="nv">$1</span>  
+</code></pre></div></div>
+
+<h3 id="136-uputstvo-za-pravljenje-jdbc-java-projekta-u-data-studio-alatu">1.3.6 Uputstvo za pravljenje JDBC Java projekta u Data Studio alatu</h3>
+
+<ol>
+  <li>Otvoriti “Java” perspektivu:
+    <ol>
+      <li>Window &gt; Open Perspective &gt; Other</li>
+      <li>Štiklirati “Show all”</li>
+      <li>Odabrati “Java” i pritisnuti OK</li>
+      <li>Ukoliko se prikaže prozor “Confirm Enablement”, pritisnuti OK</li>
+    </ol>
+  </li>
+  <li>U “Package Explorer” pogledu napraviti novi Java projekat:
+    <ol>
+      <li>Desni klik na “Package Explorer”</li>
+      <li>New &gt; Java Project</li>
+      <li>Dodeliti projektu naziv</li>
+      <li>Pritisnuti “Finish”</li>
+    </ol>
+  </li>
+  <li>Napravljenom projektu dodati DB2 JDBC drajvere:
+    <ol>
+      <li>Desni klik na projekat</li>
+      <li>Iz padajućeg menija izabrati “Properties”</li>
+      <li>Iz levog menija izabrati “Java Build Path” i zatim tab “Libraries”</li>
+      <li>Izabrati opciju “Add External JARs…” i dodati <code class="language-plaintext highlighter-rouge">db2jcc4.jar</code> i <code class="language-plaintext highlighter-rouge">db2jcc_license_cu.jar</code> koje se nalaze na lokaciji:
+        <ul>
+          <li>Linux: <code class="language-plaintext highlighter-rouge">/opt/ibm/db2/V10.5/java</code></li>
+          <li>Windows: <code class="language-plaintext highlighter-rouge">C:\Program Files\IBM\IBM\SQLLIB\java</code></li>
+        </ul>
+      </li>
+      <li>Izabrati OK</li>
+    </ol>
+  </li>
+  <li>Kreirati novi paket u projektu:
+    <ol>
+      <li>Desni klik na projekat</li>
+      <li>Iz padajućeg menija izabrati New &gt; Package</li>
+      <li>Dodeliti paketu naziv</li>
+      <li>Pritisnuti “Finish”</li>
+    </ol>
+  </li>
+  <li>Kreirati novu klasu u paketu i dodati joj main metod:
+    <ol>
+      <li>Desni klik na paket</li>
+      <li>Iz padajućeg menija izabrati New &gt; Class</li>
+      <li>Dodeliti klasi naziv</li>
+      <li>Štiklirati “public static void main(String[] args)”</li>
+      <li>Pritisnuti “Finish”</li>
+    </ol>
+  </li>
+  <li>Iskucati željeni kod</li>
+  <li>Pokrenuti JDBC aplikaciju:
+    <ol>
+      <li>Desni klik na klasu</li>
+      <li>Iz padajućeg menija izabrati Run as &gt; Java Application</li>
+    </ol>
+  </li>
+</ol>
+
+<h3 id="137-uputstvo-za-uvoženje-jdbc-projekta-u-data-studio">1.3.7 Uputstvo za uvoženje JDBC projekta u Data Studio</h3>
+
+<ol>
+  <li>Kreirati novi projekat
+    <ol>
+      <li>Odabrati File &gt; New &gt; Java Project</li>
+      <li>Dodeliti naziv projektu</li>
+      <li>Odabrati opciju “Create separate folders for sources and class files”</li>
+      <li>Pritisnuti “Finish”</li>
+    </ol>
+  </li>
+  <li>Uvesti fajl strukturu postojećeg projekta u novokreirani projekat
+    <ol>
+      <li>Odabrati File &gt; Import…</li>
+      <li>Odabrati General &gt; File System</li>
+      <li>U polju “From directory” navesti putanju do postojećeg projekta ili odabrati “Browse…”, pa potražiti postojeći projekat na računaru, 
+ na primer: <code class="language-plaintext highlighter-rouge">~\Downloads\cas10</code></li>
+      <li>Označiti direktorijum koji se pojavi u levom prozoru</li>
+      <li>U polju “Into folder” navesti direktorijum novokreiranog projekta ili ga potražiti u listi klikom na “Browse…”</li>
+      <li>Odabrati “Finish”</li>
+    </ol>
+  </li>
+  <li>Napravljenom projektu dodati DB2 JDBC drajvere, kao u prethodnom uputstvu</li>
+</ol>
+
+<h2 id="14-baza-podataka-stud2020">1.4 Baza podataka <code class="language-plaintext highlighter-rouge">STUD2020</code></h2>
+
+<p>U zadacima u ovom tekstu se koristi baza podataka <code class="language-plaintext highlighter-rouge">STUD2020</code>. To je pojednostavljen model baze podataka informacionog sistema fakulteta. Podaci su nalik na podatke iz baze podataka Matematičkog fakulteta, ali sadržaj ne odgovara stvarnim podacima.</p>
+
+<p>Baza podataka ima dve skoro identične kopije organizovane u dve sheme:</p>
+
+<ul>
+  <li>
+    <p>U shemi <code class="language-plaintext highlighter-rouge">DA</code> su tabele sa ASCII niskama, koje su lakše za rad u komandom režimu i u alatima koji ne rade dobro sa Unicode niskama.</p>
+  </li>
+  <li>
+    <p>U shemi <code class="language-plaintext highlighter-rouge">DB</code> su skoro iste tabele, ali sa Unicode sadržajem.</p>
+  </li>
+</ul>
+
+<p>Svaka od ove dve kopije baze ima po 16 tabela i može da se posmatra kao celovita baza podataka.</p>
+
+<h3 id="141-kreiranje-baze-podataka-stud2020">1.4.1 Kreiranje baze podataka <code class="language-plaintext highlighter-rouge">STUD2020</code></h3>
+
+<ol>
+  <li>Preuzeti <a href="/baze/stud2020/stud2020.zip">ovu arhivu sa skriptovima</a> za kreiranje baze podataka <code class="language-plaintext highlighter-rouge">STUD2020</code> i popunjavanje ove baze podacima.</li>
+  <li>Otpakivovati arhivu.</li>
+  <li>Otvoriti terminal (na Linux sistemu), odnosno, “DB2 - Command Window Administrator” (na Windows sistemu) i u njemu se pozicionirati u otpakovani direktorijum.</li>
+  <li>Iz ove lokacije pokrenuti skript <code class="language-plaintext highlighter-rouge">create.sh</code> za Linux sistem, odnosno, <code class="language-plaintext highlighter-rouge">create.cmd</code> za Windows sistem.</li>
+</ol>
+
+<h3 id="142-opis-baze-podataka-stud2020">1.4.2 Opis baze podataka <code class="language-plaintext highlighter-rouge">STUD2020</code></h3>
+
+<p>Na narednoj slici je prikazan dijagram baze podataka. Dijagram baze podataka ćemo predstaviti u notaciji nalik na UML. U svakoj tabeli su označeni atributi koji pripadaju primarnom ključu. Strani ključevi i jedinstveni ključevi su navedeni u drugom odeljku, odvojeno od atributa. Strani ključevi su ilustrovani i strelicama od zavisne tabele prema baznoj tabeli.</p>
+
+<p><img src="/baze/stud2020/dijagram.png" alt="Dijagram baze podataka STUD2020" class="ui centered huge image" /></p>
+
+<p>Dajmo sada nešto detaljnije opise tabela koje postoje u ovoj bazi podataka. Uz tekstualni opis dajemo i strukturu tabele koju čine nazivi kolona i njihove karakteristike kao što su: tip, veličina, da li može sadržati nedostajuće vrednosti itd.</p>
+
+<ul>
+  <li>Tabela <code class="language-plaintext highlighter-rouge">DA.NIVOKVALIFIKACIJE</code> sadrži osnovne podatke o nivoima studija:</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                                Data type                     Column
+Column name                     schema    Data type name      Length     Scale Nulls
+------------------------------- --------- ------------------- ---------- ----- ------
+ID                              SYSIBM    SMALLINT                     2     0 No
+NAZIV                           SYSIBM    VARCHAR                    100     0 No
+
+  2 record(s) selected.
+</code></pre></div></div>
+
+<ul>
+  <li>Tabela <code class="language-plaintext highlighter-rouge">DA.STUDIJSKIPROGRAM</code> sadrži osnovne podatke o studijskim programima. Svaki studijski program ima oznaku, naziv, nivo, obim u ESPB, odgovarajuće zvanje i opis:</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                                Data type                     Column
+Column name                     schema    Data type name      Length     Scale Nulls
+------------------------------- --------- ------------------- ---------- ----- ------
+ID                              SYSIBM    INTEGER                      4     0 No
+OZNAKA                          SYSIBM    VARCHAR                     10     0 No
+NAZIV                           SYSIBM    VARCHAR                     50     0 No
+IDNIVOA                         SYSIBM    SMALLINT                     2     0 No
+OBIMESPB                        SYSIBM    SMALLINT                     2     0 No
+ZVANJE                          SYSIBM    VARCHAR                    100     0 No
+OPIS                            SYSIBM    LONG VARCHAR             32700     0 Yes
+
+  7 record(s) selected.
+</code></pre></div></div>
+
+<ul>
+  <li>Tabela <code class="language-plaintext highlighter-rouge">DA.PREDMET</code> sadrži podatke o svim predmetima koji postoje na fakultetu. Svaki predmet ima skraćenu oznaku, naziv i broj ESPB koje nosi:</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                                Data type                     Column
+Column name                     schema    Data type name      Length     Scale Nulls
+------------------------------- --------- ------------------- ---------- ----- ------
+ID                              SYSIBM    INTEGER                      4     0 No
+OZNAKA                          SYSIBM    VARCHAR                     20     0 No
+NAZIV                           SYSIBM    VARCHAR                    150     0 No
+ESPB                            SYSIBM    SMALLINT                     2     0 No
+
+  4 record(s) selected.
+</code></pre></div></div>
+
+<ul>
+  <li>Tabela <code class="language-plaintext highlighter-rouge">DA.PREDMETPROGRAMA</code> sadrži podatke o obaveznim i izbornim predmetima na studijskim programima.</li>
+</ul>
+
+<p>Da bi student diplomirao, mora da položi sve obavezne predmete studijskog programa i još onoliko izbornih predmeta koliko je potrebno do ukupnog obima studijskog programa u ESPB. Radi jednostavnosti, smatraćemo da se ostali predmeti, koji nisu ni obavezni ni izborni na upisanom studijskom programu, ne računaju u savladan obim predmeta.</p>
+
+<p>Ako je predmet obavezan, onda postoji i podatak o semestru u kome je uobičajeno da se sluša i polaže:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                                Data type                     Column
+Column name                     schema    Data type name      Length     Scale Nulls
+------------------------------- --------- ------------------- ---------- ----- ------
+IDPREDMETA                      SYSIBM    INTEGER                      4     0 No
+IDPROGRAMA                      SYSIBM    INTEGER                      4     0 No
+VRSTA                           SYSIBM    VARCHAR                     10     0 No
+SEMESTAR                        SYSIBM    SMALLINT                     2     0 Yes
+
+  4 record(s) selected.
+</code></pre></div></div>
+
+<ul>
+  <li>Tabela <code class="language-plaintext highlighter-rouge">DA.USLOVNIPREDMET</code> sadrži podatke o parovima uslovnhm predmeta. Uslovnosti se definišu na nivou studijskog programa. Na studijskom programu <code class="language-plaintext highlighter-rouge">IDPROGRAMA</code> važi da je za polaganje predmeta <code class="language-plaintext highlighter-rouge">IDPREDMETA</code> neophodno da se prvo položi predmet <code class="language-plaintext highlighter-rouge">IDUSLOVNOGPREDMETA</code>:</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                                Data type                     Column
+Column name                     schema    Data type name      Length     Scale Nulls
+------------------------------- --------- ------------------- ---------- ----- ------
+IDPROGRAMA                      SYSIBM    INTEGER                      4     0 No
+IDPREDMETA                      SYSIBM    INTEGER                      4     0 No
+IDUSLOVNOGPREDMETA              SYSIBM    INTEGER                      4     0 No
+
+  3 record(s) selected.
+</code></pre></div></div>
+
+<ul>
+  <li>Tabela <code class="language-plaintext highlighter-rouge">DA.STUDENTSKISTATUS</code> sadrži osnovne podatke o statusima koje studenti mogu imati tokom studiranja. Status ima ID i naziv i podatak o tome da li student trenutno studira.</li>
+</ul>
+
+<p>Atribut <code class="language-plaintext highlighter-rouge">STUDIRA</code> je 1 akko je status aktivan:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                                Data type                     Column
+Column name                     schema    Data type name      Length     Scale Nulls
+------------------------------- --------- ------------------- ---------- ----- ------
+ID                              SYSIBM    SMALLINT                     2     0 No
+NAZIV                           SYSIBM    VARCHAR                     50     0 No
+STUDIRA                         SYSIBM    SMALLINT                     2     0 No
+
+  3 record(s) selected.
+</code></pre></div></div>
+
+<ul>
+  <li>Tabela <code class="language-plaintext highlighter-rouge">DA.DOSIJE</code> sadrži podatke o studentima. Od ličnih podataka tu su ime, prezime, mesto rođenja i pol. Od podataka o studiranju imamo broj indeksa, upisan studijski program, trenutni status, datum upisa i datum diplomiranja:</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                                Data type                     Column
+Column name                     schema    Data type name      Length     Scale Nulls
+------------------------------- --------- ------------------- ---------- ----- ------
+INDEKS                          SYSIBM    INTEGER                      4     0 No
+IDPROGRAMA                      SYSIBM    INTEGER                      4     0 No
+IME                             SYSIBM    VARCHAR                     50     0 No
+PREZIME                         SYSIBM    VARCHAR                     50     0 No
+POL                             SYSIBM    CHARACTER                    1     0 Yes
+MESTORODJENJA                   SYSIBM    VARCHAR                     50     0 Yes
+IDSTATUSA                       SYSIBM    SMALLINT                     2     0 No
+DATUPISA                        SYSIBM    DATE                         4     0 No
+DATDIPLOMIRANJA                 SYSIBM    DATE                         4     0 Yes
+
+  9 record(s) selected.
+</code></pre></div></div>
+
+<ul>
+  <li>Tabela <code class="language-plaintext highlighter-rouge">DA.DOSIJEEXT</code> sadrži dodatne opisne podatke o studentima. Namenjena je za rad sa velikim i strukturiranim podacima tipa <code class="language-plaintext highlighter-rouge">BLOB</code>, <code class="language-plaintext highlighter-rouge">CLOB</code> i <code class="language-plaintext highlighter-rouge">XML</code>:</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                                Data type                     Column
+Column name                     schema    Data type name      Length     Scale Nulls
+------------------------------- --------- ------------------- ---------- ----- ------
+INDEKS                          SYSIBM    INTEGER                      4     0 No
+FOTOGRAFIJA                     SYSIBM    BLOB                  10485760     0 Yes
+PODACICLOB                      SYSIBM    CLOB                  10485760     0 Yes
+PODACIXML                       SYSIBM    XML                          0     0 Yes
+
+  4 record(s) selected.
+</code></pre></div></div>
+
+<ul>
+  <li>Tabela <code class="language-plaintext highlighter-rouge">DA.SKOLSKAGODINA</code> sadrži podatke o školskim godinama:</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                                Data type                     Column
+Column name                     schema    Data type name      Length     Scale Nulls
+------------------------------- --------- ------------------- ---------- ----- ------
+SKGODINA                        SYSIBM    SMALLINT                     2     0 No
+DATPOCETKA                      SYSIBM    DATE                         4     0 No
+DATKRAJA                        SYSIBM    DATE                         4     0 No
+
+  3 record(s) selected.
+</code></pre></div></div>
+
+<ul>
+  <li>Tabela <code class="language-plaintext highlighter-rouge">DA.UPISGODINE</code> sadrži podatke o upisanim školskim godinama. Svaki upis godine sadrži podatke o tome koji student je koju školsku godinu upisao kog dana i u kom statusu. Status može i naknadno da se promeni, na primer zbog mirovanja:</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                                Data type                     Column
+Column name                     schema    Data type name      Length     Scale Nulls
+------------------------------- --------- ------------------- ---------- ----- ------
+INDEKS                          SYSIBM    INTEGER                      4     0 No
+SKGODINA                        SYSIBM    SMALLINT                     2     0 No
+DATUPISA                        SYSIBM    DATE                         4     0 No
+IDSTATUSA                       SYSIBM    SMALLINT                     2     0 No
+
+  4 record(s) selected.
+</code></pre></div></div>
+
+<ul>
+  <li>Tabela <code class="language-plaintext highlighter-rouge">DA.SEMESTAR</code> sadrži podatke o semestrima:</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                                Data type                     Column
+Column name                     schema    Data type name      Length     Scale Nulls
+------------------------------- --------- ------------------- ---------- ----- ------
+SKGODINA                        SYSIBM    SMALLINT                     2     0 No
+SEMESTAR                        SYSIBM    SMALLINT                     2     0 No
+
+  2 record(s) selected.
+</code></pre></div></div>
+
+<ul>
+  <li>Tabela <code class="language-plaintext highlighter-rouge">DA.KURS</code> sadrži podatke o kursevima. Kurs je jedno držanje nastave iz jednog predmeta. Za svaki kurs se vodi koji predmet se drži u kom semestru koje školske godine. Jedan predmet može da se drži u oba semestra jedne školske godine:</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                                Data type                     Column
+Column name                     schema    Data type name      Length     Scale Nulls
+------------------------------- --------- ------------------- ---------- ----- ------
+SKGODINA                        SYSIBM    SMALLINT                     2     0 No
+SEMESTAR                        SYSIBM    SMALLINT                     2     0 No
+IDPREDMETA                      SYSIBM    INTEGER                      4     0 No
+
+  3 record(s) selected.
+</code></pre></div></div>
+
+<ul>
+  <li>Tabela <code class="language-plaintext highlighter-rouge">DA.UPISANKURS</code> sadrži podatke o kursevima koje studenti upisuju u upisanim školskim godinama. Postoje podaci o tome koji student je u kojoj skolskoj godini i kom semestru upisao koji predmet. Jedan student ne može da upiše dva kursa iz istog predmeta u jednoj školskoj godini:</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                                Data type                     Column
+Column name                     schema    Data type name      Length     Scale Nulls
+------------------------------- --------- ------------------- ---------- ----- ------
+INDEKS                          SYSIBM    INTEGER                      4     0 No
+SKGODINA                        SYSIBM    SMALLINT                     2     0 No
+SEMESTAR                        SYSIBM    SMALLINT                     2     0 No
+IDPREDMETA                      SYSIBM    INTEGER                      4     0 No
+
+  4 record(s) selected.
+</code></pre></div></div>
+
+<ul>
+  <li>Tabela <code class="language-plaintext highlighter-rouge">DA.ISPITNIROK</code> sadrži podatke o ispitnim rokovima. Za svaki ispitni rok imamo oznaku i naziv, datume početka i kraja, kao i školsku godinu na koju se odnosi:</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                                Data type                     Column
+Column name                     schema    Data type name      Length     Scale Nulls
+------------------------------- --------- ------------------- ---------- ----- ------
+SKGODINA                        SYSIBM    SMALLINT                     2     0 No
+OZNAKAROKA                      SYSIBM    VARCHAR                     20     0 No
+NAZIV                           SYSIBM    VARCHAR                     30     0 No
+DATPOCETKA                      SYSIBM    DATE                         4     0 No
+DATKRAJA                        SYSIBM    DATE                         4     0 No
+
+  5 record(s) selected.
+</code></pre></div></div>
+
+<ul>
+  <li>
+    <p>Tabela <code class="language-plaintext highlighter-rouge">DA.ISPIT</code> sadrži podatke o prijavljenim i održanim ispitima. Za svaki prijavljen i/ili položen ispit se vode podaci o školskoj godini, oznaci roka, predmetu, indeksu studenta, statusu prijave, datumu polaganja, broju osvojenih poena (0-100) i oceni (5-10). Status prijave može da bude:</p>
+
+    <ul>
+      <li>p - ispit je prijavljen i još nije održan (broj poena i ocena nisu uneseni);</li>
+      <li>n - student nije izašao (broj poena i ocena nisu uneseni);</li>
+      <li>o - student je polagao ispit (broj poena i ocena su uneseni);</li>
+      <li>d - student je diskvalifikovan (broj poena i ocena su uneseni, ocena=5);</li>
+      <li>s - student je odustao (broj poena i ocena su uneseni, ocena=5);</li>
+      <li>x - ispit je poništen (broj poena i ocena su uneseni).</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Samo redovi sa statusom “o” i pozitivnom ocenom označavaju da je ispit položen:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                                Data type                     Column
+Column name                     schema    Data type name      Length     Scale Nulls
+------------------------------- --------- ------------------- ---------- ----- ------
+SKGODINA                        SYSIBM    SMALLINT                     2     0 No
+OZNAKAROKA                      SYSIBM    VARCHAR                     20     0 No
+INDEKS                          SYSIBM    INTEGER                      4     0 No
+IDPREDMETA                      SYSIBM    INTEGER                      4     0 No
+STATUS                          SYSIBM    CHARACTER                    1     0 No
+DATPOLAGANJA                    SYSIBM    DATE                         4     0 Yes
+POENI                           SYSIBM    SMALLINT                     2     0 Yes
+OCENA                           SYSIBM    SMALLINT                     2     0 Yes
+
+  8 record(s) selected.
+</code></pre></div></div>
+
+<ul>
+  <li>Tabela <code class="language-plaintext highlighter-rouge">DA.PRIZNATISPIT</code> sadrži podatke o ispitima koji su studentima priznati. Ispiti koji se priznaju su položeni na drugom fakultetu ili na drugom (možda starijem) studijskom programu. Radi jednostavnosti, ne čuvaju se detaljni podaci o položenim prdmetima već samo oni koji su neophodni za njihovo vrednovanje: naziv, obim u ESPB i ocena. Svi priznati ispit se vrednuju kao da su na upisanom studijskom programu, a mogu imati nedefinisanu ocenu, ako se predmet nije ocenjivao:</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                                Data type                     Column
+Column name                     schema    Data type name      Length     Scale Nulls
+------------------------------- --------- ------------------- ---------- ----- ------
+INDEKS                          SYSIBM    INTEGER                      4     0 No
+NAZIVPREDMETA                   SYSIBM    VARCHAR                    200     0 No
+ESPB                            SYSIBM    SMALLINT                     2     0 No
+OCENA                           SYSIBM    SMALLINT                     2     0 Yes
+
+  4 record(s) selected.
+</code></pre></div></div>
+
+<h2 id="15-alat-db2">1.5 Alat <code class="language-plaintext highlighter-rouge">db2</code></h2>
+
+<p>Prilikom instalacije Db2 SUBP, na raspolaganju nam je alat komandne linije <code class="language-plaintext highlighter-rouge">db2</code> kojim možemo izvršavati razne operacije sa bazama podataka. Ilustrujmo neke elementarne naredbe ovog alata pri radu sa bazom podataka <code class="language-plaintext highlighter-rouge">STUD2020</code>.</p>
+
+<p>Pre nego što izvršimo bilo kakvu naredbu, neophodno je da napravimo konekciju ka bazi podataka:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>db2 <span class="s2">"CONNECT TO STUD2020"</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   Database Connection Information
+
+ Database server        = DB2/NT64 11.5.1.1
+ SQL authorization ID   = DB2INST1
+ Local database alias   = STUD2020
+</code></pre></div></div>
+
+<p>Ukoliko ne navedemo dodatne argumente, <code class="language-plaintext highlighter-rouge">db2</code> alat će se na bazu podataka povezati sa korisničkim imenom i lozinkom trenutno prijavljenog korisnika na sistemu. Moguće je specifikovati konkretnog korisnika sa kojim će se kreirati konekcija:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>db2 <span class="s2">"CONNECT TO STUD2020 USER student"</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Enter current password for student: ******
+
+   Database Connection Information
+
+ Database server        = DB2/NT64 11.5.1.1
+ SQL authorization ID   = STUDENT
+ Local database alias   = STUD2020
+</code></pre></div></div>
+
+<p>Kao što vidimo, alat od nas zahteva da unesemo lozinku pre prijavljivanja. Konačno, možemo specifikovati lozinku prilikom povezivanja:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>db2 <span class="s2">"CONNECT TO STUD2020 USER student USING abcdef"</span>
+</code></pre></div></div>
+
+<p>Narednom naredbom možemo prikazati sve tabele u odgovarajućoj shemi:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>db2 <span class="s2">"LIST TABLES FOR SCHEMA DA"</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Table/View                      Schema          Type  Creation time
+------------------------------- --------------- ----- --------------------------
+DOSIJE                          DA              T     2020-12-24-17.57.25.149001
+DOSIJEEXT                       DA              T     2020-12-24-17.57.25.204001
+ISPIT                           DA              T     2020-12-24-17.57.25.827001
+ISPITNIROK                      DA              T     2020-12-24-17.57.25.775001
+KURS                            DA              T     2020-12-24-17.57.25.473001
+NIVOKVALIFIKACIJE               DA              T     2020-12-24-17.57.24.534001
+PREDMET                         DA              T     2020-12-24-17.57.25.005001
+PREDMETPROGRAMA                 DA              T     2020-12-24-17.57.25.036000
+PRIZNATISPIT                    DA              T     2020-12-24-17.57.25.387001
+SEMESTAR                        DA              T     2020-12-24-17.57.25.442001
+SKOLSKAGODINA                   DA              T     2020-12-24-17.57.25.417001
+STUDENTSKISTATUS                DA              T     2020-12-24-17.57.25.121001
+STUDIJSKIPROGRAM                DA              T     2020-12-24-17.57.24.875001
+UPISANKURS                      DA              T     2020-12-24-17.57.25.692001
+UPISGODINE                      DA              T     2020-12-24-17.57.25.529001
+USLOVNIPREDMET                  DA              T     2020-12-24-17.57.25.091001
+
+  16 record(s) selected.
+</code></pre></div></div>
+
+<p>Izlistavanje informacija o nekoj tabeli, na primer, <code class="language-plaintext highlighter-rouge">DA.DOSIJE</code>, dobijamo pozivom naredbe:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>db2 <span class="s2">"DESCRIBE TABLE DA.DOSIJE"</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>                                Data type                     Column
+Column name                     schema    Data type name      Length     Scale Nulls
+------------------------------- --------- ------------------- ---------- ----- ------
+INDEKS                          SYSIBM    INTEGER                      4     0 No
+IDPROGRAMA                      SYSIBM    INTEGER                      4     0 No
+IME                             SYSIBM    VARCHAR                     50     0 No
+PREZIME                         SYSIBM    VARCHAR                     50     0 No
+POL                             SYSIBM    CHARACTER                    1     0 Yes
+MESTORODJENJA                   SYSIBM    VARCHAR                     50     0 Yes
+IDSTATUSA                       SYSIBM    SMALLINT                     2     0 No
+DATUPISA                        SYSIBM    DATE                         4     0 No
+DATDIPLOMIRANJA                 SYSIBM    DATE                         4     0 Yes
+
+  9 record(s) selected.
+</code></pre></div></div>
+
+<p>Alatom <code class="language-plaintext highlighter-rouge">db2</code> možemo izvršavati proizvoljne SQL naredbe, na primer, upite:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>db2 <span class="s2">"SELECT * FROM DA.NIVOKVALIFIKACIJE"</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ID     NAZIV
+------ ----------------------------------------------------------------------------------------------------
+     1 Osnovne akademske studije
+     3 Doktorske akademske studije
+     2 Master akademske studije
+
+  3 record(s) selected.
+</code></pre></div></div>
+
+<p>SQL naredbe je moguće izvršavati i iz datoteka. Na primer, neka je u radnom direktorijumu na raspolaganju datoteka <code class="language-plaintext highlighter-rouge">upit.sql</code> sa narednim sadržajem:</p>
+
+<div class="language-sql highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">-- Datoteka "upit.sql": </span>
+<span class="k">SELECT</span>      <span class="n">SKGODINA</span><span class="p">,</span>
+            <span class="n">OZNAKAROKA</span><span class="p">,</span>
+            <span class="n">IDPREDMETA</span><span class="p">,</span>
+            <span class="k">SUM</span><span class="p">(</span>
+                <span class="k">CASE</span> 
+                    <span class="k">WHEN</span> <span class="n">OCENA</span> <span class="o">&gt;</span> <span class="mi">5</span> <span class="k">AND</span> <span class="n">STATUS</span><span class="o">=</span><span class="s1">'o'</span> <span class="k">THEN</span> <span class="mi">1</span><span class="p">.</span><span class="mi">0</span> 
+                    <span class="k">ELSE</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span> 
+                <span class="k">END</span>
+            <span class="p">)</span> <span class="o">/</span> <span class="k">COUNT</span><span class="p">(</span><span class="o">*</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">.</span><span class="mi">0</span> <span class="k">AS</span> <span class="n">USPESNOST</span>
+<span class="k">FROM</span>        <span class="n">DA</span><span class="p">.</span><span class="n">ISPIT</span> <span class="n">I</span>
+<span class="k">GROUP</span> <span class="k">BY</span>    <span class="n">SKGODINA</span><span class="p">,</span>
+            <span class="n">OZNAKAROKA</span><span class="p">,</span>
+            <span class="n">IDPREDMETA</span>
+<span class="k">ORDER</span> <span class="k">BY</span>    <span class="n">IDPREDMETA</span> <span class="k">ASC</span><span class="p">,</span>
+            <span class="n">SKGODINA</span> <span class="k">ASC</span><span class="p">,</span>
+            <span class="n">OZNAKAROKA</span> <span class="k">DESC</span>
+<span class="k">FETCH</span>       <span class="k">FIRST</span> <span class="mi">10</span> <span class="k">ROWS</span> <span class="k">ONLY</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>Izvršavanje ovog SQL upita se može izvršiti naredbom:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>db2 <span class="nt">-t</span> <span class="nt">-f</span> upit.sql
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>SKGODINA OZNAKAROKA           IDPREDMETA  USPESNOST
+-------- -------------------- ----------- ---------------------------------
+    2015 sep1                        1578                             10.00
+    2015 jun1                        1578                             40.00
+    2015 jan2                        1578                             10.00
+    2015 jan1                        1578                             80.00
+    2016 sep1                        1578                             20.00
+    2016 jun1                        1578                             50.00
+    2016 jan2                        1578                             10.00
+    2016 jan1                        1578                             60.00
+    2017 sep1                        1578                             20.00
+    2017 jun1                        1578                             40.00
+
+  10 record(s) selected.
+</code></pre></div></div>
+
+<p>Opcija:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">-t</code> definiše da se krajem jedne SQL naredbe smatra karakter <code class="language-plaintext highlighter-rouge">;</code> umesto novog reda;</li>
+  <li><code class="language-plaintext highlighter-rouge">-f DATOTEKA</code> definiše da se SQL naredba pročita iz datoteke <code class="language-plaintext highlighter-rouge">DATOTEKA</code>;</li>
+  <li><code class="language-plaintext highlighter-rouge">-v</code> ispisuje SQL naredbu koja se izvršava pre nego što se ispiše rezultat.</li>
+</ul>
+
+<p>Ukoliko SQL naredba proizvede grešku, ta greška će biti prikazana u konzoli. Na primer:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>db2 <span class="s2">"INSERT INTO DA.SKOLSKAGODINA VALUES (2020, '09/23/2019', '05/18/2020')"</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DB21034E  The command was processed as an SQL statement because it was not a
+valid Command Line Processor command.  During SQL processing it returned:
+SQL0803N  One or more values in the INSERT statement, UPDATE statement, or
+foreign key update caused by a DELETE statement are not valid because the
+primary key, unique constraint or unique index identified by "1" constrains
+table "DA.SKOLSKAGODINA" from having duplicate values for the index key.
+SQLSTATE=23505
+</code></pre></div></div>
+
+<p>U ovom slučaju je prijavljena greška <code class="language-plaintext highlighter-rouge">SQL0803N</code>, odnosno, greška čiji je kod <code class="language-plaintext highlighter-rouge">-803</code>. Detaljne informacije o tome šta uzrokuje neku grešku možemo dobiti izvršavanjem naredbe:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>db2 <span class="s2">"? SQL-803"</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>SQL0803N  One or more values in the INSERT statement, UPDATE statement,
+      or foreign key update caused by a DELETE statement are not valid
+      because the primary key, unique constraint or unique index
+      identified by "&lt;index-id&gt;" constrains table "&lt;table-name&gt;" from
+      having duplicate values for the index key.
+
+Explanation:
+
+The INSERT or UPDATE object table "&lt;table-name&gt;" is
+constrained by one or more UNIQUE indexes to have unique values in
+certain columns or groups of columns. Alternatively, a DELETE statement
+on a parent table caused the update of a foreign key in a dependent
+table "&lt;table-name&gt;" that is constrained by one or more UNIQUE
+indexes. Unique indexes might support primary keys or unique constraints
+defined on a table. The statement cannot be processed because completing
+the requested INSERT, UPDATE or DELETE statement would result in
+duplicate column values. If the index is on an XML column, the duplicate
+values for the index key may be generated from within a single XML
+document.
+
+...
+
+sqlcode: -803
+
+sqlstate: 23505
+
+
+   Related information:
+   Troubleshooting data source connection errors
+</code></pre></div></div>
+
+<p>Izlaz iz konzole iznad je skraćen radi čuvanja prostora.</p>
+
+<p>Na kraju, kada smo završili rad sa bazom podataka, potrebno je da raskinemo konekciju:</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code>db2 <span class="s2">"CONNECT RESET"</span>
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DB20000I  The SQL command completed successfully.
+</code></pre></div></div>
+
+        </div>
+    </div>
+
+    <script>
+        $('#pageSticky').sticky({
+            context: '#pageContent'
+        });
+
+        $('#pageSticky').click(function () {
+            $('#sideMenu').sidebar('toggle');
+        });
+    </script>
+</body>
+
+</html>

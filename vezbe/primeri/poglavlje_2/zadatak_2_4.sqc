@@ -1,0 +1,131 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+EXEC SQL INCLUDE SQLCA;
+
+EXEC SQL BEGIN DECLARE SECTION;
+sqlint32 hCourseId;
+char hCourseLabel[21];
+char hCourseName[151];
+short hESPB;
+EXEC SQL END DECLARE SECTION;
+
+void checkSQL(const char *str) {
+    if(SQLCODE < 0) {
+        fprintf(stderr, "Greska %d: %s\n", SQLCODE, str);
+
+        EXEC SQL CONNECT RESET;
+        exit(EXIT_FAILURE);
+    }
+}
+
+// Deklaracije funkcija za svaki deo zadatka 
+void insertNewCourse();
+void updateNewCourse();
+void deleteNewCourse();
+
+// Pomocna funkcija koja se poziva nakon unosa i izmene novog predmeta
+void printNewCourseInfo();
+
+// Glavni deo zadatka
+int main() {
+    EXEC SQL CONNECT TO stud2020 USER student USING abcdef;
+    checkSQL("Konekcija na bazu");
+
+    insertNewCourse();
+    updateNewCourse();
+    deleteNewCourse();
+
+    EXEC SQL CONNECT RESET;
+    checkSQL("Diskonekcija sa baze");
+
+    return 0;
+}
+
+// Definicije funkcija za svaki deo zadatka
+void insertNewCourse() {
+    printf("Identifikator predmeta: ");
+    scanf("%d", &hCourseId);
+
+    printf("Oznaka predmeta: ");
+    scanf("%s", hCourseLabel);
+    // Funkcija scanf() nece procitati karakter za novi red,
+    // pa pozivamo jos jednom getchar() kako ga poziv funkcije fgets() ispod ne bi procitao.
+    getchar(); 
+
+    printf("Naziv predmeta: ");
+    // Funkcija fgets() ce procitati i karakter za novi red na kraju reda,
+    // tako da moramo da ga postavimo na terminirajucu nulu,
+    // kako ne bismo u bazu uneli karakter za novi red.
+    fgets(hCourseName, sizeof(hCourseName), stdin);
+    hCourseName[strcspn(hCourseName, "\n")] = '\0';
+
+    printf("Bodovi predmeta: ");
+    scanf("%hd", &hESPB);
+    
+    printf("\nUnosim novi predmet u bazu podataka...\n");
+
+    EXEC SQL 
+        INSERT  INTO DA.PREDMET
+        VALUES  (:hCourseId, :hCourseLabel, :hCourseName, :hESPB);
+    checkSQL("Unos podataka o predmetu");
+    
+    printf("\nINSERT naredba se uspesno izvrsila!\n");
+
+    printNewCourseInfo();
+}
+
+void updateNewCourse()
+{
+    printf("\nMenjam podatke o novom predmetu u bazi podataka...\n");
+    
+    EXEC SQL 
+        UPDATE  DA.PREDMET
+        SET     ESPB = ESPB * 2
+        WHERE   ID = :hCourseId;
+    checkSQL("Azuriranje podataka o predmetu");
+    
+    printf("\nUPDATE naredba se uspesno izvrsila!\n");
+
+    printNewCourseInfo();
+}
+
+void deleteNewCourse()
+{
+    printf("\nBrisem podatke o novom predmetu iz baze podataka...\n");
+    
+    EXEC SQL 
+        DELETE  FROM DA.PREDMET
+        WHERE   ID = :hCourseId;
+    checkSQL("Brisanje podataka o predmetu");
+
+    printf("\nDELETE naredba se uspesno izvrsila!\n");
+}
+
+void printNewCourseInfo()
+{
+    EXEC SQL 
+    SELECT  ID, 
+            OZNAKA, 
+            NAZIV,  
+            ESPB
+    INTO    :hCourseId, 
+            :hCourseLabel, 
+            :hCourseName, 
+            :hESPB
+    FROM    DA.PREDMET
+    WHERE   ID = :hCourseId;
+    checkSQL("Izlistavanje podataka");
+
+    putc('\n', stdout);
+    printf("+--------------+------------------------------+\n");
+    printf("|IDENTIFIKATOR |%-30d|\n", hCourseId);
+    printf("|--------------|------------------------------|\n");
+    printf("|OZNAKA        |%-30s|\n", hCourseLabel);
+    printf("|--------------|------------------------------|\n");
+    printf("|NAZIV         |%-30s|\n", hCourseName);
+    printf("|--------------|------------------------------|\n");
+    printf("|ESPB          |%-30hd|\n", hESPB);
+    printf("+--------------+------------------------------+\n");
+}
